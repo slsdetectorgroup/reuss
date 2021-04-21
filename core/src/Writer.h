@@ -5,7 +5,7 @@
 #include "ImageView.h"
 #include <atomic>
 
-namespace ur {
+namespace reuss {
 
 class Writer {
     ImageFifo *fifo_;
@@ -28,4 +28,4 @@ class Writer {
     void stop() { stopped_ = true; }
 };
 
-} // namespace ur
+} // namespace reuss

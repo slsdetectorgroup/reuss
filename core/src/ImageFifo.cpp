@@ -1,6 +1,6 @@
 #include "reuss/ImageFifo.h"
 
-namespace ur {
+namespace reuss {
 
 size_t ImageFifo::size() const noexcept { return fifo_size_; }
 size_t ImageFifo::image_size() const noexcept { return image_size_; }
@@ -70,4 +70,4 @@ void ImageFifo::push_free(ImageView &v) {
         ;
 }
 
-} // namespace ur
+} // namespace reuss

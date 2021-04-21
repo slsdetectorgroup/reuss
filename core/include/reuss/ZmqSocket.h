@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <string>
 
-namespace ur {
+namespace reuss {
 class ZmqSocket {
     void *context{nullptr};
     void *socket{nullptr};
@@ -14,4 +14,4 @@ class ZmqSocket {
     ~ZmqSocket();
     void send(ImageView &img, size_t data_size);
 };
-} // namespace ur
+} // namespace reuss

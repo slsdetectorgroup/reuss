@@ -1,7 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
-namespace ur {
+namespace reuss {
 struct ImageView {
     // ImageView() {}
     // ImageView(int64_t frameNumber, char *data)
@@ -9,4 +9,4 @@ struct ImageView {
     int64_t frameNumber{-1};
     char *data{nullptr};
 };
-} // namespace ur
+} // namespace reuss

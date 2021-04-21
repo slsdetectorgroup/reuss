@@ -2,7 +2,7 @@
 #include "reuss/ZmqSocket.h"
 #include "reuss/utils.h"
 #include <string>
-namespace ur {
+namespace reuss {
 
 Streamer::Streamer(const std::string &endpoint, ImageFifo *fifo)
     : fifo_(fifo), socket_(endpoint) {}
@@ -21,4 +21,4 @@ void Streamer::stream(int cpu) {
         std::this_thread::sleep_for(DEFAULT_WAIT);
     }
 }
-} // namespace ur
+} // namespace reuss

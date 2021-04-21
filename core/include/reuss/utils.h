@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string>
 
-namespace ur {
+namespace reuss {
 
 void pin_this_thread(int i);
 void set_realtime_priority();
@@ -16,4 +16,4 @@ template <typename Container> bool allEqual(const Container &c) {
                             return element == c.front();
                         }));
 }
-} // namespace ur
+} // namespace reuss

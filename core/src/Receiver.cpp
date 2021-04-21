@@ -7,7 +7,7 @@
 #include <thread>
 #include <memory>
 
-namespace ur {
+namespace reuss {
 
 Receiver::Receiver(const std::string &node, const std::string &port)
     : Receiver(node, port, QUEUE_SIZE) {}
@@ -73,4 +73,4 @@ void Receiver::receivePackets(int cpu) {
 
 
 
-} // namespace ur
+} // namespace reuss

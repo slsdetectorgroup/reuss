@@ -19,35 +19,35 @@ constexpr auto endpoint = "tcp://*:4545";
 // constexpr int starting_port = 50001;
 
 int main(int argc, char *argv[]) {
-
-    ur::direct_input();
+    namespace rs = reuss;
+    rs::direct_input();
     try {
         // Create receivers
-        std::vector<std::unique_ptr<ur::Receiver>> receivers;
+        std::vector<std::unique_ptr<rs::Receiver>> receivers;
         // for (int i = 0; i < 2; ++i) {
-        //     receivers.push_back(ur::make_unique<ur::Receiver>(
+        //     receivers.push_back(rs::make_unique<rs::Receiver>(
         //         node, std::to_string(starting_port + i)));
         // }
         receivers.push_back(
-            std::make_unique<ur::Receiver>("10.1.1.160", "50020"));
+            std::make_unique<rs::Receiver>("10.1.1.160", "50020"));
         receivers.push_back(
-            std::make_unique<ur::Receiver>("10.1.2.160", "50021"));
+            std::make_unique<rs::Receiver>("10.1.2.160", "50021"));
 
         // Start listening threads
         int cpu = 0;
         std::vector<std::thread> threads;
         for (auto &r : receivers) {
-            threads.emplace_back(&ur::Receiver::receivePackets, r.get(), cpu++);
+            threads.emplace_back(&rs::Receiver::receivePackets, r.get(), cpu++);
         }
 
-        ur::FrameAssembler assembler(receivers);
-        threads.emplace_back(&ur::FrameAssembler::assemble, &assembler, cpu++);
+        rs::FrameAssembler assembler(receivers);
+        threads.emplace_back(&rs::FrameAssembler::assemble, &assembler, cpu++);
 
-        ur::Streamer streamer(endpoint, assembler.fifo());
-        threads.emplace_back(&ur::Streamer::stream, &streamer, cpu++);
+        rs::Streamer streamer(endpoint, assembler.fifo());
+        threads.emplace_back(&rs::Streamer::stream, &streamer, cpu++);
 
-        // ur::Writer writer(assembler.fifo());
-        // threads.emplace_back(&ur::Writer::write, &writer, cpu++);
+        // rs::Writer writer(assembler.fifo());
+        // threads.emplace_back(&rs::Writer::write, &writer, cpu++);
 
         // Listen for 'q'
         while (true) {
@@ -70,5 +70,5 @@ int main(int argc, char *argv[]) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
     }
     fmt::print(fg(fmt::color::hot_pink), "Bye!\n");
-    ur::reset_terminal();
+    rs::reset_terminal();
 }

@@ -6,7 +6,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <thread>
-namespace ur {
+namespace reuss {
 
 class Streamer {
     ImageFifo *fifo_;
@@ -18,4 +18,4 @@ class Streamer {
     void stream(int cpu);
     void stop() { stopped_ = true; }
 };
-} // namespace ur
+} // namespace reuss

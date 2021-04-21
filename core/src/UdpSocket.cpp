@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <sys/socket.h>
 #include <unistd.h>
-namespace ur {
+namespace reuss {
 UdpSocket::UdpSocket(const std::string &node, const std::string &port,
                      int packet_size)
     : packet_size_(packet_size) {
@@ -60,4 +60,4 @@ size_t UdpSocket::bufferSize() const {
     getsockopt(sockfd_, SOL_SOCKET, SO_RCVBUF, &size, &optlen);
     return size / 2;
 }
-} // namespace ur
+} // namespace reuss

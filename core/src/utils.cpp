@@ -8,7 +8,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-namespace ur {
+namespace reuss {
 void pin_this_thread(int i) {
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
@@ -41,4 +41,4 @@ void reset_terminal() {
     tcsetattr(STDIN_FILENO, TCSANOW, &ctrl);
 }
 
-} // namespace ur
+} // namespace reuss

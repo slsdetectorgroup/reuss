@@ -6,7 +6,7 @@
 #include <memory>
 #include <atomic>
 
-namespace ur {
+namespace reuss {
 
 class UdpSocket;
 
@@ -25,4 +25,4 @@ class Receiver {
     ~Receiver();
 };
 
-} // namespace ur
+} // namespace reuss

@@ -1,7 +1,7 @@
 #pragma once
 #include "reuss/project_defs.h"
 #include <string>
-namespace ur {
+namespace reuss {
 class UdpSocket {
     int sockfd_ = -1;
     int packet_size_;
@@ -15,4 +15,4 @@ class UdpSocket {
     size_t bufferSize() const;
     void shutdown();
 };
-} // namespace ur
+} // namespace reuss

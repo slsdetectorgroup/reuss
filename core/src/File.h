@@ -9,7 +9,7 @@
 
 #include <stdlib.h> //posix_memalign
 
-namespace ur {
+namespace reuss {
 
 template <typename T> class File {
     static constexpr auto writer_color = fmt::color::green;
@@ -82,4 +82,4 @@ template <typename T> class File {
     }
 };
 
-} // namespace ur
+} // namespace reuss

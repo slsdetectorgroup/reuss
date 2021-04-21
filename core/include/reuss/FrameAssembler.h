@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-namespace ur {
+namespace reuss {
 
 class FrameAssembler {
     std::vector<ImageFifo *> fifos_;
@@ -46,7 +46,7 @@ class FrameAssembler {
                 fifos_[i]->push_free(img);
             }
 
-            if (!ur::allEqual(frame_numbers_))
+            if (!allEqual(frame_numbers_))
                 throw std::runtime_error(
                     "Frame numbers in assembled image differ!");
 
@@ -61,4 +61,4 @@ class FrameAssembler {
         }
     }
 };
-} // namespace ur
+} // namespace reuss
