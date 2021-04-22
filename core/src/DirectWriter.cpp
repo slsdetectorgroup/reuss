@@ -19,8 +19,8 @@ void DirectWriter::close() {
 }
 
 void DirectWriter::write(void *buf, size_t len) {
-    int rc = ::write(fd_, buf, len);
-    if (rc != len) {
+    ssize_t rc = ::write(fd_, buf, len);
+    if (rc != static_cast<ssize_t>(len)) {
         throw std::runtime_error("Failed write");
     }
 }

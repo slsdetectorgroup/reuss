@@ -3,7 +3,7 @@
 
 add_executable(urecv urecv.cpp)
 
-target_link_libraries(urecv PUBLIC reuss_core)
+target_link_libraries(urecv PUBLIC reuss_core_static)
 
 set_target_properties(urecv PROPERTIES
     RUNTIME_OUTPUT_NAME urecv

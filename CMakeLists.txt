@@ -13,6 +13,7 @@ endif()
 
 # option(RX_USE_TESTS "Build tests" ON)
 option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
+option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
   # set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -32,12 +33,14 @@ find_package(fmt REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+
+
 add_library(project_settings INTERFACE)
 target_compile_features(project_settings INTERFACE cxx_std_17)
 target_compile_options(project_settings INTERFACE 
                             -Wall
                             -Wextra
-                            -Wshadow
+                            # -Wshadow
                             -Wunused
                             -Wno-unused-parameter
                             -Wold-style-cast
@@ -53,10 +56,13 @@ target_compile_options(project_settings INTERFACE
                             -Werror=return-type
                             -Wpedantic
 )
-
+if(REUSS_TUNE_LOCAL)
+    target_compile_options(project_settings INTERFACE -mtune=native -march=native)
+endif()
 
 add_subdirectory(core)
 add_subdirectory(app)
+add_subdirectory(python)
 
 # add_executable(urecv app/urecv.cpp)
 # target_link_libraries(urecv PUBLIC rxStatic)

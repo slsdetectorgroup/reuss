@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import time
+import os, sys
+import argparse
+
+
+import reuss as rs
+
+
+def makedirs(base_path):
+    try:
+        label = '-'+sys.argv[1]
+    except IndexError:
+        label = ''
+
+    i = len(os.listdir(base_path))
+    t = time.strftime("%d-%b-%Y_%H%M%S", time.localtime())
+    path = os.path.join(base_path, f'{i:03d}_{t}{label}') + '/'
+    print(path)
+    os.makedirs(path)
+    return path
+
+
+if __name__ == '__main__':
+    path = makedirs('.')
+    writer = rs.ZmqWriter("tcp://localhost:4545")
+    writer.set_path(path+'file')
+    input('Press enter key to start measure...')
+
+    writer.start()
+    input()
+    writer.stop()
+
+
+    # input('Lower screen and press enter to measure pedestal')
+    # c = jf.DataCollector(10, path = path)
+    # c.take_pedestal()
+    # print('Done')
+
+

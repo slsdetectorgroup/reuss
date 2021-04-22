@@ -1,8 +1,9 @@
 #pragma once
-#include "ImageFifo.h"
-#include "ImageView.h"
+#include "reuss/ImageFifo.h"
+#include "reuss/ImageView.h"
 #include "reuss/project_defs.h"
-#include "utils.h"
+
+#include "reuss/utils.h"
 #include <fmt/color.h>
 #include <fmt/format.h>
 #include <string>
@@ -18,14 +19,12 @@ template <typename T> class File {
     size_t meta_size_;
     std::string basename_;
     size_t frames_per_file_{1000};
-    size_t image_size_{0};
     size_t n_written_{0};
     size_t file_nr_{0};
 
   public:
-    File(const std::string &basename, size_t frames_per_file, size_t image_size)
-        : basename_(basename), frames_per_file_(frames_per_file),
-          image_size_(image_size) {
+    File(const std::string &basename, size_t frames_per_file)
+        : basename_(basename), frames_per_file_(frames_per_file){
         allocate_meta();
         writerImpl.open(currentFname());
     }
@@ -34,13 +33,13 @@ template <typename T> class File {
         free(meta_);
     }
 
-    void write(const ImageView &img) {
+    void write(const int64_t frame_number, void * data, size_t data_size) {
         if (n_written_ == frames_per_file_) {
             close();
             open(fmt::format("{}_{}.bin", basename_, ++file_nr_));
         }
-        meta_[n_written_++] = img.frameNumber;
-        writerImpl.write(img.data, image_size_);
+        meta_[n_written_++] = frame_number;
+        writerImpl.write(data, data_size);
     }
     std::string currentFname() {
         return fmt::format("{}_{}.bin", basename_, file_nr_);
@@ -55,9 +54,7 @@ template <typename T> class File {
             bytes_needed + (IO_ALIGNMENT - bytes_needed % IO_ALIGNMENT);
         fmt::print("Allocating {} bytes for footer\n", meta_size_);
 
-        // Can be replaces with C++17 aligned_alloc
-        posix_memalign(reinterpret_cast<void **>(&meta_), IO_ALIGNMENT,
-                       meta_size_);
+        meta_ = static_cast<int64_t*>(std::aligned_alloc(IO_ALIGNMENT, meta_size_));
     }
 
     void open(const std::string &fname) {
