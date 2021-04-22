@@ -12,29 +12,18 @@
 #include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), imageLabel(new QLabel),
-      scrollArea(new QScrollArea) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), timer(new QTimer(this))
+{
     load_ctable();
 
-    // imageLabel->setBackgroundRole(QPalette::Base);
-    // imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    // imageLabel->setScaledContents(true);
-
-    // scrollArea->setBackgroundRole(QPalette::Dark);
-    // scrollArea->setWidget(imageLabel);
-    // scrollArea->setVisible(false);
-    // setCentralWidget(scrollArea);
-    // resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
     
-
-    // scrollArea->setVisible(false);
-
     ui->setupUi(this);
     setup_image();
+    receiver.set_zmq_hwm(2);
+    receiver.set_timeout(10);
 
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update_data));
-    
+    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update_image));
+
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -59,16 +48,6 @@ void MainWindow::setup_image() {
     int height = 512;
     image = new QImage(width, height, QImage::Format_Indexed8);
     image->setColorTable(ctable);
-
-    // std::vector<uint8_t> raw_data(width * height);
-    // for (int i = 0; i != raw_data.size(); ++i)
-    //     raw_data[i] = i;
-    // for (int y = 0; y < image->height(); y++) {
-    //     memcpy(image->scanLine(y), &raw_data[y * image->width()], image->bytesPerLine());
-    // }
-
-    
-
     item = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
     QGraphicsScene *scene = new QGraphicsScene;
     ui->view->setScene(scene);
@@ -77,22 +56,19 @@ void MainWindow::setup_image() {
     item->setPos(0, 0);
     ui->view->show();
     ui->view->fitInView(item, Qt::KeepAspectRatio);
-    // update_data();
     buffer.resize(512*1024);
+    
 }
 
-void MainWindow::update_data(){
+void MainWindow::update_image(){
+
     //read the last image from zmq
     int64_t frame_number;
     receiver.receive_into(1, &frame_number, reinterpret_cast<std::byte*>(buffer.data()));
-    //scale the image 
 
-    //copy and update
-    // std::vector<uint8_t> raw_data(image->width() * image->height());
-    uint8_t j = start_value;
-    for (int i = 0; i != buffer.size(); ++i)
-        buffer[i] = j++;
 
+
+    //convert and copy
     uint8_t* data = image->bits();
     for (int i = 0; i!=buffer.size(); ++i)
         *data++ = buffer[i];
@@ -101,14 +77,13 @@ void MainWindow::update_data(){
 
 
     item->setPixmap(QPixmap::fromImage(*image));
-    start_value++;
 }
 
 void MainWindow::on_startButton_clicked() {
 
     ui->startButton->setEnabled(false);
     ui->stopButton->setEnabled(true);
-    timer->start(10); //1000 -> 1s
+    timer->start(100); //1000 -> 1s
 
     // 
 }
@@ -120,9 +95,9 @@ void MainWindow::on_stopButton_clicked() {
 }
 
 void MainWindow::on_actionButton_clicked() {
-    for (int i=0; i<35; ++i){
-        update_data();
-    }
+    // for (int i=0; i<35; ++i){
+    //     update_data();
+    // }
         
 }
 

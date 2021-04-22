@@ -38,7 +38,7 @@ private:
     Ui::MainWindow *ui;
 
     void setup_image();
-    void update_data();
+    void update_image();
 
     QImage *image;
     QLabel *imageLabel;

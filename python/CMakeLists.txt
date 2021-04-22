@@ -25,6 +25,7 @@ endforeach(FILE ${PYTHON_FILES})
 #Copy python "executables"
 set(PythonApps
     writer
+    zmq_recv
 )
 
 foreach(FILE ${PythonApps})

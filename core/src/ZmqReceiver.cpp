@@ -4,16 +4,25 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 namespace reuss {
-ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {}
+ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {
+    
+}
+
+ZmqReceiver::~ZmqReceiver(){
+    zmq_ctx_destroy(context);
+}
 
 void ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *data) {
 
     // zmq setup
-    void *context = zmq_ctx_new();
-    void *socket = zmq_socket(context, ZMQ_SUB);
+    context = zmq_ctx_new();
+    socket = zmq_socket(context, ZMQ_SUB);
     zmq_connect(socket, endpoint.c_str());
     zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm));
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
+    zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
+    
+    
 
     int64_t previous_frame_number = -1;
     for (int i=0; i<n_frames; ++i) {
@@ -47,13 +56,18 @@ void ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *
 
     // zmq teardown
     zmq_close(socket);
-    zmq_ctx_destroy(context);
+    
 
 }
 
 void ZmqReceiver::set_zmq_hwm(uint64_t hwm){
     zmq_hwm = hwm;
 }
+
+void ZmqReceiver::set_timeout(int ms){
+    timeout = ms;
+}
+
 
 
 } // namespace reuss
