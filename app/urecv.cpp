@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
         // Create receivers
         std::vector<std::unique_ptr<rs::Receiver>> receivers;
         receivers.push_back(
-            std::make_unique<rs::Receiver>("10.1.1.160", "50020"));
+            std::make_unique<rs::Receiver>("10.1.2.160", "50020"));
         receivers.push_back(
-            std::make_unique<rs::Receiver>("10.1.2.160", "50021"));
+            std::make_unique<rs::Receiver>("10.1.1.160", "50021"));
 
         // Start listening threads
         int cpu = 0;
@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
 
         rs::Streamer streamer(endpoint, assembler.fifo());
         threads.emplace_back(&rs::Streamer::stream, &streamer, cpu++);
+
+        // fmt::print("Frame size: {} bytes\n", assembler.frame_size());
 
         // Listen for 'q'
         while (true) {

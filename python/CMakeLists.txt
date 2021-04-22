@@ -12,6 +12,9 @@ set_target_properties(_reuss PROPERTIES
 #Copy python souce files
 set(PythonFiles
     __init__.py
+    config.py
+    formatting.py
+    DataCollector.py
 )
 
 foreach(FILE ${PythonFiles})
