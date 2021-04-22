@@ -12,12 +12,8 @@ void ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_SUB);
     zmq_connect(socket, endpoint.c_str());
-    uint64_t hwm = 10000;
-    zmq_setsockopt(socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm));
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
-
-    // auto buffer =
-    //     static_cast<std::byte *>(std::aligned_alloc(IO_ALIGNMENT, BUFFER_SIZE));
 
     int64_t previous_frame_number = -1;
     for (int i=0; i<n_frames; ++i) {
@@ -53,6 +49,10 @@ void ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *
     zmq_close(socket);
     zmq_ctx_destroy(context);
 
+}
+
+void ZmqReceiver::set_zmq_hwm(uint64_t hwm){
+    zmq_hwm = hwm;
 }
 
 

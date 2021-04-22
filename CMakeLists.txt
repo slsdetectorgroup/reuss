@@ -63,6 +63,7 @@ endif()
 add_subdirectory(core)
 add_subdirectory(app)
 add_subdirectory(python)
+add_subdirectory(gui)
 
 # add_executable(urecv app/urecv.cpp)
 # target_link_libraries(urecv PUBLIC rxStatic)
