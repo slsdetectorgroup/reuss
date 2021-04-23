@@ -15,13 +15,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), timer(new QTimer(this))
 {
     load_ctable();
-
-    
     ui->setupUi(this);
     setup_image();
-    receiver.set_zmq_hwm(2);
+    receiver.set_zmq_hwm(1);
     receiver.set_timeout(10);
-
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update_image));
 
 }
@@ -66,8 +63,6 @@ void MainWindow::update_image(){
     int64_t frame_number;
     receiver.receive_into(1, &frame_number, reinterpret_cast<std::byte*>(buffer.data()));
 
-
-
     //convert and copy
     uint8_t* data = image->bits();
     for (int i = 0; i!=buffer.size(); ++i)
@@ -83,15 +78,16 @@ void MainWindow::on_startButton_clicked() {
 
     ui->startButton->setEnabled(false);
     ui->stopButton->setEnabled(true);
+    receiver.connect();
     timer->start(100); //1000 -> 1s
 
-    // 
 }
 
 void MainWindow::on_stopButton_clicked() {
     ui->startButton->setEnabled(true);
     ui->stopButton->setEnabled(false);
     timer->stop();
+    receiver.disconnect();
 }
 
 void MainWindow::on_actionButton_clicked() {

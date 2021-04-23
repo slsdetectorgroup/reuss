@@ -24,7 +24,7 @@ int main(){
     reuss::ImageView image{int64_t(0), reinterpret_cast<char*> (&buffer[0])};
     reuss::ZmqSocket socket(endpoint);
 
-    for (int i = 0; i<10000; ++i){
+    for (int i = 0; i<500; ++i){
         image.frameNumber++;
         generate_data(buffer);
         socket.send(image, 512*1024*2);
