@@ -11,21 +11,22 @@
 
 # find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-# add_executable(reuss
-#     src/mainwindow.ui
-#     src/mainwindow.cpp
-#     src/main.cpp
-#     src/ImagePlot.cpp
-#     resources/resources.qrc
-# )
+set( IMGUI_SOURCES
+ libs/imgui
+
+)
+
+add_executable(reuss_gui
+    app/reuss_gui.cpp
+)
 
 # target_include_directories(reuss PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# target_link_libraries(reuss Qt5::Widgets project_settings reuss_core_shared ${OpenCV_LIBS} TIFF::TIFF)
+target_link_libraries(reuss_gui project_settings reuss_core_shared ImGui-SFML::ImGui-SFML)
 
-# set_target_properties(reuss PROPERTIES
-#     RUNTIME_OUTPUT_NAME reuss_gui
-#     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-#     # PUBLIC_HEADER "${PUBLICHEADERS}"
-# )
+set_target_properties(reuss_gui PROPERTIES
+    RUNTIME_OUTPUT_NAME reuss_gui
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    # PUBLIC_HEADER "${PUBLICHEADERS}"
+)
 

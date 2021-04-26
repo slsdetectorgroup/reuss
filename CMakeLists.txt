@@ -63,6 +63,18 @@ endif()
 add_subdirectory(core)
 add_subdirectory(app)
 add_subdirectory(python)
+
+# SET(source_list  "${source_list}" CACHE INTERNAL "source_list")
+# set(<variable> <value>... CACHE <type> <docstring> [FORCE])
+# set(<variable> <value>... CACHE <type> <docstring> [FORCE])
+# set(IMGUI_DIR "libs/imgui" CACHE PATH)
+set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/libs/imgui" CACHE PATH "Imgui top level dir")
+set(IMGUI_SFML_FIND_SFML false CACHE BOOL "Look for sfml?")
+# IMGUI_SFML_FIND_SFML
+add_subdirectory(libs/SFML)
+add_subdirectory(libs/imgui-sfml)
+
+
 add_subdirectory(gui)
 
 # add_executable(urecv app/urecv.cpp)
