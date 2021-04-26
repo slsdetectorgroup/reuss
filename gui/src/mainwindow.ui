@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <layout class="QGridLayout" name="grid">
       <item row="0" column="0">
-       <widget class="QGraphicsView" name="view">
+       <widget class="ImagePlot" name="view">
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
@@ -42,7 +42,15 @@
          <number>0</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout"/>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>ShowImage</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QPushButton" name="stopButton">
@@ -88,6 +96,13 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ImagePlot</class>
+   <extends>QGraphicsView</extends>
+   <header>ImagePlot.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

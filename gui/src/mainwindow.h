@@ -14,6 +14,7 @@
 #include <QGraphicsPixmapItem>
 #include <QTimer>
 
+#include "ImagePlot.h"
 #include "reuss/ZmqReceiver.h"
 
 namespace Ui {
@@ -31,7 +32,7 @@ public:
 private slots:
     void on_startButton_clicked();
     void on_stopButton_clicked();
-    void on_actionButton_clicked();
+    void on_pushButton_clicked();
     
 
 private:
@@ -40,14 +41,12 @@ private:
     void setup_image();
     void update_image();
 
-    QImage *image;
-    QLabel *imageLabel;
-    QScrollArea *scrollArea;
+    // QImage *image;
     double scaleFactor = 1;
-    QGraphicsPixmapItem *item;
+    // QGraphicsPixmapItem *item;
     
-    QVector<QRgb> ctable;
-    void load_ctable();
+    // QVector<QRgb> ctable;
+    // void load_ctable();
 
 
     uint8_t start_value = 0;
@@ -58,6 +57,7 @@ private:
 
 
     void resizeEvent(QResizeEvent *event);
+    void showEvent(QShowEvent *event);
     std::vector<uint16_t>buffer;
     
 };

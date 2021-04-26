@@ -11,8 +11,9 @@ std::tuple<py::array_t<int64_t> ,py::array_t<uint16_t> >receive_n(reuss::ZmqRece
     py::array_t<int64_t> frame_numbers(n_frames);
     py::array_t<uint16_t> data(std::array<size_t,3>{n_frames,512,1024});
 
+    r.connect();
     r.receive_into(n_frames, frame_numbers.mutable_data(), reinterpret_cast<std::byte*>(data.mutable_data()));
-
+    r.disconnect();
     return {frame_numbers, data};
 }
 
