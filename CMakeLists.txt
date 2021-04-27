@@ -70,7 +70,6 @@ add_subdirectory(python)
 # set(IMGUI_DIR "libs/imgui" CACHE PATH)
 set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/libs/imgui" CACHE PATH "Imgui top level dir")
 set(IMGUI_SFML_FIND_SFML false CACHE BOOL "Look for sfml?")
-# IMGUI_SFML_FIND_SFML
 add_subdirectory(libs/SFML)
 add_subdirectory(libs/imgui-sfml)
 

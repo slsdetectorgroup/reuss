@@ -1,4 +1,7 @@
+find_package(OpenCV REQUIRED)
 
+# ${OpenCV_INCLUDE_DIRS}
+# ${OpenCV_LIBS}
 
 set(PublicHeaders
     include/reuss/ZmqWriter.h
@@ -21,8 +24,8 @@ add_library(
     reuss_core_object OBJECT ${SourceFiles} 
 )
 
-target_link_libraries(reuss_core_object PRIVATE project_settings fmt Threads::Threads zmq)
-target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
+target_link_libraries(reuss_core_object PRIVATE project_settings fmt Threads::Threads zmq )
+target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${OpenCV_INCLUDE_DIRS})
 set_target_properties(reuss_core_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_core_object
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
