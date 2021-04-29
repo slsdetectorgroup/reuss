@@ -8,6 +8,9 @@
 #include <SFML/Window.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <GL/glew.h>
+#include <SFML/OpenGL.hpp>
+
 #include <fmt/core.h>
 #include <random>
 #include <string>
@@ -22,12 +25,58 @@ struct ButtonColors {
     ImColor active;
 };
 
+// Simple helper function to load an image into a OpenGL texture with common
+// settings
+bool LoadTexture(const char *image_data, GLuint *out_texture, int width,
+                 int height, int format = GL_RGBA) {
+
+    if (image_data == NULL)
+        return false;
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    GL_CLAMP_TO_EDGE); // This is required on WebGL for non
+                                       // power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+    // Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, image_data);
+
+    *out_texture = image_texture;
+    return true;
+}
+
 static ButtonColors start_color{ImColor(77, 168, 77), ImColor(115, 191, 115),
                                 ImColor(48, 105, 48)};
 static ButtonColors stop_color{ImColor(223, 83, 83), ImColor(235, 147, 147),
                                ImColor(151, 28, 28)};
-int main() {
 
+static constexpr int format = GL_BGR;
+
+static sf::Shader* sptr;
+
+// void (*ImDrawCallback)(const ImDrawList* parent_list, const ImDrawCmd* cmd);
+void bind_shader(const ImDrawList* parent_list, const ImDrawCmd* cmd){
+    sf::Shader::bind(sptr);
+}
+
+void clear_shader(const ImDrawList* parent_list, const ImDrawCmd* cmd){
+    sf::Shader::bind(NULL);
+}
+
+int main() {
+    
     // State
     bool show_receiver = true;
     size_t packets_lost = 0;
@@ -61,30 +110,51 @@ int main() {
     int64_t frame_number = -1;
     std::vector<uint16_t> buffer(512 * 1024);
 
-    // std::vector<std::string> nodes{"someip:5000", "anotherip:5001"};
 
     double scale_factor = 1.;
 
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, 255);
+    std::vector<uint8_t> image_data(100 * 100 * 4);
+    for (int i = 0; i < image_data.size(); ++i) {
+        image_data[i] = 100;
+    }
 
     sf::RenderWindow window(sf::VideoMode(1500, 1000), "Jungfrau EM Control");
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
     ImGui::SFML::Init(window);
+    sf::Clock deltaClock;
+
+     char mess[] = "hej";
+    const std::string fragmentShaderSource =
+        "#version 330 core\n"
+        "out vec4 FragColor;\n\n"
+        "void main()\n"
+        "{\n"
+        "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\n";
+
+
+    GLuint gltexture;
+    LoadTexture((char *)img.data(), &gltexture, 512, 1024, format);
+
+    if (!sf::Shader::isAvailable())
+    {
+        fmt::print("Shader not available");
+        exit(1);
+    }
+    sf::Shader shader;
+    if (!shader.loadFromMemory(fragmentShaderSource, sf::Shader::Fragment))
+    {
+       fmt::print("Could not load shader\n"); 
+       exit(1);
+    }
+    sptr = &shader;
 
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
 
-    sf::Clock deltaClock;
-
-    sf::Texture texture;
-    if (!texture.create(width, height)) {
-        throw std::runtime_error("Could not create texture");
-    }
-
     while (window.isOpen()) {
+
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
@@ -116,10 +186,11 @@ int main() {
         ImGui::End();
 
         if (show_data_window) {
-            //only render if we have to
+            // only render if we have to
 
-            // img.map(); //uses quite some cpu, only render if have to, std::atomic<bool> data_changed?
-            texture.update(img.data());
+            img.map(); // uses quite some cpu, only render if have to,
+            // std::atomic<bool> data_changed?
+            // texture.update(img.data());
 
             // Data window
             // ImGui::SetNextWindowContentSize(ImVec2(width, height));
@@ -127,17 +198,56 @@ int main() {
             ImGui::Begin("Live data", &show_data_window,
                          ImGuiWindowFlags_HorizontalScrollbar |
                              ImGuiWindowFlags_NoScrollWithMouse);
-            ImGui::Image(texture,
-                         ImVec2(width * scale_factor, height * scale_factor));
+                            //  glUseProgram(shaderProgram);
+            //  glUseProgram(shaderProgram);
+            // sf::Shader::bind(&shader);
+            glBindTexture(GL_TEXTURE_2D, gltexture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, format,
+                         GL_UNSIGNED_BYTE, img.data());
+             ImVec2 pos = ImGui::GetCursorScreenPos();
+             ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+
+
+            // struct ImDrawCmd
+            // {
+            //     ImVec4          ClipRect;           // 4*4  // Clipping rectangle (x1, y1, x2, y2). Subtract ImDrawData->DisplayPos to get clipping rectangle in "viewport" coordinates
+            //     ImTextureID     TextureId;          // 4-8  // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
+            //     unsigned int    VtxOffset;          // 4    // Start offset in vertex buffer. ImGuiBackendFlags_RendererHasVtxOffset: always 0, otherwise may be >0 to support meshes larger than 64K vertices with 16-bit indices.
+            //     unsigned int    IdxOffset;          // 4    // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
+            //     unsigned int    ElemCount;          // 4    // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
+            //     ImDrawCallback  UserCallback;       // 4-8  // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
+            //     void*           UserCallbackData;   // 4-8  // The draw callback code can access this.
+
+            //     ImDrawCmd() { memset(this, 0, sizeof(*this)); } // Also ensure our padding fields are zeroed
+            // };
+
+            // ImDrawCmd cmd;
+            // cmd.UserCallback = &func;
+            // c
+            // cmd.UserCallbackData = mess;
+
+
+            drawList->AddCallback(&bind_shader, NULL);
+            drawList->AddImage(gltexture,
+                pos,
+                ImVec2(pos.x + 1024, pos.y + 512),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            drawList->AddCallback(&clear_shader, NULL);
             if (ImGui::IsWindowHovered()) {
 
                 if (auto wheel = ImGui::GetIO().MouseWheel; wheel) {
-                    
+
                     auto mouse_pos = ImGui::GetIO().MousePos;
                     auto screen_pos = ImGui::GetCursorScreenPos();
-                    auto x = (mouse_pos.x-screen_pos.x -  ImGui::GetScrollX())/(width * scale_factor);
-                    auto y = (mouse_pos.y+screen_pos.y -  ImGui::GetScrollY())/(height * scale_factor);
-                    y-=1;
+                    auto x =
+                        (mouse_pos.x - screen_pos.x - ImGui::GetScrollX()) /
+                        (width * scale_factor);
+                    auto y =
+                        (mouse_pos.y + screen_pos.y - ImGui::GetScrollY()) /
+                        (height * scale_factor);
+                    y -= 1;
                     ImGui::SetScrollHereX(x);
                     ImGui::SetScrollHereY(y);
                     fmt::print("Mouse: {}, {}\n", x, y);
@@ -160,6 +270,7 @@ int main() {
             }
             ImGui::End();
         }
+
 
         if (show_receiver) {
             auto button_size = ImVec2(300, 50);
@@ -200,8 +311,6 @@ int main() {
                 zmq_receiver.receive_into(
                     1, &frame_number,
                     reinterpret_cast<std::byte *>(img.raw_data()));
-                // img.map();
-                // texture.update(img.data());
             }
 
             ImGui::Text("Status");
@@ -224,11 +333,13 @@ int main() {
 
             ImGui::End();
         }
+        
 
         window.clear();
-        window.draw(shape);
+        window.draw(shape, &shader);
         window.resetGLStates();
         ImGui::SFML::Render(window);
+        // ImGui::SFML::Render(gltexture);
         window.display();
     }
 

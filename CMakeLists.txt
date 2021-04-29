@@ -55,6 +55,7 @@ target_compile_options(project_settings INTERFACE
                             -Wdouble-promotion
                             -Werror=return-type
                             -Wpedantic
+                            # -fpermissive
 )
 if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
@@ -73,7 +74,7 @@ set(IMGUI_SFML_FIND_SFML false CACHE BOOL "Look for sfml?")
 add_subdirectory(libs/SFML)
 add_subdirectory(libs/imgui-sfml)
 
-
+add_subdirectory(libs/glfw)
 add_subdirectory(gui)
 
 # add_executable(urecv app/urecv.cpp)
