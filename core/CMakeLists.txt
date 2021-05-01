@@ -18,6 +18,7 @@ set(SourceFiles
   src/FwriteWriter.cpp
   src/ZmqReceiver.cpp
   src/ZmqWriter.cpp
+  src/StreamingReceiver.cpp
 )
 
 add_library(

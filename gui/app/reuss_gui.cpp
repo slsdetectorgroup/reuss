@@ -64,19 +64,19 @@ static ButtonColors stop_color{ImColor(223, 83, 83), ImColor(235, 147, 147),
 
 static constexpr int format = GL_BGR;
 
-static sf::Shader* sptr;
+static sf::Shader *sptr;
 
 // void (*ImDrawCallback)(const ImDrawList* parent_list, const ImDrawCmd* cmd);
-void bind_shader(const ImDrawList* parent_list, const ImDrawCmd* cmd){
-    sf::Shader::bind(sptr);
+void bind_shader(const ImDrawList *parent_list, const ImDrawCmd *cmd) {
+    // sf::Shader::bind(sptr);
 }
 
-void clear_shader(const ImDrawList* parent_list, const ImDrawCmd* cmd){
-    sf::Shader::bind(NULL);
+void clear_shader(const ImDrawList *parent_list, const ImDrawCmd *cmd) {
+    // sf::Shader::bind(NULL);
 }
 
 int main() {
-    
+
     // State
     bool show_receiver = true;
     size_t packets_lost = 0;
@@ -103,13 +103,13 @@ int main() {
     // UDP Receiver
 
     // Zmq Receiver (all this should probably go into a class)
-    std::string endpoint = "ipc://sls_raw_data";
+    // std::string endpoint = "ipc://sls_raw_data";
+    std::string endpoint = "tcp://localhost:4545";
     reuss::ZmqReceiver zmq_receiver{endpoint};
     zmq_receiver.set_zmq_hwm(1);
     zmq_receiver.set_timeout(10);
     int64_t frame_number = -1;
     std::vector<uint16_t> buffer(512 * 1024);
-
 
     double scale_factor = 1.;
 
@@ -124,29 +124,29 @@ int main() {
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
 
-     char mess[] = "hej";
+    char mess[] = "hej";
     const std::string fragmentShaderSource =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n\n"
+        "#version 110\n"
+        "uniform sampler2D texture,textures;\n"
+        "varying vec2 texcoord;\n"
         "void main()\n"
         "{\n"
-        "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "vec4 col = texture2D(texture, texcoord);\n"
+        "col.a =  float(0.5);\n"
+        "gl_FragColor = col;\n"
         "}\n";
-
 
     GLuint gltexture;
     LoadTexture((char *)img.data(), &gltexture, 512, 1024, format);
 
-    if (!sf::Shader::isAvailable())
-    {
+    if (!sf::Shader::isAvailable()) {
         fmt::print("Shader not available");
         exit(1);
     }
     sf::Shader shader;
-    if (!shader.loadFromMemory(fragmentShaderSource, sf::Shader::Fragment))
-    {
-       fmt::print("Could not load shader\n"); 
-       exit(1);
+    if (!shader.loadFromMemory(fragmentShaderSource, sf::Shader::Fragment)) {
+        fmt::print("Could not load shader\n");
+        exit(1);
     }
     sptr = &shader;
 
@@ -198,42 +198,17 @@ int main() {
             ImGui::Begin("Live data", &show_data_window,
                          ImGuiWindowFlags_HorizontalScrollbar |
                              ImGuiWindowFlags_NoScrollWithMouse);
-                            //  glUseProgram(shaderProgram);
-            //  glUseProgram(shaderProgram);
-            // sf::Shader::bind(&shader);
+
             glBindTexture(GL_TEXTURE_2D, gltexture);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 512, 0, format,
                          GL_UNSIGNED_BYTE, img.data());
-             ImVec2 pos = ImGui::GetCursorScreenPos();
-             ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-
-
-            // struct ImDrawCmd
-            // {
-            //     ImVec4          ClipRect;           // 4*4  // Clipping rectangle (x1, y1, x2, y2). Subtract ImDrawData->DisplayPos to get clipping rectangle in "viewport" coordinates
-            //     ImTextureID     TextureId;          // 4-8  // User-provided texture ID. Set by user in ImfontAtlas::SetTexID() for fonts or passed to Image*() functions. Ignore if never using images or multiple fonts atlas.
-            //     unsigned int    VtxOffset;          // 4    // Start offset in vertex buffer. ImGuiBackendFlags_RendererHasVtxOffset: always 0, otherwise may be >0 to support meshes larger than 64K vertices with 16-bit indices.
-            //     unsigned int    IdxOffset;          // 4    // Start offset in index buffer. Always equal to sum of ElemCount drawn so far.
-            //     unsigned int    ElemCount;          // 4    // Number of indices (multiple of 3) to be rendered as triangles. Vertices are stored in the callee ImDrawList's vtx_buffer[] array, indices in idx_buffer[].
-            //     ImDrawCallback  UserCallback;       // 4-8  // If != NULL, call the function instead of rendering the vertices. clip_rect and texture_id will be set normally.
-            //     void*           UserCallbackData;   // 4-8  // The draw callback code can access this.
-
-            //     ImDrawCmd() { memset(this, 0, sizeof(*this)); } // Also ensure our padding fields are zeroed
-            // };
-
-            // ImDrawCmd cmd;
-            // cmd.UserCallback = &func;
-            // c
-            // cmd.UserCallbackData = mess;
-
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImDrawList *drawList = ImGui::GetWindowDrawList();
 
             drawList->AddCallback(&bind_shader, NULL);
-            drawList->AddImage(gltexture,
-                pos,
-                ImVec2(pos.x + 1024, pos.y + 512),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
+            drawList->AddImage(gltexture, pos,
+                               ImVec2(pos.x + 1024, pos.y + 512), ImVec2(0, 2),
+                               ImVec2(2, 0));
             drawList->AddCallback(&clear_shader, NULL);
             if (ImGui::IsWindowHovered()) {
 
@@ -270,7 +245,6 @@ int main() {
             }
             ImGui::End();
         }
-
 
         if (show_receiver) {
             auto button_size = ImVec2(300, 50);
@@ -333,7 +307,6 @@ int main() {
 
             ImGui::End();
         }
-        
 
         window.clear();
         window.draw(shape, &shader);

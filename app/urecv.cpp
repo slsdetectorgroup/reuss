@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
         // Create receivers
         std::vector<std::unique_ptr<rs::Receiver>> receivers;
         receivers.push_back(
-            std::make_unique<rs::Receiver>("10.1.2.160", "50020"));
+            std::make_unique<rs::Receiver>("10.1.2.160", "50200"));
         receivers.push_back(
-            std::make_unique<rs::Receiver>("10.1.1.160", "50021"));
+            std::make_unique<rs::Receiver>("10.1.1.160", "50100"));
 
         // Start listening threads
         int cpu = 0;

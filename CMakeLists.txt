@@ -10,8 +10,8 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-
 # option(RX_USE_TESTS "Build tests" ON)
+option(REUSS_BUILD_GUI "Gui for live data visualization" ON)
 option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 if(REUSS_USE_SANITIZER)
@@ -28,12 +28,9 @@ set(ClangFormat_EXCLUDE_PATTERNS  "build/"
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(ClangFormat)
-find_package(fmt REQUIRED)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-
+set(CMAKE_INSTALL_RPATH $ORIGIN)
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 add_library(project_settings INTERFACE)
 target_compile_features(project_settings INTERFACE cxx_std_17)
@@ -50,50 +47,37 @@ target_compile_options(project_settings INTERFACE
                             -Wdouble-promotion
                             -Wformat=2
                             -Wredundant-decls
-                            # -Wconversion
+                            -Wconversion
                             -Wnull-dereference
                             -Wdouble-promotion
                             -Werror=return-type
                             -Wpedantic
-                            # -fpermissive
 )
 if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
 endif()
 
+
+find_package(ClangFormat)
+find_package(fmt REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+# find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
+
 add_subdirectory(core)
 add_subdirectory(app)
+
+find_package (Python 3.6 COMPONENTS Interpreter Development)
+add_subdirectory(libs/pybind11)
 add_subdirectory(python)
 
-# SET(source_list  "${source_list}" CACHE INTERNAL "source_list")
-# set(<variable> <value>... CACHE <type> <docstring> [FORCE])
-# set(<variable> <value>... CACHE <type> <docstring> [FORCE])
-# set(IMGUI_DIR "libs/imgui" CACHE PATH)
-set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/libs/imgui" CACHE PATH "Imgui top level dir")
-set(IMGUI_SFML_FIND_SFML false CACHE BOOL "Look for sfml?")
-add_subdirectory(libs/SFML)
-add_subdirectory(libs/imgui-sfml)
 
-add_subdirectory(libs/glfw)
-add_subdirectory(gui)
+if(REUSS_BUILD_GUI)
+  set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/libs/imgui" CACHE PATH "Imgui top level dir")
+  set(IMGUI_SFML_FIND_SFML false CACHE BOOL "Look for sfml?")
+  add_subdirectory(libs/SFML)
+  add_subdirectory(libs/imgui-sfml)
+  add_subdirectory(libs/glfw)
+  add_subdirectory(gui)
+endif()
 
-# add_executable(urecv app/urecv.cpp)
-# target_link_libraries(urecv PUBLIC rxStatic)
-
-# add_executable(write_test app/write_test.cpp)
-# target_link_libraries(write_test PUBLIC rxStatic)
-
-# set( PYTHON_FILES
-#     read_binary.py
-#     read_raw.py
-#     zmqtest.py
-# )
-# foreach(FILE ${PYTHON_FILES})
-#     configure_file( python/${FILE}  
-#     ${CMAKE_BINARY_DIR}/${FILE}  )
-# endforeach(FILE ${PYTHON_FILES})
-
-
-# if(RX_USE_TESTS)
-#   add_subdirectory(tests)
-# endif(RX_USE_TESTS)

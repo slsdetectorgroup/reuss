@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import reuss
 
 
-# endpoint = "tcp://localhost:4545"
-endpoint = "ipc://sls_raw_data"
+endpoint = "tcp://localhost:4545"
+# endpoint = "ipc://sls_raw_data"
 
 reciver = reuss.ZmqReceiver(endpoint)
 
@@ -13,4 +13,5 @@ frame_numbers, data = reciver.receive_n(10)
 
 fig, ax = plt.subplots()
 im = ax.imshow(data[0])
+im.set_clim(2000,8000)
 plt.show()
