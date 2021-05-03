@@ -19,6 +19,8 @@
 #include "reuss/ZmqReceiver.h"
 #include "table.h"
 
+#include "reuss/StreamingReceiver.h"
+
 struct ButtonColors {
     ImColor normal;
     ImColor hover;
@@ -101,12 +103,13 @@ int main() {
     img.map();
 
     // UDP Receiver
+    reuss::StreamingReceiver udp_receiver;
 
     // Zmq Receiver (all this should probably go into a class)
     // std::string endpoint = "ipc://sls_raw_data";
     std::string endpoint = "tcp://localhost:4545";
     reuss::ZmqReceiver zmq_receiver{endpoint};
-    zmq_receiver.set_zmq_hwm(1);
+    zmq_receiver.set_zmq_hwm(3);
     zmq_receiver.set_timeout(10);
     int64_t frame_number = -1;
     std::vector<uint16_t> buffer(512 * 1024);
@@ -207,8 +210,8 @@ int main() {
 
             drawList->AddCallback(&bind_shader, NULL);
             drawList->AddImage(gltexture, pos,
-                               ImVec2(pos.x + 1024, pos.y + 512), ImVec2(0, 2),
-                               ImVec2(2, 0));
+                               ImVec2(pos.x + 1024, pos.y + 512), ImVec2(0, 1),
+                               ImVec2(1, 0));
             drawList->AddCallback(&clear_shader, NULL);
             if (ImGui::IsWindowHovered()) {
 
@@ -256,8 +259,12 @@ int main() {
                                       (ImVec4)stop_color.hover);
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,
                                       (ImVec4)stop_color.active);
-                if (ImGui::Button("Stop", button_size))
+                if (ImGui::Button("Stop", button_size)){
                     receiver_started = false;
+                    udp_receiver.stop();
+                    fmt::print("stopped\n");
+                }
+                    
                 ImGui::PopStyleColor(3);
 
             } else {
@@ -268,33 +275,41 @@ int main() {
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive,
                                       (ImVec4)start_color.active);
 
-                if (ImGui::Button("Start", button_size))
+                if (ImGui::Button("Start", button_size)){
                     receiver_started = true;
+                    udp_receiver.start();
+                    fmt::print("started\n");
+                }
+                    
                 ImGui::PopStyleColor(3);
             }
             if (ImGui::Checkbox("Connect ZMQ", &connect_zmq)) {
                 if (connect_zmq) {
                     fmt::print("Connecting zmq\n");
-                    zmq_receiver.connect();
+                    // zmq_receiver.connect();
                 } else {
                     fmt::print("Disconnecting zmq\n");
-                    zmq_receiver.disconnect();
+                    // zmq_receiver.disconnect();
                 }
             }
             if (connect_zmq) {
+                zmq_receiver.connect();
                 zmq_receiver.receive_into(
                     1, &frame_number,
                     reinterpret_cast<std::byte *>(img.raw_data()));
+                zmq_receiver.disconnect();
             }
 
             ImGui::Text("Status");
             if (ImGui::BeginTable("receiver_table", 2)) {
                 ImGui::TableNextColumn();
                 ImGui::Text("Packets Lost:");
+                packets_lost = udp_receiver.packets_lost(); //should we always update?
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", packets_lost);
                 ImGui::TableNextColumn();
                 ImGui::Text("Last Frame Caught:");
+                last_frame_caught = udp_receiver.last_frame();
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", last_frame_caught);
                 ImGui::TableNextColumn();

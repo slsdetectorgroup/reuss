@@ -19,30 +19,45 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
     if (getaddrinfo(node.c_str(), port.c_str(), &hints, &res))
         throw std::runtime_error("Get getaddrinfo failed");
     sockfd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    fmt::print("Created sockfd: {}\n", sockfd_);
     if (sockfd_ == -1)
         throw std::runtime_error("Failed to open socket");
     if (bind(sockfd_, res->ai_addr, res->ai_addrlen) == -1) {
         close(sockfd_);
-        throw std::runtime_error("Failed to bind socket");
+        throw std::runtime_error(fmt::format("Failed to bind socket ({}:{})", node, port));
     }
     freeaddrinfo(res);
+    fmt::print("UDP connected to: {}:{}\n", node, port);
 }
+
 
 UdpSocket::~UdpSocket() {
     shutdown();
     ::close(sockfd_);
     sockfd_ = -1;
+    fmt::print("~UdpSocket()\n");
 }
+
+// UdpSocket &UdpSocket::operator=(UdpSocket &&move) noexcept {
+//     // move.swap(*this);
+//     fmt::print("HEY\n");
+//     return *this;
+// }
 
 void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
 bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
+    // fmt::print("Socket: {}\n", sockfd_);
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
     if (rc == packet_size_) {
         memcpy(&header, dst, sizeof(header));
         return true;
     } else {
         fmt::print("Warning: read {} bytes\n", rc);
+        if (rc == -1){
+            int errv = errno;
+            fmt::print("errno: {}, {}\n", strerrorname_np(errv), strerror(errv));
+        }
     }
     return false;
 }

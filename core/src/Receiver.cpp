@@ -22,11 +22,17 @@ Receiver::Receiver(const std::string &node, const std::string &port,
                sock->bufferSize() / (1024. * 1024.));
 }
 
-Receiver::~Receiver() = default;
+Receiver::~Receiver(){
+    fmt::print("~Receiver\n");
+}
 
 void Receiver::stop() {
     stopped_ = true;
     sock->shutdown();
+}
+
+int64_t Receiver::packets_lost(){
+    return total_packets_lost_;
 }
 
 void Receiver::receivePackets(int cpu) {
@@ -37,7 +43,7 @@ void Receiver::receivePackets(int cpu) {
     sock->receivePacket(packet_buffer, header); // waits here for data
     uint64_t currentFrameNumber = header.frameNumber;
     int numPacketsReceived = 0;
-    int64_t totalPacketsLost = 0;
+    // int64_t totalPacketsLost = 0;
     int64_t totalFramesReceived = 0;
     while (!stopped_) {
         ImageView img = fifo_.pop_free();
@@ -53,7 +59,7 @@ void Receiver::receivePackets(int cpu) {
         if (numPacketsReceived != PACKETS_PER_FRAME) {
             auto lost = PACKETS_PER_FRAME - numPacketsReceived;
             fmt::print("Frame: {} lost {} pkts\n", currentFrameNumber, lost);
-            totalPacketsLost += lost;
+            total_packets_lost_ += lost;
         }
         currentFrameNumber = header.frameNumber;
         numPacketsReceived = 0;
@@ -61,7 +67,7 @@ void Receiver::receivePackets(int cpu) {
         totalFramesReceived += 1;
         if (totalFramesReceived % PRINT_MOD == 0) {
             fmt::print("{} Received: {} frames, lost {} packets\n", cpu,
-                       totalFramesReceived, totalPacketsLost);
+                       totalFramesReceived, total_packets_lost_);
             fmt::print("{} Free: {}, data: {}\n", cpu, fifo_.numFreeSlots(),
                        fifo_.numFilledSlots());
         }

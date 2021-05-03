@@ -41,10 +41,10 @@ target_compile_features(reuss_gui PRIVATE cxx_std_17 )
 find_package(OpenGL 4.6 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenCV REQUIRED)
-# find_package(ImGui)
+
 target_include_directories(reuss_gui PRIVATE src ${PROJECT_SOURCE_DIR}/libs/imgui)
 
-target_link_libraries(reuss_gui  reuss_core_shared  glfw OpenGL::GL ${OpenCV_LIBS} ${GLEW_LIBRARIES} ImGui-SFML::ImGui-SFML)
+target_link_libraries(reuss_gui PRIVATE ${OpenCV_LIBS}  reuss_core_shared reuss_interface_static glfw OpenGL::GL ${GLEW_LIBRARIES} ImGui-SFML::ImGui-SFML )
 
 set_target_properties(reuss_gui PROPERTIES
     RUNTIME_OUTPUT_NAME reuss_gui

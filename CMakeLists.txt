@@ -67,6 +67,11 @@ find_package(Threads REQUIRED)
 add_subdirectory(core)
 add_subdirectory(app)
 
+
+set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+add_subdirectory(libs/slsDetectorPackage)
+add_subdirectory(interface)
+
 find_package (Python 3.6 COMPONENTS Interpreter Development)
 add_subdirectory(libs/pybind11)
 add_subdirectory(python)

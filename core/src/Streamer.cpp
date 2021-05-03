@@ -17,6 +17,7 @@ void Streamer::stream(int cpu) {
                 fmt::print(fg(fmt::color::gold), "Streamed out frame {}\n",
                            img.frameNumber);
             fifo_->push_free(img);
+            last_frame_ = img.frameNumber;
         }
         std::this_thread::sleep_for(DEFAULT_WAIT);
     }

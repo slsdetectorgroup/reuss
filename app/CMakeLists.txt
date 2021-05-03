@@ -14,7 +14,7 @@ set_target_properties(urecv PROPERTIES
 
 add_executable(sender sender.cpp)
 
-target_link_libraries(sender PUBLIC reuss_core_static project_settings)
+target_link_libraries(sender PUBLIC reuss_core_static project_settings ${OpenCV_LIBS})
 
 set_target_properties(sender PROPERTIES
     RUNTIME_OUTPUT_NAME sender
@@ -32,3 +32,13 @@ set_target_properties(imshow PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
+
+add_executable(urecv2 urecv2.cpp)
+
+target_link_libraries(urecv2 PUBLIC reuss_core_static project_settings reuss_interface_shared)
+
+set_target_properties(urecv2 PROPERTIES
+    RUNTIME_OUTPUT_NAME urecv2
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    # PUBLIC_HEADER "${PUBLICHEADERS}"
+)

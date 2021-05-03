@@ -1,8 +1,5 @@
 find_package(OpenCV REQUIRED)
-
-# ${OpenCV_INCLUDE_DIRS}
-# ${OpenCV_LIBS}
-
+find_package(TIFF REQUIRED)
 set(PublicHeaders
     include/reuss/ZmqWriter.h
 )
@@ -18,14 +15,14 @@ set(SourceFiles
   src/FwriteWriter.cpp
   src/ZmqReceiver.cpp
   src/ZmqWriter.cpp
-  src/StreamingReceiver.cpp
 )
 
 add_library(
     reuss_core_object OBJECT ${SourceFiles} 
 )
 
-target_link_libraries(reuss_core_object PRIVATE project_settings fmt Threads::Threads zmq )
+target_link_libraries(reuss_core_object PRIVATE project_settings fmt Threads::Threads zmq ${OpenCV_LIBS})
+# target_link_libraries(reuss_core_object PUBLIC slsDetectorShared TIFF::TIFF)
 target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${OpenCV_INCLUDE_DIRS})
 set_target_properties(reuss_core_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_core_object
