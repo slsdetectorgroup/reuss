@@ -14,6 +14,7 @@ endif()
 option(REUSS_BUILD_GUI "Gui for live data visualization" ON)
 option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
+option(REUSS_BUILD_TESTS "Build tests" ON)
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
   # set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -62,10 +63,17 @@ find_package(ClangFormat)
 find_package(fmt REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+
+if(REUSS_BUILD_TESTS)
+  find_package(Catch2 REQUIRED)
+  add_subdirectory(tests)
+endif(REUSS_BUILD_TESTS)
 # find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 add_subdirectory(core)
+add_subdirectory(math)
 add_subdirectory(app)
+
 
 
 set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")

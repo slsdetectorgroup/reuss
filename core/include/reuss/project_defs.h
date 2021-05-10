@@ -33,7 +33,9 @@ constexpr int PACKET_SIZE = sizeof(PacketHeader) + PAYLOAD_SIZE;
 constexpr size_t FRAME_SIZE = NROW * NCOL * sizeof(uint16_t);
 constexpr size_t DEFAULT_UDP_BUFFER_SIZE = 1024 * 1024 * 50;
 constexpr auto DEFAULT_ENDPOINT = "tcp://*:4545";
+constexpr auto DEFAULT_RECEIVE = "tcp://localhost:4545";
 constexpr auto DEFAULT_WAIT = std::chrono::microseconds(100);
 constexpr size_t IO_ALIGNMENT = 4096;
 constexpr int64_t PRINT_MOD = 1000;
 constexpr size_t BUFFER_SIZE = 1048576;
+
