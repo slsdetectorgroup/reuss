@@ -44,8 +44,8 @@ int main(int argc, char** argv){
         ifs.open(fname, std::ios::binary);
     }
         
-    // std::string endpoint = "tcp://*:4545";
-    std::string endpoint = "ipc://sls_raw_data";
+    std::string endpoint = "tcp://*:4545";
+    // std::string endpoint = "ipc://sls_raw_data";
     
     std::vector<uint16_t> buffer(512*1024);
     reuss::ImageView image{int64_t(0), reinterpret_cast<char*> (&buffer[0])};
@@ -59,7 +59,7 @@ int main(int argc, char** argv){
             ifs.read(reinterpret_cast<char*> (buffer.data()), 512*1024*2);
         socket.send(image, 512*1024*2);
         fmt::print("{}\n", i);
-        std::this_thread::sleep_for(100ms);
+        // std::this_thread::sleep_for(100ms);
     }
     
 }

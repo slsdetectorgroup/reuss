@@ -40,7 +40,6 @@ class DataCollector:
         self.calibration = jf.load_calibration(self.det_id)
 
     def take_pedestal(self, save = True):
-
         print(color.magenta(f"Pedestal {ds.DYNAMICGAIN}"))
         frame_numbers, data = self.receiver.receive_n(self.n_frames_ped)
         np.bitwise_and(data, cfg.bitmask, out=data)

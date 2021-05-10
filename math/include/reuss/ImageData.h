@@ -1,4 +1,11 @@
 #pragma once
+/*
+Container holding image data, or a time series of image data in contigious memory. 
+
+
+TODO! Add expression templates for operators
+
+*/
 #include "DataSpan.h"
 
 #include <algorithm>
@@ -8,6 +15,9 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+
+namespace reuss{
+
 template <typename T, ssize_t Ndim = 2> class ImageData {
   public:
     ImageData()
@@ -82,6 +92,8 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     ImageData &operator/=(const T &);
     ImageData operator/(const T &);
 
+    ImageData& operator&=(const T&);
+
     void sqrt() {
         for (int i = 0; i < size_; ++i) {
             data_[i] = std::sqrt(data_[i]);
@@ -104,8 +116,8 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     const T &operator()(int i) const { return data_[i]; }
 
     T *data() { return data_; }
-    char *buffer() { return reinterpret_cast<char *>(data_); }
-    int size() const { return size_; }
+    std::byte *buffer() { return reinterpret_cast<std::byte *>(data_); }
+    ssize_t size() const { return size_; }
     std::array<ssize_t, Ndim> shape() const { return shape_; }
     std::array<ssize_t, Ndim> strides() const { return strides_; }
 
@@ -207,6 +219,13 @@ ImageData<T, Ndim> ImageData<T, Ndim>::operator/(const ImageData &other) {
     ImageData result = *this;
     result /= other;
     return result;
+}
+
+template <typename T, ssize_t Ndim>
+ImageData<T, Ndim>& ImageData<T, Ndim>::operator&=(const T &mask) {
+    for (auto it = begin(); it!=end(); ++it)
+        *it &= mask;
+    return *this;
 }
 
 // template <typename T, ssize_t Ndim>
@@ -371,4 +390,6 @@ ImageData<T, Ndim> load(const std::string &pathname,
     f.read(img.buffer(), img.size() * sizeof(T));
     f.close();
     return img;
+}
+
 }

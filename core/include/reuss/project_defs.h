@@ -23,6 +23,14 @@ struct PacketHeader {
     uint8_t detType;
     uint8_t version;
 };
+
+struct ImageSize{
+    size_t rows{}; 
+    size_t cols{};
+};
+
+constexpr ImageSize DEFAUL_IMAGE_SIZE{512, 1024};
+
 constexpr size_t QUEUE_SIZE = 100;
 constexpr size_t NROW = 256;
 constexpr size_t NCOL = 1024;
@@ -33,9 +41,11 @@ constexpr int PACKET_SIZE = sizeof(PacketHeader) + PAYLOAD_SIZE;
 constexpr size_t FRAME_SIZE = NROW * NCOL * sizeof(uint16_t);
 constexpr size_t DEFAULT_UDP_BUFFER_SIZE = 1024 * 1024 * 50;
 constexpr auto DEFAULT_ENDPOINT = "tcp://*:4545";
-constexpr auto DEFAULT_RECEIVE = "tcp://localhost:4545";
+constexpr auto DEFAULT_RECEIVE = "tcp://127.0.0.1:4545";
 constexpr auto DEFAULT_WAIT = std::chrono::microseconds(100);
 constexpr size_t IO_ALIGNMENT = 4096;
 constexpr int64_t PRINT_MOD = 1000;
 constexpr size_t BUFFER_SIZE = 1048576;
+
+constexpr uint16_t ADC_MASK = 0x3FFF;
 

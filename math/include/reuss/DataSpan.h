@@ -5,6 +5,8 @@
 #include <cassert>
 #include <algorithm>
 
+namespace reuss{
+
 template <ssize_t Ndim> using Shape = std::array<ssize_t, Ndim>;
 
 template <ssize_t Dim = 0, typename Strides>
@@ -52,6 +54,10 @@ template <typename T, ssize_t Ndim> class DataSpan {
         return buffer_[element_offset(strides_, index...)];
     }
     ssize_t size() const { return size_; }
+
+    DataSpan(const DataSpan&) = default;
+    DataSpan(DataSpan&&) = default;
+    
     T *begin() { return buffer_; }
     T *end() { return buffer_ + size_; }
     T &operator()(ssize_t i) { return buffer_[i]; }
@@ -113,3 +119,5 @@ template <typename T, ssize_t Ndim> class DataSpan {
         return *this;
     }
 };
+
+}

@@ -2,6 +2,8 @@
 #include "reuss/ImageData.h"
 #include <array>
 
+using reuss::ImageData;
+
 TEST_CASE("Initial size is zero if no size is specified")
 {
     ImageData<double> a;
@@ -43,7 +45,7 @@ TEST_CASE("Indexing of a 3D image")
     REQUIRE(img.size() == 3 * 4 * 2);
 
     for (int i = 0; i != img.size(); ++i) {
-        img(i) = i;
+        img(i) = float(i);
     }
     REQUIRE(img(0, 0, 0) == 0);
     REQUIRE(img(0, 0, 1) == 1);
@@ -112,6 +114,35 @@ TEST_CASE("Initial value matches for all elements")
     for (int i = 0; i < a.size(); ++i) {
         REQUIRE(a(i) == v);
     }
+}
+
+TEST_CASE("Data layout of 3D image, fast index last"){
+    ImageData<int,3> a{{3,3,3}, 0};
+    REQUIRE(a.size()== 27);
+    int* ptr = a.data();
+
+    for (int i = 0; i<9; ++i){
+        *ptr++ = 10+i;
+        REQUIRE(a(0,0,i) == 10+i);
+        REQUIRE(a(i) == 10+i);
+
+    }
+}
+
+TEST_CASE("Bitwise and on data"){
+
+    ImageData<uint16_t, 1> a({3}, 0);
+    uint16_t mask = 0x3FF;
+    a(0) = 16684;
+    a(1) = 33068;
+    a(2) = 52608;
+
+    a &= mask;
+
+    REQUIRE(a(0) == 300);
+    REQUIRE(a(1) == 300);
+    REQUIRE(a(2) == 384);
+
 }
 
 // TEST_CASE("Benchmarks")

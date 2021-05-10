@@ -5,6 +5,8 @@
 namespace py = pybind11;
 
 void init_zmqwriter(py::module &);
+void init_pedestal(py::module &);
+void init_interface(py::module &);
 
 PYBIND11_MODULE(_reuss, m) {
     m.doc() = R"pbdoc(
@@ -18,6 +20,8 @@ PYBIND11_MODULE(_reuss, m) {
     )pbdoc";
 
      init_zmqwriter(m);
+     init_pedestal(m);
+     init_interface(m);
     
 
 #ifdef VERSION_INFO

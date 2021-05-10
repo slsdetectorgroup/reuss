@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+using reuss::DataSpan;
+
 TEST_CASE("Element reference 1D") {
     std::vector<int> vec;
     for (int i = 0; i != 10; ++i) {

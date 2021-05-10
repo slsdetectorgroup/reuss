@@ -1,14 +1,12 @@
 
-# find_package(slsDetectorPackage REQUIRED)
-find_package(OpenCV REQUIRED)
-
 set(PublicHeaders
     include/reuss/StreamingReceiver.h
 )
 
 set(SourceFiles
   src/StreamingReceiver.cpp
-  src/Pedestal.cpp
+  src/DummyDetector.cpp
+  src/JungfrauDetector.cpp
 )
 
 add_library(
@@ -22,8 +20,8 @@ target_link_libraries(reuss_interface_object
         Threads::Threads 
         zmq 
         reuss_core_object 
+        reuss_math
         slsDetectorObject
-        ${OpenCV_LIBS}
 
 )
 target_include_directories(reuss_interface_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
