@@ -83,7 +83,7 @@ int main() {
     bool show_receiver = true;
     size_t packets_lost = 0;
     int64_t last_frame_caught = -1;
-    int64_t total_frame_caught = -1;
+    int64_t total_frames_caught = 0;
     bool show_panel = false;
     bool show_data_window = true;
     bool receiver_started = false;
@@ -122,8 +122,7 @@ int main() {
     }
 
     sf::RenderWindow window(sf::VideoMode(1500, 1000), "Jungfrau EM Control");
-    window.setFramerateLimit(60);
-    window.setVerticalSyncEnabled(true);
+    window.setFramerateLimit(30);
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
 
@@ -314,8 +313,9 @@ int main() {
                 ImGui::Text("%d", last_frame_caught);
                 ImGui::TableNextColumn();
                 ImGui::Text("Total Frames Caught:");
+                total_frames_caught = udp_receiver.total_frames();
                 ImGui::TableNextColumn();
-                ImGui::Text("%d", total_frame_caught);
+                ImGui::Text("%d", total_frames_caught);
             }
             ImGui::EndTable();
             // }

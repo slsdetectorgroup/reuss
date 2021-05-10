@@ -18,6 +18,7 @@ void Streamer::stream(int cpu) {
                            img.frameNumber);
             fifo_->push_free(img);
             last_frame_ = img.frameNumber;
+            total_frames_++;
         }
         std::this_thread::sleep_for(DEFAULT_WAIT);
     }

@@ -8,6 +8,7 @@ set(PublicHeaders
 
 set(SourceFiles
   src/StreamingReceiver.cpp
+  src/Pedestal.cpp
 )
 
 add_library(

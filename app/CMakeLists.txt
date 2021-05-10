@@ -1,16 +1,6 @@
 
 
 find_package(OpenCV REQUIRED)
-add_executable(urecv urecv.cpp)
-
-target_link_libraries(urecv PUBLIC reuss_core_static project_settings)
-
-set_target_properties(urecv PROPERTIES
-    RUNTIME_OUTPUT_NAME urecv
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    # PUBLIC_HEADER "${PUBLICHEADERS}"
-)
-
 
 add_executable(sender sender.cpp)
 
@@ -32,13 +22,12 @@ set_target_properties(imshow PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
+add_executable(urecv urecv.cpp)
 
-add_executable(urecv2 urecv2.cpp)
+target_link_libraries(urecv PUBLIC reuss_core_static project_settings reuss_interface_shared)
 
-target_link_libraries(urecv2 PUBLIC reuss_core_static project_settings reuss_interface_shared)
-
-set_target_properties(urecv2 PROPERTIES
-    RUNTIME_OUTPUT_NAME urecv2
+set_target_properties(urecv PROPERTIES
+    RUNTIME_OUTPUT_NAME urecv
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
