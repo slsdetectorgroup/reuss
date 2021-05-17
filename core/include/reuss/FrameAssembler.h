@@ -41,8 +41,17 @@ class FrameAssembler {
                 if (stopped_)
                     break;
                 frame_numbers_[i] = img.frameNumber;
+
+                //copy full image 
                 std::copy_n(img.data, part_size,
                             full_image.data + i * part_size);
+
+                // //copy per row 
+                // for (size_t j=0; j<NROW; ++j){
+                //     std::copy_n(img.data+j*NCOL,NCOL, full_image.data +  );
+                // }
+
+
                 fifos_[i]->push_free(img);
             }
 

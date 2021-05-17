@@ -6,6 +6,7 @@ from slsdet import detectorSettings as ds
 from . import ZmqReceiver
 from . import config as cfg
 from . formatting import color
+from . import take_pedestal_float, JungfrauDetector
 
 import numpy as np
 from pathlib import Path
@@ -40,29 +41,11 @@ class DataCollector:
         self.calibration = jf.load_calibration(self.det_id)
 
     def take_pedestal(self, save = True):
-        print(color.magenta(f"Pedestal {ds.DYNAMICGAIN}"))
-        frame_numbers, data = self.receiver.receive_n(self.n_frames_ped)
-        np.bitwise_and(data, cfg.bitmask, out=data)
-
-        pd = np.zeros((3, cfg.nrows(), cfg.ncols()))
-        pd[0] = data.mean(axis = 0)
-
-        old_period = self.det.period
-        for i, setting in enumerate([ds.FORCESWITCHG1, ds.FORCESWITCHG2]):
-            print(color.magenta(f"Pedestal {setting}"))
-            self.det.stopDetector()
-            self.det.settings = setting
-            self.det.period = 0.01
-            self.det.startDetector()
-            frame_numbers, data = self.receiver.receive_n(self.n_frames_ped)
-            np.bitwise_and(data, cfg.bitmask, out=data)
-            pd[i + 1] = data.mean(axis=0)
-        self.det.stopDetector()
-        self.det.period = old_period
-        self.det.settings = ds.DYNAMICGAIN
-        self.det.startDetector()
-
+        d = JungfrauDetector()
+        pd = take_pedestal_float(d)
         if save:
+            path = f"{cfg.pedestal_base_name}_{self.file_index}"
+            print(f"Writing pedestal to: {path}")
             np.save(self.path/f"{cfg.pedestal_base_name}_{self.file_index}", pd)
 
         self.pedestal = pd

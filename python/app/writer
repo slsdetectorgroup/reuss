@@ -36,15 +36,15 @@ if __name__ == '__main__':
     writer = rs.ZmqWriter(endpoint)
     writer.set_path(path+'file')
     input('Press enter key to start measure...')
-
     writer.start()
     input()
     writer.stop()
 
 
-    input('Lower screen and press enter to measure pedestal')
-    c = rs.DataCollector(endpoint, path = path)
-    c.take_pedestal()
+    x = input('Lower screen and press enter to measure pedestal or choose N to skip: ')
+    if x != 'N':
+        c = rs.DataCollector(endpoint, path = path)
+        c.take_pedestal()
     print('Done')
 
 

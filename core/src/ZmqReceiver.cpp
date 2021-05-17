@@ -23,7 +23,6 @@ void ZmqReceiver::connect(){
 }
 
 void ZmqReceiver::disconnect(){
-        // zmq teardown
     zmq_close(socket);
     zmq_ctx_destroy(context);
     socket = nullptr;

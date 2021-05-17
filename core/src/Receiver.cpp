@@ -49,8 +49,24 @@ void Receiver::receivePackets(int cpu) {
         ImageView img = fifo_.pop_free();
         img.frameNumber = currentFrameNumber;
         while (!stopped_) {
-            memcpy(img.data + PAYLOAD_SIZE * header.packetNumber,
-                   packet_buffer + sizeof(PacketHeader), PAYLOAD_SIZE);
+            //copy full packet all 4 rows
+            // memcpy(img.data + PAYLOAD_SIZE * header.packetNumber,
+            //        packet_buffer + sizeof(PacketHeader), PAYLOAD_SIZE);
+
+            // memset(img.data + PAYLOAD_SIZE * header.packetNumber, PAYLOAD_SIZE, 0);
+            //copy ROI per row 
+            constexpr size_t packet_data_size = (COL_MAX-COL_MIN)*sizeof(uint16_t)*ROWS_PER_PACKET;
+            auto offset = packet_data_size * header.packetNumber;
+            auto dst = img.data + offset;
+            auto src = &packet_buffer[COL_MIN*sizeof(uint16_t)]+ sizeof(PacketHeader);
+            auto dst_step = (COL_MAX-COL_MIN)*sizeof(uint16_t); //rowsize 
+            auto src_step = PKT_BYTES_PER_ROW;
+            for(size_t row=0; row<4; ++row){
+                memcpy(dst, src, 512*2);
+                dst += dst_step;
+                src += src_step;
+            }
+
             ++numPacketsReceived;
             sock->receivePacket(packet_buffer, header); // waits here for data
             if (currentFrameNumber != header.frameNumber)

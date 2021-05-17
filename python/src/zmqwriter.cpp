@@ -9,7 +9,7 @@ namespace py = pybind11;
 
 std::tuple<py::array_t<int64_t> ,py::array_t<uint16_t> >receive_n(reuss::ZmqReceiver& r, int64_t n_frames){
     py::array_t<int64_t> frame_numbers(n_frames);
-    py::array_t<uint16_t> data(std::array<size_t,3>{n_frames,512,1024});
+    py::array_t<uint16_t> data(std::array<size_t,3>{n_frames,512,COL_MAX-COL_MIN});
 
     r.connect();
     r.receive_into(n_frames, frame_numbers.mutable_data(), reinterpret_cast<std::byte*>(data.mutable_data()));

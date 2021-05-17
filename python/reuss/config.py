@@ -4,7 +4,7 @@ from enum import Enum
 import math
 from pathlib import Path
 bitmask = np.array([0x3FFF], dtype=np.uint16)
-roi = [(slice(0, 512, 1), slice(0, 1024, 1))]
+roi = [(slice(0, 512, 1), slice(0, 512, 1))]
 
 class path:
     data = Path("/")

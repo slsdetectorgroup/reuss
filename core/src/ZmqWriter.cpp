@@ -75,6 +75,7 @@ void ZmqWriter::write() {
             zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
             if (more) {
                 int nbytes = zmq_recv(socket, buffer, 1048576, 0);
+                fmt::print("Writer got: {} bytes\n", nbytes);
                 f.write(frame_number, buffer, nbytes);
             }
             previous_frame_number = frame_number;
