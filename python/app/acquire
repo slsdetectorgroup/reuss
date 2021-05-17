@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import reuss
+import numpy as np
+import matplotlib.pyplot as plt
+plt.ion()
+
+# d = reuss.DummyDetector()
+
+
+dc = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
+pd = dc.take_pedestal(save = False)
+data = dc.acquire(10, save = False, plot= False)
+
+fig, ax = plt.subplots()
+im = ax.imshow(data[0])

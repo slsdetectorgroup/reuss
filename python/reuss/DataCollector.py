@@ -1,17 +1,19 @@
 
 
 
-from slsdet import Jungfrau
-from slsdet import detectorSettings as ds
+# from slsdet import Jungfrau
+# from slsdet import detectorSettings as ds
 from . import ZmqReceiver
 from . import config as cfg
 from . formatting import color
 from . import take_pedestal_float, JungfrauDetector
 
+from .calibration import load_calibration
+from . import apply_calibration
+
 import numpy as np
 from pathlib import Path
 
-import jungfrau as jf
 
 class DataCollector:
     """
@@ -26,19 +28,14 @@ class DataCollector:
         if det_id is None:
             self.det_id = cfg.det_id
         
-        
-        if det is None:
-            self.det = Jungfrau()
-        else:
-            self.det = det
 
         if path is None:
             self.path = cfg.path.data
         else:
             self.path = Path(path)
 
-        self.n_frames_ped = 500
-        self.calibration = jf.load_calibration(self.det_id)
+        # self.n_frames_ped = 500
+        self.calibration = load_calibration(self.det_id)[:, cfg.roi[0][0], cfg.roi[0][0]].astype(self.dtype)
 
     def take_pedestal(self, save = True):
         d = JungfrauDetector()
@@ -49,7 +46,6 @@ class DataCollector:
             np.save(self.path/f"{cfg.pedestal_base_name}_{self.file_index}", pd)
 
         self.pedestal = pd
-
         return pd
 
     def update_pd0(self, save=False):
@@ -68,7 +64,7 @@ class DataCollector:
     def acquire(self, n_frames, save=True, plot=True):
         frame_numbers, data = self.raw_acquire(n_frames, save = save)
 
-        processed = jf.apply_calibration(
+        processed = apply_calibration(
             data, self.pedestal, self.calibration, cfg.n_cores
         )
         if plot:

@@ -4,6 +4,8 @@ pybind11_add_module(_reuss
     src/zmqwriter.cpp
     src/pedestal.cpp
     src/interface.cpp
+    src/calibration.cpp
+    src/utils.cpp
 )
 
 target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_interface_shared reuss_math)
@@ -18,7 +20,9 @@ set_target_properties(_reuss PROPERTIES
 set(PythonFiles
     __init__.py
     config.py
+    io.py
     formatting.py
+    calibration.py
     DataCollector.py
 )
 
@@ -32,6 +36,7 @@ set(PythonApps
     writer
     zmq_recv
     collect_pd
+    acquire
 )
 
 foreach(FILE ${PythonApps})

@@ -48,6 +48,9 @@ template <typename T, ssize_t Ndim> class DataSpan {
           shape_(make_array<Ndim>(shape)),
           size_(std::accumulate(std::begin(shape), std::end(shape), 1,
                                 std::multiplies<ssize_t>())) {}
+
+
+
     template <typename... Ix>
     typename std::enable_if<sizeof...(Ix) == Ndim, T &>::type
     operator()(Ix... index) {

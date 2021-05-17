@@ -13,5 +13,5 @@ frame_numbers, data = reciver.receive_n(1)
 
 fig, ax = plt.subplots()
 im = ax.imshow(data[0])
-# im.set_clim(2000,8000)
+im.set_clim(2000,8000)
 plt.show()

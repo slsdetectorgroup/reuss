@@ -12,6 +12,16 @@ set_target_properties(sender PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
+add_executable(take_pd take_pd.cpp)
+
+target_link_libraries(take_pd PUBLIC reuss_core_static reuss_interface_static reuss_math project_settings)
+
+set_target_properties(take_pd PROPERTIES
+    RUNTIME_OUTPUT_NAME take_pd
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    # PUBLIC_HEADER "${PUBLICHEADERS}"
+)
+
 # add_executable(imshow imshow.cpp)
 
 # target_link_libraries(imshow PUBLIC reuss_core_static project_settings)

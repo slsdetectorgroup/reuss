@@ -20,6 +20,7 @@ class ZmqWriter {
     std::thread writer_thread;
     std::atomic<bool> request_stop{false};
     std::atomic<bool> running{false};
+    std::atomic<int64_t> frames_written_{};
 
     void write();
 
@@ -30,6 +31,7 @@ class ZmqWriter {
     void stop();
     bool is_running();
     bool stop_requested();
+    int64_t frames_written()const noexcept;
 };
 
 } // namespace jf

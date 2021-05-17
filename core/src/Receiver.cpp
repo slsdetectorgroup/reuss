@@ -62,7 +62,7 @@ void Receiver::receivePackets(int cpu) {
             auto dst_step = (COL_MAX-COL_MIN)*sizeof(uint16_t); //rowsize 
             auto src_step = PKT_BYTES_PER_ROW;
             for(size_t row=0; row<4; ++row){
-                memcpy(dst, src, 512*2);
+                memcpy(dst, src, (COL_MAX-COL_MIN)*sizeof(u_int16_t));
                 dst += dst_step;
                 src += src_step;
             }

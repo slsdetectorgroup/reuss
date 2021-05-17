@@ -25,7 +25,8 @@ void init_zmqwriter(py::module &m) {
     .def("stop", &reuss::ZmqWriter::stop)
     .def("is_running", &reuss::ZmqWriter::is_running)
     .def("stop_requested", &reuss::ZmqWriter::stop_requested)
-    .def("set_path", &reuss::ZmqWriter::set_fname);
+    .def("set_path", &reuss::ZmqWriter::set_fname)
+    .def("frames_written", &reuss::ZmqWriter::frames_written);
 
 
     py::class_<reuss::ZmqReceiver> ZmqReceiver(m, "ZmqReceiver");

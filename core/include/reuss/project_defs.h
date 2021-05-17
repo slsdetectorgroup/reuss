@@ -45,8 +45,8 @@ constexpr size_t PKT_BYTES_PER_ROW = NCOL*sizeof(uint16_t);
 
 
 //setup ROI
-constexpr size_t COL_MIN = 0;
-constexpr size_t COL_MAX = 512;
+constexpr size_t COL_MIN = 256;
+constexpr size_t COL_MAX = 768;
 // constexpr size_t FRAME_SIZE = NROW * NCOL * sizeof(uint16_t);
 constexpr size_t FRAME_SIZE = NROW * (COL_MAX-COL_MIN) * sizeof(uint16_t);
 

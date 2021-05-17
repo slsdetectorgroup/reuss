@@ -121,6 +121,10 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     std::array<ssize_t, Ndim> shape() const { return shape_; }
     std::array<ssize_t, Ndim> strides() const { return strides_; }
 
+    DataSpan<T,Ndim> span() const{
+        return DataSpan<T,Ndim>{data_, shape_};
+    }
+
     void Print();
     void Print_all();
     void Print_some();

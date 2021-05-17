@@ -4,7 +4,7 @@ from enum import Enum
 import math
 from pathlib import Path
 bitmask = np.array([0x3FFF], dtype=np.uint16)
-roi = [(slice(0, 512, 1), slice(0, 512, 1))]
+roi = [(slice(0, 512, 1), slice(256, 768, 1))]
 
 class path:
     data = Path("/")
@@ -12,6 +12,12 @@ class path:
 class index(Enum):
     ROW = 0
     COL = 1
+
+
+class module:
+    rows = 512
+    cols = 1024
+    gains = 3
 
 def nrows():
     rlist = [r[index.ROW.value] for r in roi]
@@ -29,3 +35,5 @@ n_cores = 12
 pedestal_base_name = "pedestal"
 data_base_name = "data"
 det_id = 121
+
+caldir = Path('/home/l_jungfrau/software/calibration')
