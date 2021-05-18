@@ -30,9 +30,6 @@ bool ZmqWriter::stop_requested() { return request_stop; }
 int64_t ZmqWriter::frames_written() const noexcept { return frames_written_; }
 
 void ZmqWriter::write() {
-    // thread is launched so in case of stop we should let it do the
-    // teardown
-
     running = true;
 
     // Setup the file
@@ -51,14 +48,9 @@ void ZmqWriter::write() {
 
     int64_t previous_frame_number = -1;
     while (!request_stop) {
-        // Header
+       
         int64_t frame_number = 0;
-        zmq_msg_t header_msg;
-        zmq_msg_init(&header_msg);
-        zmq_msg_recv(&header_msg, socket, 0);
-        int size = zmq_msg_size(&header_msg);
-        memcpy(&frame_number, zmq_msg_data(&header_msg), size);
-        zmq_msg_close(&header_msg);
+        zmq_recv(socket, &frame_number, sizeof(frame_number), 0);
 
         // Notify if we drop frames
         int64_t diff = frame_number - previous_frame_number;
@@ -73,8 +65,8 @@ void ZmqWriter::write() {
         zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
         if (more) {
             int nbytes = zmq_recv(socket, buffer, 1048576, 0);
-            // fmt::print("Writer got: {} bytes\n", nbytes);
             f.write(frame_number, buffer, nbytes);
+            ++frames_written_;
         }
         previous_frame_number = frame_number;
     }

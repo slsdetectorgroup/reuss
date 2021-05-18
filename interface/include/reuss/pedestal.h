@@ -33,6 +33,7 @@ void take_pedestal(DataSpan<T, 3> pedestal, DetectorInterface *det,
     const auto pervious_gain = det->get_gain();
 
     for (int gain = 0; gain < 3; ++gain) {
+        accumulate = 0;
         fmt::print("Gain {}\n", gain);
         det->stop();
         if (period[gain] > 0)

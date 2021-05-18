@@ -15,6 +15,10 @@ class color:
         return f'{color.OKGREEN}{s}{color.ENDC}'
 
     @staticmethod
+    def clear(s):
+        return f'{color.ENDC}{s}'
+
+    @staticmethod
     def warning(s):
         return f'{color.WARNINGY}WARNING: {s}{color.ENDC}'
 

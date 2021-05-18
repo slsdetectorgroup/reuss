@@ -9,8 +9,6 @@ import reuss as rs
 
 
 def makedirs(base_path, label = ''):
-
-
     i = len(os.listdir(base_path))
     t = time.strftime("%d-%b-%Y_%H%M%S", time.localtime())
     path = os.path.join(base_path, f'{i:03d}_{t}{label}') + '/'
@@ -27,7 +25,7 @@ if __name__ == '__main__':
     endpoint = "tcp://localhost:4545"
     
     if args.path is None:
-        path = rs.path.data
+        path = rs.config.path.data
     else:
         path = args.path
     path = makedirs(path)
@@ -36,9 +34,14 @@ if __name__ == '__main__':
     writer = rs.ZmqWriter(endpoint)
     writer.set_path(path+'file')
     input('Press enter key to start measure...')
+    t0 = time.time()
     writer.start()
     input()
     writer.stop()
+    t1 = time.time()
+    n = writer.frames_written()
+    t = t1-t0
+    print(rs.color.clear(f"Wrote {n} frames in {t:.3}s {n/t:.0f} FPS"))
 
 
     x = input('Lower screen and press enter to measure pedestal or choose N to skip: ')

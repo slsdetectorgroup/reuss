@@ -34,9 +34,11 @@ endforeach(FILE ${PYTHON_FILES})
 #Copy python "executables"
 set(PythonApps
     writer
+    viewer
     zmq_recv
     collect_pd
     acquire
+    collect_raw_pd
 )
 
 foreach(FILE ${PythonApps})

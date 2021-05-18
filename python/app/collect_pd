@@ -12,3 +12,5 @@ pd = reuss.take_pedestal_float(d)
 
 fig, ax = plt.subplots()
 im = ax.imshow(pd[0])
+
+
