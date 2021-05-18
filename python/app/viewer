@@ -112,28 +112,20 @@ wait_flag.value = False
 exit_flag = mp.Value(ctypes.c_bool)
 exit_flag.value = False
 
-def read_frames(buffer, ip=None, pd = None, dt = None, mock = False):
+def read_frames(buffer, dt = None):
     """
     This function reads frames from the zmq stream. It's 
     intended to run in it's own process launched by 
     mp.Process
     """
     global accframes
-    if mock:
-        pass
-        # c = jf.DataCollector(100, det = jf.MockDetector())
-    else:
-        c = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
 
-    if pd is None:
-        c.take_pedestal(False)
-        print(f'Pedestal done')
-    else:
-        c.pedestal = np.load(pd)
-        print(f'Loaded pedestal from: {pd}')
-        
+    c = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
+    c.take_pedestal(False)
+
     image = np.frombuffer(buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
     acc_image = np.frombuffer(acc_buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
+
     while not exit_flag.value:
         if wait_flag.value:
             time.sleep(0.1)

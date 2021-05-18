@@ -1,20 +1,16 @@
 #include "reuss/DataSpan.h"
+#include "reuss/ImageData.h"
 #include "reuss/JungfrauDetector.h"
 #include <fmt/format.h>
 #include <chrono>
 
 int main(){
     using reuss::Shape;
-    Shape<3> shape = {3,50,50};
-    reuss::DataSpan<int, 3> span{nullptr, shape};
 
-    fmt::print("sizeof(DataSpan): {}\n", sizeof(span));
+    reuss::ImageData<float,2> data(Shape<2>{5,10});
 
-    reuss::JungfrauDetector d;
-    double period = d.get_period();
+    fmt::print("Strides: {},{}\n", data.strides()[0], data.strides()[1]);
+    fmt::print("Byte strides: {},{}\n", data.byte_strides()[0], data.byte_strides()[1]);
 
-    fmt::print("period: {}\n", period);
-
-    fmt::print("gain: {}\n", d.get_gain());
 
 }

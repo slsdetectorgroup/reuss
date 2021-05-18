@@ -6,6 +6,7 @@ pybind11_add_module(_reuss
     src/interface.cpp
     src/calibration.cpp
     src/utils.cpp
+    src/frameacc.cpp
 )
 
 target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_interface_shared reuss_math)
@@ -39,6 +40,7 @@ set(PythonApps
     collect_pd
     acquire
     collect_raw_pd
+    play.py
 )
 
 foreach(FILE ${PythonApps})

@@ -118,8 +118,16 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     T *data() { return data_; }
     std::byte *buffer() { return reinterpret_cast<std::byte *>(data_); }
     ssize_t size() const { return size_; }
-    std::array<ssize_t, Ndim> shape() const { return shape_; }
-    std::array<ssize_t, Ndim> strides() const { return strides_; }
+    std::array<ssize_t, Ndim> shape() const noexcept { return shape_; }
+    std::array<ssize_t, Ndim> strides() const noexcept { return strides_; }
+    std::array<ssize_t, Ndim> byte_strides() const noexcept { 
+        auto byte_strides = strides_;
+        for(auto& val: byte_strides)
+            val *= sizeof(T);
+        return byte_strides;
+        // return strides_; 
+        
+        }
 
     DataSpan<T,Ndim> span() const{
         return DataSpan<T,Ndim>{data_, shape_};
