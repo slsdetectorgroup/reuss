@@ -39,7 +39,7 @@ target_compile_features(project_settings INTERFACE cxx_std_17)
 target_compile_options(project_settings INTERFACE 
                             -Wall
                             -Wextra
-                            # -Wshadow
+                            -Wshadow
                             -Wunused
                             -Wno-unused-parameter
                             -Wold-style-cast
@@ -54,6 +54,7 @@ target_compile_options(project_settings INTERFACE
                             -Wdouble-promotion
                             -Werror=return-type
                             -Wpedantic
+                            -Wcast-align
 )
 if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)

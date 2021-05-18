@@ -19,19 +19,17 @@ Receiver::Receiver(const std::string &node, const std::string &port,
     fmt::print("Listening to: {}:{}\n", node, port);
     sock->setBufferSize(DEFAULT_UDP_BUFFER_SIZE);
     fmt::print("UDP buffer size: {} MB\n",
-               sock->bufferSize() / (1024. * 1024.));
+               static_cast<double>(sock->bufferSize()) / (1024. * 1024.));
 }
 
-Receiver::~Receiver(){
-    fmt::print("~Receiver\n");
-}
+Receiver::~Receiver() = default;
 
 void Receiver::stop() {
     stopped_ = true;
     sock->shutdown();
 }
 
-int64_t Receiver::packets_lost(){
+int Receiver::packets_lost() const noexcept{
     return total_packets_lost_;
 }
 
@@ -42,10 +40,10 @@ void Receiver::receivePackets(int cpu) {
     PacketHeader header{};
     sock->receivePacket(packet_buffer, header); // waits here for data
     uint64_t currentFrameNumber = header.frameNumber;
-    int numPacketsReceived = 0;
-    // int64_t totalPacketsLost = 0;
+    
     int64_t totalFramesReceived = 0;
     while (!stopped_) {
+        int numPacketsReceived = 0;
         ImageView img = fifo_.pop_free();
         img.frameNumber = currentFrameNumber;
         while (!stopped_) {
@@ -73,12 +71,12 @@ void Receiver::receivePackets(int cpu) {
                 break;
         }
         if (numPacketsReceived != PACKETS_PER_FRAME) {
-            auto lost = PACKETS_PER_FRAME - numPacketsReceived;
+            int lost = PACKETS_PER_FRAME - numPacketsReceived;
             fmt::print("Frame: {} lost {} pkts\n", currentFrameNumber, lost);
             total_packets_lost_ += lost;
         }
         currentFrameNumber = header.frameNumber;
-        numPacketsReceived = 0;
+        // numPacketsReceived = 0;
         fifo_.push_image(img);
         totalFramesReceived += 1;
         if (totalFramesReceived % PRINT_MOD == 0) {
