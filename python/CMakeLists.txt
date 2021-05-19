@@ -7,6 +7,7 @@ pybind11_add_module(_reuss
     src/calibration.cpp
     src/utils.cpp
     src/frameacc.cpp
+    src/streaming_receiver.cpp
 )
 
 target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_interface_shared reuss_math)

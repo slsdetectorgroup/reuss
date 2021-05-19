@@ -2,6 +2,30 @@
 import numpy as np
 from . import config 
 
+import tifffile
+from pathlib import Path
+
+def _expand(image):
+    if image.shape != (512,512):
+        print(f"Unknown shape: {image.shape}, skipping gappixels")
+        return image
+    mask = np.ones((514,514), dtype = np.bool_)
+    mask[:, 256:258] = False
+    mask[256:258] = False
+
+    data = np.zeros((514,514), dtype = image.dtype)
+    data[mask] = image.flat
+    data[:,255] /= 2
+    data[:, 256] = data[:,255]
+    data[:,258] /= 2
+    data[:, 257] = data[:,258]
+    data[255, :] /= 2
+    data[256, :] = data[255,:]
+    data[258,:] /= 2
+    data[257, :] = data[258, :]
+    
+    return data
+
 def load_raw_bin(fname):
     with open(fname, 'rb') as f:
         eof = f.seek(0, 2)
@@ -19,3 +43,15 @@ def load_raw_bin(fname):
         assert eof == expect_size, f"File size does not match, expected: {expected}, actual: {eof}. Corrupt file?"
 
         return data, meta
+
+
+def save_tiff(fname, data):
+    fname = Path(fname).with_suffix('.tiff')
+    if data.max() > 2**31:
+        print(f"Warning img max > int32 max")
+
+    img = _expand(data)
+    tifffile.imwrite(fname, img.astype(np.int32))
+
+def save_numpy(fname, data):
+    np.save(fname, data)

@@ -220,7 +220,7 @@ int main(int, char **) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     bool show_receiver = true;
-    size_t packets_lost = 0;
+    size_t lost_packets = 0;
     int64_t last_frame_caught = -1;
     int64_t total_frame_caught = -1;
     bool show_panel = false;
@@ -503,7 +503,7 @@ glEnableVertexAttribArray(0);
                 ImGui::TableNextColumn();
                 ImGui::Text("Packets Lost:");
                 ImGui::TableNextColumn();
-                ImGui::Text("%d", packets_lost);
+                ImGui::Text("%d", lost_packets);
                 ImGui::TableNextColumn();
                 ImGui::Text("Last Frame Caught:");
                 ImGui::TableNextColumn();

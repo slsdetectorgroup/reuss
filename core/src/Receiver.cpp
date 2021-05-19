@@ -29,8 +29,8 @@ void Receiver::stop() {
     sock->shutdown();
 }
 
-int Receiver::packets_lost() const noexcept{
-    return total_packets_lost_;
+int Receiver::lost_packets() const noexcept{
+    return total_lost_packets_;
 }
 
 void Receiver::receivePackets(int cpu) {
@@ -73,18 +73,18 @@ void Receiver::receivePackets(int cpu) {
         if (numPacketsReceived != PACKETS_PER_FRAME) {
             int lost = PACKETS_PER_FRAME - numPacketsReceived;
             fmt::print("Frame: {} lost {} pkts\n", currentFrameNumber, lost);
-            total_packets_lost_ += lost;
+            total_lost_packets_ += lost;
         }
         currentFrameNumber = header.frameNumber;
         // numPacketsReceived = 0;
         fifo_.push_image(img);
         totalFramesReceived += 1;
-        if (totalFramesReceived % PRINT_MOD == 0) {
-            fmt::print("{} Received: {} frames, lost {} packets\n", cpu,
-                       totalFramesReceived, total_packets_lost_);
-            fmt::print("{} Free: {}, data: {}\n", cpu, fifo_.numFreeSlots(),
-                       fifo_.numFilledSlots());
-        }
+        // if (totalFramesReceived % PRINT_MOD == 0) {
+        //     fmt::print("{} Received: {} frames, lost {} packets\n", cpu,
+        //                totalFramesReceived, total_lost_packets_);
+        //     fmt::print("{} Free: {}, data: {}\n", cpu, fifo_.numFreeSlots(),
+        //                fifo_.numFilledSlots());
+        // }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(
         1000)); // make sure we have time to sink images

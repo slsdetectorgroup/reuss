@@ -15,4 +15,3 @@ for f in folders:
         print(src, '->', dst)
         shutil.copy(src, dst)
 
-    # shutil.copytree(base/f/'tiff/', base/'tiff/')

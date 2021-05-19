@@ -81,7 +81,7 @@ int main() {
 
     // State
     bool show_receiver = true;
-    size_t packets_lost = 0;
+    size_t lost_packets = 0;
     int64_t last_frame_caught = -1;
     int64_t total_frames_caught = 0;
     bool show_panel = false;
@@ -303,9 +303,9 @@ int main() {
             if (ImGui::BeginTable("receiver_table", 2)) {
                 ImGui::TableNextColumn();
                 ImGui::Text("Packets Lost:");
-                packets_lost = udp_receiver.packets_lost(); //should we always update?
+                lost_packets = udp_receiver.lost_packets(); //should we always update?
                 ImGui::TableNextColumn();
-                ImGui::Text("%d", packets_lost);
+                ImGui::Text("%d", lost_packets);
                 ImGui::TableNextColumn();
                 ImGui::Text("Last Frame Caught:");
                 last_frame_caught = udp_receiver.last_frame();

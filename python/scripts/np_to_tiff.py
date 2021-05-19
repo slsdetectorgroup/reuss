@@ -28,7 +28,7 @@ def expand(image):
 
 path = Path('/fast_raid0_md0/May/calibration')
 
-files = [f for f in os.listdir(path) if 'calibration_' in f and f.endswith('npy')]
+files = [f for f in os.listdir(path) if 'calibration_60keV' in f and f.endswith('npy')]
 
 for f in files:
     src = path/f

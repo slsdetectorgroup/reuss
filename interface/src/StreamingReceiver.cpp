@@ -42,6 +42,9 @@ void StreamingReceiver::stop() {
     for (auto &&t : threads_)
         t.join();
 
+    last_frame_ = last_frame();
+    total_frames_ = total_frames();
+    lost_packets_ = lost_packets();
     threads_.clear();
     assembler_ = nullptr;
     streamer_ = nullptr;
@@ -49,10 +52,13 @@ void StreamingReceiver::stop() {
     fmt::print(fg(fmt::color::hot_pink), "Bye!\n");
 }
 
-int64_t StreamingReceiver::packets_lost() {
+int64_t StreamingReceiver::lost_packets() {
+    if (receivers_.empty())
+        return lost_packets_;
+
     int64_t total = 0;
     for (auto &r : receivers_)
-        total += r->packets_lost();
+        total += r->lost_packets();
     return total;
 }
 
@@ -60,7 +66,7 @@ int64_t StreamingReceiver::last_frame() {
     if (streamer_)
         return streamer_->last_frame();
     else
-        return -1;
+        return last_frame_;
 }
 
 int64_t StreamingReceiver::total_frames(){

@@ -10,7 +10,7 @@ plt.ion()
 from pathlib import Path
 
 import reuss as rs
-path = Path('/fast_raid0_md0/May/calibration/pedestal/run_2')
+path = Path('/fast_raid0_md0/May/calibration/pedestal/run_3')
 
 pd = np.zeros((3,512,512))
 

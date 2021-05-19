@@ -9,6 +9,7 @@ void init_pedestal(py::module &);
 void init_interface(py::module &);
 void init_calibration(py::module &);
 void init_frameacc(py::module &);
+void init_streamrecv(py::module &);
 
 PYBIND11_MODULE(_reuss, m) {
     m.doc() = R"pbdoc(
@@ -26,6 +27,7 @@ PYBIND11_MODULE(_reuss, m) {
      init_interface(m);
      init_calibration(m);
      init_frameacc(m);
+     init_streamrecv(m);
     
 
 #ifdef VERSION_INFO

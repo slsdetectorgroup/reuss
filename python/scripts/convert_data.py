@@ -79,7 +79,7 @@ def process(args):
 
 if __name__ == "__main__":
     #For convenience
-    data_path = Path("/fast_raid0_md0/May")
+    data_path = Path("/fast_raid0_md0/test")
 
     #Parsing command line args
     parser = argparse.ArgumentParser()
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         print(f"Processing {N} files from {path}")
 
 
-    worker_pool = Pool(4)
+    worker_pool = Pool(8)
     arguments = [(i, args.subfolder) for i in range(N)]
     worker_pool.map(process, arguments)
 

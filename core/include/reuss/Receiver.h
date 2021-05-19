@@ -14,14 +14,14 @@ class Receiver {
     ImageFifo fifo_;
     std::atomic<bool> stopped_{false};
     std::unique_ptr<UdpSocket> sock;
-    std::atomic<int> total_packets_lost_{};
+    std::atomic<int> total_lost_packets_{};
 
   public:
     Receiver(const std::string &node, const std::string &port);
     Receiver(const std::string &node, const std::string &port,
              size_t fifo_size);
     void receivePackets(int cpu);
-    int packets_lost() const noexcept;
+    int lost_packets() const noexcept;
     void stop();
     ImageFifo *fifo() { return &fifo_; }
     ~Receiver();

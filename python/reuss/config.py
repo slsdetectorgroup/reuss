@@ -7,7 +7,7 @@ bitmask = np.array([0x3FFF], dtype=np.uint16)
 roi = [(slice(0, 512, 1), slice(256, 768, 1))]
 
 class path:
-    data = Path("//fast_raid0_md0/May/")
+    data = Path("//fast_raid0_md0/test/")
 
 class index(Enum):
     ROW = 0

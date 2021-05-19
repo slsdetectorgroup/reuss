@@ -8,7 +8,7 @@ plt.ion()
 
 from slsdet import Jungfrau, defs
 
-path = Path('/fast_raid0_md0/May/calibration/pedestal/run_2')
+path = Path('/fast_raid0_md0/May/calibration/pedestal/run_3')
 
 
 

@@ -12,12 +12,16 @@ class StreamingReceiver {
     std::unique_ptr<Streamer> streamer_;
     std::unique_ptr<FrameAssembler> assembler_;
 
+    int64_t lost_packets_{};
+    int64_t total_frames_{};
+    int64_t last_frame_{};
+
   public:
     StreamingReceiver();
     void start();
     void stop();
 
-    int64_t packets_lost();
+    int64_t lost_packets();
     int64_t last_frame();
     int64_t total_frames();
 

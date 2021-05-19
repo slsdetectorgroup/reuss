@@ -151,7 +151,8 @@ def accumulate(nframes):
 def sc(fname, nframes):
     data = accumulate(nframes)
     print(f'Saving: {fname}')
-    np.save(fname, data)
+    # np.save(fname, data)
+    reuss.io.save_tiff(fname, data)
 
 
 class ToggleButton(QtWidgets.QPushButton):
@@ -416,7 +417,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
     def start_accumulate(self):
         findex = self.findex_in.value()
-        sc(f'{self.fname_in.text()}_{findex}.npy', self.acc_spin.value())
+        sc(f'{self.fname_in.text()}_{findex}', self.acc_spin.value())
         self.findex_in.setValue(findex+1)
 
     def set_cmap(self):
@@ -541,7 +542,7 @@ if __name__ == "__main__":
     image = np.zeros((reuss.config.nrows(), reuss.config.ncols()), dtype = args.dtype)
 
     #Run the data collection process
-    reader = mp.Process(target=read_frames, args=[buffer, args.zmqip, args.pedestal, args.dtype, args.mock])
+    reader = mp.Process(target=read_frames, args=[buffer, args.dtype])
     reader.start()
 
 

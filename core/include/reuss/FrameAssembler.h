@@ -46,11 +46,6 @@ class FrameAssembler {
                 std::copy_n(img.data, part_size,
                             full_image.data + i * part_size);
 
-                // //copy per row 
-                // for (size_t j=0; j<NROW; ++j){
-                //     std::copy_n(img.data+j*NCOL,NCOL, full_image.data +  );
-                // }
-
 
                 fifos_[i]->push_free(img);
             }
@@ -63,10 +58,10 @@ class FrameAssembler {
             full_image.frameNumber = frame_numbers_[0];
             assembled_images_.push_image(full_image);
 
-            if (full_image.frameNumber % PRINT_MOD == 0)
-                fmt::print(fg(fmt::color::hot_pink),
-                           "Assembled frame {}, frames in fifo: {}\n",
-                           frame_numbers_[0], fifos_[0]->numFilledSlots());
+            // if (full_image.frameNumber % PRINT_MOD == 0)
+            //     fmt::print(fg(fmt::color::hot_pink),
+            //                "Assembled frame {}, frames in fifo: {}\n",
+            //                frame_numbers_[0], fifos_[0]->numFilledSlots());
         }
     }
 };
