@@ -12,5 +12,5 @@ int main(){
     fmt::print("Strides: {},{}\n", data.strides()[0], data.strides()[1]);
     fmt::print("Byte strides: {},{}\n", data.byte_strides()[0], data.byte_strides()[1]);
 
-
+    // fmt::print("sizeof(DataSpan<float,2>): {}\n", sizeof(reuss::ImageData<float,2>));
 }

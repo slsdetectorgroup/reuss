@@ -34,13 +34,8 @@ from pathlib import Path
 import numpy as np
 import ctypes
 
-#Tools for Jungfrau data
-# import jungfrau as jf
 import reuss
 
-
-# from color import get_palette, colors, update_params
-# import config as cfg
 
 #image drawing
 interval = 200 #ms
@@ -120,17 +115,26 @@ def read_frames(buffer, dt = None):
     """
     global accframes
 
-    c = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
-    c.take_pedestal(False)
+    # c = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
+    # c.take_pedestal(False)
+    
+    pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
+    cal = reuss.load_calibration(121)[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
+
+    c = reuss.FrameAccumulator()
+    c.set_pedestal(pd)
+    c.set_calibration(cal)
+    time.sleep(1)
 
     image = np.frombuffer(buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
     acc_image = np.frombuffer(acc_buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
 
     while not exit_flag.value:
+        
         if wait_flag.value:
             time.sleep(0.1)
         else:
-            tmp = c.acquire(100, save=False, plot=False).sum(axis=0)
+            tmp = c.accumulate(100)
             np.copyto(image, tmp)
             if accframes.value > 0:
                 print(accframes.value)
@@ -151,7 +155,6 @@ def accumulate(nframes):
 def sc(fname, nframes):
     data = accumulate(nframes)
     print(f'Saving: {fname}')
-    # np.save(fname, data)
     reuss.io.save_tiff(fname, data)
 
 

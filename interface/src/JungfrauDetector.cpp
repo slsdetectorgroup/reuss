@@ -2,6 +2,7 @@
 #include <fmt/core.h>
 #include <sls/Detector.h>
 #include <chrono>
+#include "reuss/project_defs.h"
 
 namespace reuss {
 JungfrauDetector::JungfrauDetector()
@@ -9,15 +10,12 @@ JungfrauDetector::JungfrauDetector()
 JungfrauDetector::~JungfrauDetector() = default;
 
 void JungfrauDetector::start() {
-    fmt::print("JungfrauDetector::start()\n");
     det->startDetector();
 }
 void JungfrauDetector::stop() {
-    fmt::print("JungfrauDetector::stop()\n");
     det->stopDetector();
 }
 void JungfrauDetector::set_gain(int gain) {
-    fmt::print("JungfrauDetector::set_gain({})\n", gain);
     if (gain == 0)
         det->setSettings(sls::defs::DYNAMICGAIN);
     else if(gain == 1)
@@ -30,7 +28,6 @@ void JungfrauDetector::set_gain(int gain) {
 
 int JungfrauDetector::get_gain() const{
     auto g = det->getSettings().squash();
-
     int gain = -1;
     if (g == sls::defs::DYNAMICGAIN)
         gain = 0;
@@ -41,20 +38,16 @@ int JungfrauDetector::get_gain() const{
     else
         throw std::runtime_error("Unknown gain");
 
-    fmt::print("JungfrauDetector::get_gain() --> {}\n", gain);
     return gain;
 }
 
 void JungfrauDetector::set_period(double period) {
-    fmt::print("JungfrauDetector::set_period({})\n", period);
     std::chrono::duration<double> d(period);
     auto p = std::chrono::duration_cast<std::chrono::nanoseconds>(d);
     det->setPeriod(p);
 }
 double JungfrauDetector::get_period() const{
-    fmt::print("JungfrauDetector::get_period()\n");
     auto p = det->getPeriod().squash();
-
     return std::chrono::duration<double>(p).count();
 }
 } // namespace reuss

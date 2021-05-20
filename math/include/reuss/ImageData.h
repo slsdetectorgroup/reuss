@@ -1,6 +1,7 @@
 #pragma once
 /*
-Container holding image data, or a time series of image data in contigious memory. 
+Container holding image data, or a time series of image data in contigious
+memory.
 
 
 TODO! Add expression templates for operators
@@ -11,28 +12,41 @@ TODO! Add expression templates for operators
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <fmt/core.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 
-namespace reuss{
+namespace reuss {
 
 template <typename T, ssize_t Ndim = 2> class ImageData {
   public:
     ImageData()
         : shape_(), strides_(c_strides<Ndim>(shape_)), size_(0),
-          data_(nullptr){};
+          data_(nullptr){
+              fmt::print("ImageData()\n");
+          };
 
     explicit ImageData(std::array<ssize_t, Ndim> shape)
         : shape_(shape), strides_(c_strides<Ndim>(shape_)),
           size_(std::accumulate(shape_.begin(), shape_.end(), 1,
                                 std::multiplies<ssize_t>())),
-          data_(new T[size_]){};
+          data_(new T[size_]){
+            //   fmt::print("ImageData(std::array<ssize_t, Ndim> shape)\n");
+          };
 
     ImageData(std::array<ssize_t, Ndim> shape, T value) : ImageData(shape) {
         this->operator=(value);
+        // fmt::print("ImageData(std::array<ssize_t, Ndim> shape, T value)\n");
     };
+
+    /* When constructing from a DataSpan we need to copy the data since
+    ImageData expect to own its data, and span is just a view*/
+    ImageData(DataSpan<T, Ndim> span):ImageData(span.shape()){
+        std::copy(span.begin(), span.end(), begin());
+        // fmt::print("ImageData(DataSpan<T, Ndim> span)\n");
+    }
 
     // Move constructor
     ImageData(ImageData &&other)
@@ -40,6 +54,7 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
           size_(other.size_), data_(nullptr) {
         data_ = other.data_;
         other.reset();
+        // fmt::print("ImageData(ImageData &&other)\n");
     }
 
     // Copy constructor
@@ -47,9 +62,13 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
         : shape_(other.shape_), strides_(c_strides<Ndim>(shape_)),
           size_(other.size_), data_(new T[size_]) {
         std::copy(other.data_, other.data_ + size_, data_);
+        // fmt::print("ImageData(const ImageData &other)\n");
     }
 
-    ~ImageData() { delete[] data_; }
+    ~ImageData() {
+        // fmt::print("~ImageData()\n");
+        delete[] data_;
+    }
 
     auto begin() { return data_; }
     auto end() { return data_ + size_; }
@@ -65,7 +84,8 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     ImageData &operator*=(const ImageData &other);
     ImageData operator/(const ImageData &other);
     // ImageData& operator/=(const ImageData& other);
-    template <typename V> ImageData &operator/=(const ImageData<V, Ndim> &other) {
+    template <typename V>
+    ImageData &operator/=(const ImageData<V, Ndim> &other) {
         // check shape
         if (shape_ == other.shape()) {
             for (int i = 0; i < size_; ++i) {
@@ -92,7 +112,7 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     ImageData &operator/=(const T &);
     ImageData operator/(const T &);
 
-    ImageData& operator&=(const T&);
+    ImageData &operator&=(const T &);
 
     void sqrt() {
         for (int i = 0; i < size_; ++i) {
@@ -107,6 +127,14 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     operator()(Ix... index) {
         return data_[element_offset(strides_, index...)];
     }
+
+    template <typename... Ix>
+    typename std::enable_if<sizeof...(Ix) == Ndim, T &>::type
+    operator()(Ix... index) const{
+        return data_[element_offset(strides_, index...)];
+    }
+
+
     template <typename... Ix>
     typename std::enable_if<sizeof...(Ix) == Ndim, T>::type value(Ix... index) {
         return data_[element_offset(strides_, index...)];
@@ -119,19 +147,17 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     std::byte *buffer() { return reinterpret_cast<std::byte *>(data_); }
     ssize_t size() const { return size_; }
     std::array<ssize_t, Ndim> shape() const noexcept { return shape_; }
+    ssize_t shape(ssize_t i) const noexcept { return shape_[i]; }
     std::array<ssize_t, Ndim> strides() const noexcept { return strides_; }
-    std::array<ssize_t, Ndim> byte_strides() const noexcept { 
+    std::array<ssize_t, Ndim> byte_strides() const noexcept {
         auto byte_strides = strides_;
-        for(auto& val: byte_strides)
+        for (auto &val : byte_strides)
             val *= sizeof(T);
         return byte_strides;
-        // return strides_; 
-        
-        }
-
-    DataSpan<T,Ndim> span() const{
-        return DataSpan<T,Ndim>{data_, shape_};
+        // return strides_;
     }
+
+    DataSpan<T, Ndim> span() const { return DataSpan<T, Ndim>{data_, shape_}; }
 
     void Print();
     void Print_all();
@@ -172,8 +198,8 @@ ImageData<T, Ndim> ImageData<T, Ndim>::operator+(const ImageData &other) {
     return result;
 }
 template <typename T, ssize_t Ndim>
-ImageData<T, Ndim> &ImageData<T, Ndim>::
-operator+=(const ImageData<T, Ndim> &other) {
+ImageData<T, Ndim> &
+ImageData<T, Ndim>::operator+=(const ImageData<T, Ndim> &other) {
     // check shape
     if (shape_ == other.shape_) {
         for (int i = 0; i < size_; ++i) {
@@ -193,8 +219,8 @@ ImageData<T, Ndim> ImageData<T, Ndim>::operator-(const ImageData &other) {
 }
 
 template <typename T, ssize_t Ndim>
-ImageData<T, Ndim> &ImageData<T, Ndim>::
-operator-=(const ImageData<T, Ndim> &other) {
+ImageData<T, Ndim> &
+ImageData<T, Ndim>::operator-=(const ImageData<T, Ndim> &other) {
     // check shape
     if (shape_ == other.shape_) {
         for (int i = 0; i < size_; ++i) {
@@ -213,8 +239,8 @@ ImageData<T, Ndim> ImageData<T, Ndim>::operator*(const ImageData &other) {
 }
 
 template <typename T, ssize_t Ndim>
-ImageData<T, Ndim> &ImageData<T, Ndim>::
-operator*=(const ImageData<T, Ndim> &other) {
+ImageData<T, Ndim> &
+ImageData<T, Ndim>::operator*=(const ImageData<T, Ndim> &other) {
     // check shape
     if (shape_ == other.shape_) {
         for (int i = 0; i < size_; ++i) {
@@ -234,8 +260,8 @@ ImageData<T, Ndim> ImageData<T, Ndim>::operator/(const ImageData &other) {
 }
 
 template <typename T, ssize_t Ndim>
-ImageData<T, Ndim>& ImageData<T, Ndim>::operator&=(const T &mask) {
-    for (auto it = begin(); it!=end(); ++it)
+ImageData<T, Ndim> &ImageData<T, Ndim>::operator&=(const T &mask) {
+    for (auto it = begin(); it != end(); ++it)
         *it &= mask;
     return *this;
 }
@@ -269,8 +295,8 @@ ImageData<bool, Ndim> ImageData<T, Ndim>::operator>(const ImageData &other) {
 }
 
 template <typename T, ssize_t Ndim>
-ImageData<T, Ndim> &ImageData<T, Ndim>::
-operator=(const ImageData<T, Ndim> &other) {
+ImageData<T, Ndim> &
+ImageData<T, Ndim>::operator=(const ImageData<T, Ndim> &other) {
     if (this != &other) {
         delete[] data_;
         shape_ = other.shape_;
@@ -404,4 +430,4 @@ ImageData<T, Ndim> load(const std::string &pathname,
     return img;
 }
 
-}
+} // namespace reuss

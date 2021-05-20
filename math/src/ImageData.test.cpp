@@ -3,6 +3,8 @@
 #include <array>
 
 using reuss::ImageData;
+using reuss::DataSpan;
+using reuss::Shape;
 
 TEST_CASE("Initial size is zero if no size is specified")
 {
@@ -10,11 +12,45 @@ TEST_CASE("Initial size is zero if no size is specified")
     REQUIRE(a.size() == 0);
 }
 
+
+TEST_CASE("Construct from a DataSpan"){
+    std::vector<int> some_data(9,42);
+    DataSpan<int, 2> span(some_data.data(), Shape<2>{3,3});
+
+    ImageData<int,2> image(span);
+
+    REQUIRE(image.shape() == span.shape());
+    REQUIRE(image.size() == span.size());
+    REQUIRE(image.data() != span.data());
+
+    for (int i = 0; i<image.size(); ++i){
+        REQUIRE(image(i) == span(i));
+    }
+
+    image = 43;
+    for (int i = 0; i<image.size(); ++i){
+        REQUIRE(image(i) != span(i));
+    }
+
+
+}
+
 TEST_CASE("1D image"){
     std::array<ssize_t, 1>shape{{20}};
     ImageData<short,1>img(shape,3);
     REQUIRE(img.size()==20);
     REQUIRE(img(5)==3);
+
+}
+
+TEST_CASE("Accessing a const object"){
+    const ImageData<double, 3> img({3,4,5}, 0);
+    REQUIRE(img(1,1,1)==0);
+    REQUIRE(img.size() == 3*4*5);
+    REQUIRE(img.shape() == Shape<3>{3,4,5});
+    REQUIRE(img.shape(0) == 3);
+    REQUIRE(img.shape(1) == 4);
+    REQUIRE(img.shape(2) == 5);
 
 }
 

@@ -3,7 +3,7 @@
 Project wide definitions and configuration
 */
 
-
+#include <fmt/core.h>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -65,3 +65,9 @@ constexpr size_t BUFFER_SIZE = 1048576;
 
 constexpr uint16_t ADC_MASK = 0x3FFF;
 
+
+#ifdef DEBUG
+#define DEBUG_MSG(str) do { fmt::print("{}\n", str); } while( false )
+#else
+#define DEBUG_MSG(str) do { } while ( false )
+#endif

@@ -10,6 +10,7 @@ set(SourceFiles
 
 add_library(reuss_math INTERFACE)
 target_include_directories(reuss_math INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(reuss_math INTERFACE fmt)
 
 if(REUSS_BUILD_TESTS)
     target_sources(tests PRIVATE src src/ImageData.test.cpp )

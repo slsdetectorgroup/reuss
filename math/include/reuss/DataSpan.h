@@ -56,6 +56,13 @@ template <typename T, ssize_t Ndim> class DataSpan {
     operator()(Ix... index) {
         return buffer_[element_offset(strides_, index...)];
     }
+
+    template <typename... Ix>
+    typename std::enable_if<sizeof...(Ix) == Ndim, T &>::type
+    operator()(Ix... index) const{
+        return buffer_[element_offset(strides_, index...)];
+    }
+
     ssize_t size() const { return size_; }
 
     DataSpan(const DataSpan&) = default;
@@ -97,9 +104,11 @@ template <typename T, ssize_t Ndim> class DataSpan {
     auto& shape(){
         return shape_;
     }
-    auto shape(ssize_t i){
+    auto shape(ssize_t i) const {
         return shape_[i];
     }
+
+    T *data() { return buffer_; }
 
   private:
     T *buffer_;
