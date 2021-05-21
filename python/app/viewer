@@ -115,8 +115,6 @@ def read_frames(buffer, dt = None):
     """
     global accframes
 
-    # c = reuss.DataCollector("tcp://localhost:4545", dtype = np.float32)
-    # c.take_pedestal(False)
     
     pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
     cal = reuss.load_calibration(121)[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
