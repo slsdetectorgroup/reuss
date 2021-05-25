@@ -19,8 +19,7 @@ add_library(
     reuss_core_object OBJECT ${SourceFiles} 
 )
 
-target_link_libraries(reuss_core_object PRIVATE project_settings fmt Threads::Threads zmq)
-# target_link_libraries(reuss_core_object PUBLIC slsDetectorShared TIFF::TIFF)
+target_link_libraries(reuss_core_object PRIVATE reuss::settings fmt::fmt Threads::Threads zmq)
 target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(reuss_core_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_core_object
@@ -28,7 +27,6 @@ set_target_properties(reuss_core_object PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     PUBLIC_HEADER "${PublicHeaders}"
 )
-
 
 
 #Shared library
@@ -48,3 +46,6 @@ set_target_properties(reuss_core_static PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
+
+add_library(reuss::core_static ALIAS reuss_core_static)
+add_library(reuss::core_shared ALIAS reuss_core_shared)

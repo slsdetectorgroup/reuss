@@ -62,7 +62,7 @@ void take_pedestal(DataSpan<T, 3> pedestal, DetectorInterface *det,
         //divide and copy
         auto dst = &pedestal(gain, 0, 0);
         for (auto it = accumulate.begin(); it != accumulate.end(); ++it)
-            *dst++ = *it / static_cast<T>(n_frames);
+            *dst++ = static_cast<T>(*it) / static_cast<T>(n_frames);
     }
 
     det->stop();

@@ -15,12 +15,12 @@ namespace reuss {
 template <typename T> class File {
     static constexpr auto writer_color = fmt::color::green;
     T writerImpl;
-    int64_t *meta_;
-    size_t meta_size_;
+    int64_t *meta_{nullptr};
+    size_t meta_size_{};
     std::string basename_;
     size_t frames_per_file_{1000};
-    size_t n_written_{0};
-    size_t file_nr_{0};
+    size_t n_written_{};
+    size_t file_nr_{};
 
   public:
     File(const std::string &basename, size_t frames_per_file)

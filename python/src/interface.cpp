@@ -54,6 +54,13 @@ class PyDetectorInterface : public reuss::DetectorInterface {
             get_period, /* Name of function in C++ (must match Python name) */
         );
     }
+    std::vector<reuss::UdpSource> get_udp_sources() const override {
+        PYBIND11_OVERRIDE_PURE(
+            std::vector<reuss::UdpSource>,            /* Return type */
+            DetectorInterface, /* Parent class */
+            get_udp_sources, /* Name of function in C++ (must match Python name) */
+        );
+    }
 };
 
 // helper type for the visitor #4

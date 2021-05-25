@@ -14,7 +14,7 @@ set_target_properties(sender PROPERTIES
 
 add_executable(take_pd take_pd.cpp)
 
-target_link_libraries(take_pd PUBLIC reuss_core_static reuss_interface_static reuss_math project_settings)
+target_link_libraries(take_pd PUBLIC reuss_core_static reuss_detector reuss_math project_settings reuss_components_shared)
 
 set_target_properties(take_pd PROPERTIES
     RUNTIME_OUTPUT_NAME take_pd
@@ -34,7 +34,7 @@ set_target_properties(take_pd PROPERTIES
 
 add_executable(urecv urecv.cpp)
 
-target_link_libraries(urecv PUBLIC reuss_core_static project_settings reuss_interface_shared)
+target_link_libraries(urecv PUBLIC reuss_core_static project_settings reuss_detector reuss_components_shared)
 
 set_target_properties(urecv PROPERTIES
     RUNTIME_OUTPUT_NAME urecv
@@ -44,7 +44,7 @@ set_target_properties(urecv PROPERTIES
 
 add_executable(demo demo.cpp)
 
-target_link_libraries(demo PUBLIC reuss_core_static project_settings reuss_interface_shared reuss_math)
+target_link_libraries(demo PUBLIC reuss_core_static project_settings reuss_detector reuss_math)
 
 set_target_properties(demo PROPERTIES
     RUNTIME_OUTPUT_NAME demo

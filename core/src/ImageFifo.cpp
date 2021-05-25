@@ -12,8 +12,8 @@ size_t ImageFifo::numFreeSlots() const noexcept {
 }
 
 ImageFifo::ImageFifo(size_t fifo_size, size_t image_size)
-    : fifo_size_(fifo_size), image_size_(image_size), free_slots(fifo_size_),
-      filled_slots(fifo_size_) {
+    : fifo_size_(fifo_size), image_size_(image_size), free_slots(static_cast<uint32_t>(fifo_size_)),
+      filled_slots(static_cast<uint32_t>(fifo_size_)) {
 
     posix_memalign(reinterpret_cast<void **>(&data), IO_ALIGNMENT,
                    fifo_size_ * image_size_);

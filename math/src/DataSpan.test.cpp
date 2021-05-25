@@ -5,6 +5,7 @@
 #include <vector>
 
 using reuss::DataSpan;
+using reuss::Shape;
 
 TEST_CASE("Element reference 1D") {
     std::vector<int> vec;
@@ -12,7 +13,7 @@ TEST_CASE("Element reference 1D") {
         vec.push_back(i);
     }
     DataSpan<int, 1> data(vec.data(), Shape<1>{10});
-    REQUIRE(vec.size() == data.size());
+    REQUIRE(vec.size() == static_cast<size_t>(data.size()));
     for (int i = 0; i != 10; ++i) {
         REQUIRE(data(i) == vec[i]);
         REQUIRE(data[i] == vec[i]);
@@ -26,7 +27,7 @@ TEST_CASE("Element reference 2D") {
     }
 
     DataSpan<int, 2> data(vec.data(), Shape<2>{3, 4});
-    REQUIRE(vec.size() == data.size());
+    REQUIRE(vec.size() == static_cast<size_t>(data.size()));
     int i = 0;
     for (int row = 0; row != 3; ++row) {
         for (int col = 0; col != 4; ++col) {
@@ -43,7 +44,7 @@ TEST_CASE("Element reference 3D") {
         vec.push_back(i);
     }
     DataSpan<int, 3> data(vec.data(), Shape<3>{2, 3, 4});
-    REQUIRE(vec.size() == data.size());
+    REQUIRE(vec.size() == static_cast<size_t>(data.size()));
     int i = 0;
     for (int frame = 0; frame != 2; ++frame) {
         for (int row = 0; row != 3; ++row) {
@@ -156,12 +157,12 @@ TEST_CASE("divide with another span"){
     std::vector<int> vec1{3,2,1};
     std::vector<int> result{3,6,3};
 
-    DataSpan<int, 1> data0(vec0.data(), Shape<1>{vec0.size()});
-    DataSpan<int, 1> data1(vec1.data(), Shape<1>{vec1.size()});
+    DataSpan<int, 1> data0(vec0.data(), Shape<1>{static_cast<ssize_t>(vec0.size())});
+    DataSpan<int, 1> data1(vec1.data(), Shape<1>{static_cast<ssize_t>(vec1.size())});
 
     data0 /= data1;
     
-    for(int i =0; i!=vec0.size(); ++i){
+    for(size_t i =0; i!=vec0.size(); ++i){
         REQUIRE(data0[i] == result[i] );
     }
 }

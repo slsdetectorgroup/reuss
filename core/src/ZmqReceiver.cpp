@@ -1,17 +1,15 @@
 #include "reuss/ZmqReceiver.h"
 #include "reuss/project_defs.h"
-#include <zmq.h>
-#include <fmt/core.h>
-#include <fmt/color.h>
 #include <errno.h>
+#include <fmt/color.h>
+#include <fmt/core.h>
+#include <zmq.h>
 namespace reuss {
-ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {
-    
-}
 
+ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {}
 ZmqReceiver::~ZmqReceiver() = default;
 
-void ZmqReceiver::connect(){
+void ZmqReceiver::connect() {
     if (context || socket)
         throw std::runtime_error("Socket and context is not null");
     context = zmq_ctx_new();
@@ -22,28 +20,29 @@ void ZmqReceiver::connect(){
     zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
 }
 
-void ZmqReceiver::disconnect(){
+void ZmqReceiver::disconnect() {
     zmq_close(socket);
     zmq_ctx_destroy(context);
     socket = nullptr;
     context = nullptr;
 }
 
-int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *data) {
+int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers,
+                              std::byte *data) {
     int caught_frames = 0;
-    
+
     int64_t previous_frame_number = -1;
-    for (int i=0; i<n_frames; ++i) {
+    for (int i = 0; i < n_frames; ++i) {
         // Header
         int64_t frame_number = 0;
         int rc = zmq_recv(socket, &frame_number, sizeof(frame_number), 0);
-        if (rc == -1){
+        if (rc == -1) {
             // fmt::print("No data\n");
             int errsv = errno;
             fmt::print("No data: {}\n", strerror(errsv));
             continue;
         }
-        *frame_numbers++ = frame_number; //copy to output
+        *frame_numbers++ = frame_number; // copy to output
 
         // Notify if we drop frames
         int64_t diff = frame_number - previous_frame_number;
@@ -66,17 +65,10 @@ int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers, std::byte *d
         ++caught_frames;
     }
     return caught_frames;
-
 }
 
-void ZmqReceiver::set_zmq_hwm(uint64_t hwm){
-    zmq_hwm = hwm;
-}
+void ZmqReceiver::set_zmq_hwm(uint64_t hwm) { zmq_hwm = hwm; }
 
-void ZmqReceiver::set_timeout(int ms){
-    timeout = ms;
-}
-
-
+void ZmqReceiver::set_timeout(int ms) { timeout = ms; }
 
 } // namespace reuss

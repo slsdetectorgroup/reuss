@@ -1,18 +1,25 @@
 #include "reuss/StreamingReceiver.h"
+#include "reuss/DetectorInterface.h"
+#include "reuss/JungfrauDetector.h"
 #include <memory>
-#include <sls/Detector.h>
-;
+
 namespace reuss {
-StreamingReceiver::StreamingReceiver() {}
+StreamingReceiver::StreamingReceiver()
+    : det_(std::make_unique<JungfrauDetector>()) {}
+
+StreamingReceiver::StreamingReceiver(
+    std::unique_ptr<DetectorInterface> &&d)
+    : det_(std::move(d)) {}
+
+StreamingReceiver::~StreamingReceiver() = default;
 
 void StreamingReceiver::start() {
     constexpr auto endpoint = "tcp://*:4545";
     try {
 
-        auto sources = get_sources();
-        for (auto & s : sources) {
-            receivers_.push_back(
-                std::make_unique<Receiver>(s.addr, s.port));
+        auto sources = det_->get_udp_sources();
+        for (auto &s : sources) {
+            receivers_.push_back(std::make_unique<Receiver>(s.addr, s.port));
         }
 
         int cpu = 0;
@@ -69,31 +76,11 @@ int64_t StreamingReceiver::last_frame() {
         return last_frame_;
 }
 
-int64_t StreamingReceiver::total_frames(){
+int64_t StreamingReceiver::total_frames() {
     if (streamer_)
         return streamer_->total_frames();
     else
         return -1;
-}
-
-std::vector<StreamingReceiver::UdpSources> StreamingReceiver::get_sources() {
-    sls::Detector d;
-    auto udp_srcip = d.getDestinationUDPIP();
-    auto udp_srcip2 = d.getDestinationUDPIP2();
-    auto udp_dstport = d.getDestinationUDPPort();
-    auto udp_dstport2 = d.getDestinationUDPPort2();
-
-    std::vector<StreamingReceiver::UdpSources> sources;
-
-    for (int i = 0; i != d.size(); ++i) {
-        sources.push_back({udp_srcip[i].str(), std::to_string(udp_dstport[i])});
-        sources.push_back({udp_srcip2[i].str(), std::to_string(udp_dstport2[i])});
-        // udp_ip.push_back(udp_srcip[i].str());
-        // udp_port.push_back(std::to_string(udp_dstport[i]));
-        // udp_ip.push_back(udp_srcip2[i].str());
-        // udp_port.push_back(std::to_string(udp_dstport2[i]));
-    }
-    return sources;
 }
 
 } // namespace reuss

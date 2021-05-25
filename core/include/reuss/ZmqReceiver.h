@@ -14,6 +14,10 @@ class ZmqReceiver {
   public:
     ZmqReceiver(const std::string &endpoint);
     ~ZmqReceiver();
+    ZmqReceiver(const ZmqReceiver&) = delete;
+    ZmqReceiver operator=(const ZmqReceiver&) = delete;
+    ZmqReceiver(ZmqReceiver&&) = delete;
+
 
     void connect();
     void disconnect();

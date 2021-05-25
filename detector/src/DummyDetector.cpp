@@ -25,6 +25,11 @@ namespace reuss{
         return period_;
     }
 
+    std::vector<UdpSource> DummyDetector::get_udp_sources() const{
+        std::vector<UdpSource> sources;
+        return sources;
+    }
+
 
 
 }

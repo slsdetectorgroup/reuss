@@ -1,20 +1,38 @@
 
 set(PublicHeaders
-    include/reuss/DataSpan.h
-    include/reuss/ImageData.h
+    reuss/DataSpan.h
+    reuss/ImageData.h
+    reuss/file_io.h
 )
 
-set(SourceFiles
-#   src/Streamer.cpp
-)
+# set(SourceFiles
+#   src/file_io.cpp
+# )
 
 add_library(reuss_math INTERFACE)
 target_include_directories(reuss_math INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(reuss_math INTERFACE fmt)
 
 if(REUSS_BUILD_TESTS)
-    target_sources(tests PRIVATE src src/ImageData.test.cpp )
+    set(TestSources
+        src/ImageData.test.cpp
+        src/DataSpan.test.cpp
+        src/file_io.test.cpp
+    )
+    target_sources(tests PRIVATE src ${TestSources} )
     target_link_libraries(tests PRIVATE reuss_math)
+
+
+    #Copy data file for unit tests
+    set(TestDataFiles
+        data/np_1d.npy
+    )
+
+    foreach(FILE ${TestDataFiles})
+        configure_file( ${FILE}  
+        ${CMAKE_BINARY_DIR}/tests/${FILE}
+        COPYONLY)
+    endforeach(FILE ${PYTHON_FILES})
 endif(REUSS_BUILD_TESTS)
 
 # add_library(

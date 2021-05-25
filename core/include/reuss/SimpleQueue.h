@@ -20,7 +20,7 @@ template <typename T> class SimpleQueue {
         int ret = writeIndex_.load(std::memory_order_acquire) -
                   readIndex_.load(std::memory_order_acquire);
         if (ret < 0) {
-            ret += size;
+            ret += static_cast<int>(size);
         }
         return ret;
     }

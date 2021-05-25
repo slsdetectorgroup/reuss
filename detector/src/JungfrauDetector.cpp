@@ -1,8 +1,10 @@
 #include "reuss/JungfrauDetector.h"
-#include <fmt/core.h>
 #include <sls/Detector.h>
 #include <chrono>
-#include "reuss/project_defs.h"
+#include <fmt/core.h>
+
+
+// #include "reuss/project_defs.h"
 
 namespace reuss {
 JungfrauDetector::JungfrauDetector()
@@ -50,4 +52,21 @@ double JungfrauDetector::get_period() const{
     auto p = det->getPeriod().squash();
     return std::chrono::duration<double>(p).count();
 }
+
+std::vector<UdpSource> JungfrauDetector::get_udp_sources() const {
+
+    auto udp_srcip = det->getDestinationUDPIP();
+    auto udp_srcip2 = det->getDestinationUDPIP2();
+    auto udp_dstport = det->getDestinationUDPPort();
+    auto udp_dstport2 = det->getDestinationUDPPort2();
+
+    std::vector<UdpSource> sources;
+
+    for (int i = 0; i != det->size(); ++i) {
+        sources.push_back({udp_srcip[i].str(), std::to_string(udp_dstport[i])});
+        sources.push_back({udp_srcip2[i].str(), std::to_string(udp_dstport2[i])});
+    }
+    return sources;
+}
+
 } // namespace reuss

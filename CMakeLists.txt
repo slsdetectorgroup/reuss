@@ -39,7 +39,7 @@ target_compile_features(project_settings INTERFACE cxx_std_17)
 target_compile_options(project_settings INTERFACE 
                             -Wall
                             -Wextra
-                            -Wshadow
+                            # -Wshadow
                             -Wunused
                             -Wno-unused-parameter
                             -Wold-style-cast
@@ -56,6 +56,8 @@ target_compile_options(project_settings INTERFACE
                             -Wpedantic
                             -Wcast-align
 )
+add_library(reuss::settings ALIAS project_settings)
+
 if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
 endif()
@@ -74,13 +76,17 @@ endif(REUSS_BUILD_TESTS)
 
 add_subdirectory(core)
 add_subdirectory(math)
+
+set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+add_subdirectory(libs/slsDetectorPackage)
+add_subdirectory(detector)
+
+add_subdirectory(components)
 add_subdirectory(app)
 
 
 
-set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
-add_subdirectory(libs/slsDetectorPackage)
-add_subdirectory(interface)
+
 
 
 if(REUSS_BUILD_PYTHON)

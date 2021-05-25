@@ -18,7 +18,7 @@ void FwriteWriter::close() {
 }
 
 void FwriteWriter::write(void *buf, size_t len) {
-    int rc = fwrite(buf, len, 1, fd_);
+    auto rc = fwrite(buf, len, 1UL, fd_);
     if (rc != 1) {
         throw std::runtime_error(fmt::format("Failed write, got {}", rc));
     }

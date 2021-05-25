@@ -19,6 +19,7 @@ class JungfrauDetector : public DetectorInterface {
 
     void set_period(double period) override;
     double get_period() const override;
+    std::vector<UdpSource> get_udp_sources() const override;
 
   private:
     std::unique_ptr<sls::Detector> det;
