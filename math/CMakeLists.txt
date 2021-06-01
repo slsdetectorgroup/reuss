@@ -20,12 +20,13 @@ if(REUSS_BUILD_TESTS)
         src/file_io.test.cpp
     )
     target_sources(tests PRIVATE src ${TestSources} )
-    target_link_libraries(tests PRIVATE reuss_math)
+    target_link_libraries(tests PRIVATE reuss_math reuss::settings)
 
 
     #Copy data file for unit tests
     set(TestDataFiles
         data/np_1d.npy
+        data/np_2d.npy
     )
 
     foreach(FILE ${TestDataFiles})

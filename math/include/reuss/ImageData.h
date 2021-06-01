@@ -73,6 +73,8 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
     auto begin() { return data_; }
     auto end() { return data_ + size_; }
 
+    using value_type =  T;
+
     ImageData &operator=(ImageData &&other);      // Move assign
     ImageData &operator=(const ImageData &other); // Copy assign
 
