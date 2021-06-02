@@ -5,34 +5,94 @@
 #include <fmt/core.h>
 #include <fstream>
 #include <map>
+#include <reuss/ImageData.h>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <vector>
-#include <reuss/ImageData.h>
 // #include <string>
-#include <typeinfo>
 #include <typeindex>
+#include <typeinfo>
 
 namespace reuss {
 
+class DataType {
+  public:
+    explicit DataType(const std::type_info &t) {
+        if (t == typeid(int32_t))
+            type_ = TypeIndex::INT32;
+        else if (t == typeid(uint32_t))
+            type_ = TypeIndex::UINT32;
+        else if (t == typeid(int64_t))
+            type_ = TypeIndex::INT64;
+        else if (t == typeid(uint64_t))
+            type_ = TypeIndex::UINT64;
+        else if (t == typeid(float))
+            type_ = TypeIndex::FLOAT;
+        else if (t == typeid(double))
+            type_ = TypeIndex::DOUBLE;
+        else
+            throw std::runtime_error("Unknown type");
+    }
+    explicit DataType(std::string_view sv) {
+        if (sv == "i4")
+            type_ = TypeIndex::INT32;
+        else if (sv == "u4")
+            type_ = TypeIndex::UINT32;
+        else if (sv == "i8")
+            type_ = TypeIndex::INT64;
+        else if (sv == "u8")
+            type_ = TypeIndex::UINT64;
+        else if (sv == "f4")
+            type_ = TypeIndex::FLOAT;
+        else if (sv == "f8")
+            type_ = TypeIndex::DOUBLE;
+        else
+            throw std::runtime_error("Unknown type");
+    }
 
+    bool operator==(const DataType &other) const noexcept {
+        return type_ == other.type_;
+    }
+    bool operator!=(const DataType &other) const noexcept {
+        return !(*this == other);
+    }
 
-enum class DataType{
-    INT32,
-    UINT32,
-    INT64,
-    UINT64,
-    FLOAT,
-    DOUBLE,
-    NOT_SUPPORTED,
+    bool operator==(const std::type_info &t) const {
+        return DataType(t) == *this;
+    }
+    bool operator!=(const std::type_info &t) const {
+        return DataType(t) != *this;
+    }
+
+    std::string str() const {
+        switch (type_) {
+        case TypeIndex::INT32:
+            return "i4";
+        case TypeIndex::UINT32:
+            return "u4";
+        case TypeIndex::INT64:
+            return "i8";
+        case TypeIndex::UINT64:
+            return "u8";
+        case TypeIndex::FLOAT:
+            return "f4";
+        case TypeIndex::DOUBLE:
+            return "f8";
+        case TypeIndex::ERROR:
+            return "ERROR";
+        }
+        return {};
+    }
+
+  private:
+    enum class TypeIndex { INT32, UINT32, INT64, UINT64, FLOAT, DOUBLE, ERROR };
+    TypeIndex type_{TypeIndex::ERROR};
 };
 
-DataType typeid2enum(std::type_index t){
-    if (t==std::type_index(typeid(int))){
-        return DataType::INT32;
-    }
-    return DataType::NOT_SUPPORTED;
+std::ostream &operator<<(std::ostream &os, const DataType &dt) {
+    os << dt.str();
+    return os;
 }
 
 // copy between
@@ -104,12 +164,13 @@ struct NumpyArrDescr {
         shape = str2vec(s);
     }
 
-    NumpyArrDescr(const NumpyArrDescr&) = default;
-    NumpyArrDescr(NumpyArrDescr&&) = default;
-    NumpyArrDescr& operator=(const NumpyArrDescr&) = default;
+    NumpyArrDescr(const NumpyArrDescr &) = default;
+    NumpyArrDescr(NumpyArrDescr &&) = default;
+    NumpyArrDescr &operator=(const NumpyArrDescr &) = default;
 };
 
-struct NumpyFileHeader {
+class NumpyFileHeader {
+  public:
     static constexpr std::array<char, 6> magic_str{char(0x93), 'N', 'U',
                                                    'M',        'P', 'Y'};
     uint8_t major_ver;
@@ -117,17 +178,15 @@ struct NumpyFileHeader {
     uint16_t header_len;
     NumpyArrDescr descr;
 
-    std::vector<int> shape() const{
-        return descr.shape;
-    }
-    size_t ndim() const noexcept{
-        return descr.shape.size();
+    std::vector<int> shape() const { return descr.shape; }
+    size_t ndim() const noexcept { return descr.shape.size(); }
+    std::string dtype() const{
+        return descr.descr;
     }
 };
 
-
-NumpyFileHeader load_numpy_header(std::ifstream& f){
-std::array<char, 6> tmp{};
+NumpyFileHeader load_numpy_header(std::ifstream &f) {
+    std::array<char, 6> tmp{};
     f.read(tmp.data(), tmp.size());
     if (tmp != NumpyFileHeader::magic_str) {
         for (auto item : tmp)
@@ -152,26 +211,28 @@ inline NumpyFileHeader load_numpy_header(const std::string &fname) {
     std::ifstream f(fname, std::ios::binary);
     if (!f)
         throw std::runtime_error("File not found");
-    
+
     return load_numpy_header(f);
 }
 
-template<typename T, size_t Ndim>
-ImageData<T, Ndim> load_numpy(const std::string& fname){
+template <typename T, size_t Ndim>
+ImageData<T, Ndim> load_numpy(const std::string &fname) {
     std::ifstream f(fname, std::ios::binary);
     if (!f)
         throw std::runtime_error("File not found");
-    
+
     auto header = load_numpy_header(f);
-    if (header.ndim() != Ndim){
-        throw std::runtime_error("Cannot load file, dimensions of ImageData and numpy array does not match");
+    if (header.ndim() != Ndim) {
+        throw std::runtime_error("Cannot load file, dimensions of ImageData "
+                                 "and numpy array does not match");
     }
     Shape<Ndim> shape{};
     auto vec = header.shape();
     std::copy(vec.begin(), vec.end(), shape.begin());
 
     ImageData<T, Ndim> data{shape};
-    f.read(reinterpret_cast<char*>(data.buffer()), data.size()*sizeof(typename ImageData<T, Ndim>::value_type));
+    f.read(reinterpret_cast<char *>(data.buffer()),
+           data.size() * sizeof(typename ImageData<T, Ndim>::value_type));
     return data;
 }
 
