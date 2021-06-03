@@ -20,8 +20,6 @@ TEST_CASE("Construct from string") {
 }
 
 TEST_CASE("Construct from string with endianess"){
-    // char native = (reuss::endian::native == reuss::endian::little) ? '<' : '>';
-    // char non_native = 
     //TODO! handle big endian system in test!
     REQUIRE(DataType("<i4") == typeid(int32_t));
     REQUIRE_THROWS(DataType(">i4") == typeid(int32_t));
