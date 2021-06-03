@@ -14,86 +14,10 @@
 #include <typeindex>
 #include <typeinfo>
 
+#include "reuss/DataType.h"
 namespace reuss {
 
-class DataType {
-  public:
-    explicit DataType(const std::type_info &t) {
-        if (t == typeid(int32_t))
-            type_ = TypeIndex::INT32;
-        else if (t == typeid(uint32_t))
-            type_ = TypeIndex::UINT32;
-        else if (t == typeid(int64_t))
-            type_ = TypeIndex::INT64;
-        else if (t == typeid(uint64_t))
-            type_ = TypeIndex::UINT64;
-        else if (t == typeid(float))
-            type_ = TypeIndex::FLOAT;
-        else if (t == typeid(double))
-            type_ = TypeIndex::DOUBLE;
-        else
-            throw std::runtime_error("Unknown type");
-    }
-    explicit DataType(std::string_view sv) {
-        if (sv == "i4")
-            type_ = TypeIndex::INT32;
-        else if (sv == "u4")
-            type_ = TypeIndex::UINT32;
-        else if (sv == "i8")
-            type_ = TypeIndex::INT64;
-        else if (sv == "u8")
-            type_ = TypeIndex::UINT64;
-        else if (sv == "f4")
-            type_ = TypeIndex::FLOAT;
-        else if (sv == "f8")
-            type_ = TypeIndex::DOUBLE;
-        else
-            throw std::runtime_error("Unknown type");
-    }
 
-    bool operator==(const DataType &other) const noexcept {
-        return type_ == other.type_;
-    }
-    bool operator!=(const DataType &other) const noexcept {
-        return !(*this == other);
-    }
-
-    bool operator==(const std::type_info &t) const {
-        return DataType(t) == *this;
-    }
-    bool operator!=(const std::type_info &t) const {
-        return DataType(t) != *this;
-    }
-
-    std::string str() const {
-        switch (type_) {
-        case TypeIndex::INT32:
-            return "i4";
-        case TypeIndex::UINT32:
-            return "u4";
-        case TypeIndex::INT64:
-            return "i8";
-        case TypeIndex::UINT64:
-            return "u8";
-        case TypeIndex::FLOAT:
-            return "f4";
-        case TypeIndex::DOUBLE:
-            return "f8";
-        case TypeIndex::ERROR:
-            return "ERROR";
-        }
-        return {};
-    }
-
-  private:
-    enum class TypeIndex { INT32, UINT32, INT64, UINT64, FLOAT, DOUBLE, ERROR };
-    TypeIndex type_{TypeIndex::ERROR};
-};
-
-std::ostream &operator<<(std::ostream &os, const DataType &dt) {
-    os << dt.str();
-    return os;
-}
 
 // copy between
 std::string find_between(const char delimiter, std::string_view s) {

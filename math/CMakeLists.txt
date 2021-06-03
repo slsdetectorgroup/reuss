@@ -17,6 +17,7 @@ if(REUSS_BUILD_TESTS)
     set(TestSources
         src/ImageData.test.cpp
         src/DataSpan.test.cpp
+        src/DataType.test.cpp
         src/file_io.test.cpp
     )
     target_sources(tests PRIVATE src ${TestSources} )
