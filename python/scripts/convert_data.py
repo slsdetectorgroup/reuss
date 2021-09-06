@@ -1,18 +1,16 @@
-import jungfrau as jf
-import numpy as np
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-# from sls_detector_tools.plot import imshow
-
-from reuss import io
-
 import time
 import os
 import sys
 from multiprocessing import Pool
-
+import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
 import argparse
+
+from reuss import io
+import reuss.config as cfg
+import jungfrau as jf
+
 
 
 def load_data(i, n_threads=12, verbose = False):
@@ -102,9 +100,9 @@ if __name__ == "__main__":
 
     #Need to cut calibration depending on the data used 
     if pd.shape == (3, 340, 340):
-        cal = jf.load_calibration(272)[:, 150:490, 337:677]
+        cal = jf.load_calibration(cfg.det_id)[:, 150:490, 337:677]
     else:
-        cal = jf.load_calibration(272)[:, :, 256:768]
+        cal = jf.load_calibration(cfg.det_id)[:, :, 256:768]
 
 
 
@@ -133,5 +131,5 @@ if __name__ == "__main__":
     jf.merge_files(data_path, args.measurement_id, verbose=True, subfolder=args.subfolder, cleanup = True)
 
 
-    # def export_tiff(base_path, measurement_id, data=None, subfolder="export", verbose=False, offset=0, roi = None):
-    jf.export_tiff(data_path, args.measurement_id, subfolder="tiff", verbose = True)
+    jf.export_tiff(data_path, args.measurement_id,  subfolder="cbf", verbose=True)
+    #jf.export_tiff(data_path, args.measurement_id, subfolder="tiff", verbose = True)
