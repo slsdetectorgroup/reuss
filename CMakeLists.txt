@@ -11,7 +11,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-option(REUSS_BUILD_GUI "Gui for live data visualization" ON)
+option(REUSS_BUILD_GUI "Gui for live data visualization" OFF)
 option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" ON)
@@ -78,6 +78,9 @@ add_subdirectory(core)
 add_subdirectory(math)
 
 set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
+set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
+set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
 add_subdirectory(libs/slsDetectorPackage)
 add_subdirectory(detector)
 

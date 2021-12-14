@@ -17,25 +17,35 @@ void JungfrauDetector::start() {
 void JungfrauDetector::stop() {
     det->stopDetector();
 }
+
+enum gainMode {
+        DYNAMIC,
+        FORCE_SWITCH_G1,
+        FORCE_SWITCH_G2,
+        FIX_G1,
+        FIX_G2,
+        FIX_G0
+    };
+
 void JungfrauDetector::set_gain(int gain) {
     if (gain == 0)
-        det->setSettings(sls::defs::DYNAMICGAIN);
+        det->setGainMode(sls::defs::DYNAMIC);
     else if(gain == 1)
-        det->setSettings(sls::defs::FORCESWITCHG1);
+        det->setGainMode(sls::defs::FORCE_SWITCH_G1);
     else if(gain == 2)
-        det->setSettings(sls::defs::FORCESWITCHG2);
+        det->setGainMode(sls::defs::FORCE_SWITCH_G2);
     else
         throw std::runtime_error("Unknown gain");
 }
 
 int JungfrauDetector::get_gain() const{
-    auto g = det->getSettings().squash();
+    auto g = det->getGainMode().squash();
     int gain = -1;
-    if (g == sls::defs::DYNAMICGAIN)
+    if (g == sls::defs::DYNAMIC)
         gain = 0;
-    else if (g == sls::defs::FORCESWITCHG1)
+    else if (g == sls::defs::FORCE_SWITCH_G1)
         gain = 1;
-    else if (g == sls::defs::FORCESWITCHG2)
+    else if (g == sls::defs::FORCE_SWITCH_G2)
         gain = 2;
     else
         throw std::runtime_error("Unknown gain");
