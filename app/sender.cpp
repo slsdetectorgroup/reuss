@@ -22,10 +22,8 @@ void generate_data(std::vector<uint16_t>& data){
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(0, 255);
-
     for (auto& item : data)
-        item = dist(rng);
-
+        item = static_cast<uint16_t>(dist(rng));
 }
 
 int main(int argc, char** argv){

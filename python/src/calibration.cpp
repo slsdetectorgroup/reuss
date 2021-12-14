@@ -23,6 +23,6 @@ void init_calibration(py::module &m) {
     m.def("apply_calibration_and_sum", &reuss::apply_calibration_and_sum<float>,
           py::arg().noconvert(), py::arg().noconvert(), py::arg().noconvert(),
           py::arg() = 50, py::arg() = 10.);
-    m.def("split_task", &split_task);
+    m.def("split_task", &split_task<int64_t>);
 }
 
