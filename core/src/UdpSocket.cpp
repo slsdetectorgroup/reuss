@@ -56,7 +56,8 @@ bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
         fmt::print("Warning: read {} bytes\n", rc);
         if (rc == -1){
             int errv = errno;
-            fmt::print("errno: {}, {}\n", strerrorname_np(errv), strerror(errv));
+            fmt::print("errno: {}, {}\n", errv, strerror(errv));
+	    // strerrorname_np() arrived in glibc 2.6
         }
     }
     return false;
