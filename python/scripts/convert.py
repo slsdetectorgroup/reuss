@@ -1,5 +1,5 @@
 import subprocess
-path = '/zwilag/users/mahmoudi/psi/20210811_ZSM5_fresh'
+path = '/data/jfarrival/users/psi/test'
 
-for i in [2]:
+for i in [9]:
     subprocess.run(['python', 'convert_data.py', f'{i:03d}', '-p', f'{path}'])

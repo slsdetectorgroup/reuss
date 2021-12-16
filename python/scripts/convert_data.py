@@ -15,9 +15,7 @@ import jungfrau as jf
 
 def load_data(i, n_threads=12, verbose = False):
     t0 = time.time()
-
     fname = f"file_{i}.bin"
-    # raw_data = np.load(path / fname)
     raw_data, frame_numbers = io.load_raw_bin(path/fname)
     
     if verbose: 
@@ -27,8 +25,8 @@ def load_data(i, n_threads=12, verbose = False):
     if verbose:
         t2 = time.time()
         print(f"{i}: Applying calibration: {t2-t1:.3f}s")
-    data -= jf.nd_tune_pedestal(data, -40, 40, n_threads)
-    data -= jf.nd_tune_pedestal(data, -10, 10, n_threads)
+    data -= jf.tune_pedestal(data, -40, 40, n_threads)
+    data -= jf.tune_pedestal(data, -10, 10, n_threads)
     if verbose:
         print(f"{i}: 2x pedestal tune: {time.time()-t2:.3f}s")
     return data
@@ -91,8 +89,6 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--subfolder", help="subfolder to put summed data in", default="processed")
     args = parser.parse_args()
 
-    # path = Path("/zwilag/users/psi/2019-10-23/fieldspar/B4/")
-    # path = Path("/home/l_frojdh/data/vienna/")
     path = jf.get_measurement_path(args.path, args.measurement_id)
     pd = np.load(path / "pedestal_0.npy")
     if pd.shape == (3, 512, 1024):
@@ -122,14 +118,9 @@ if __name__ == "__main__":
     worker_pool = Pool(8)
     arguments = [(i, args.subfolder) for i in range(N)]
     worker_pool.map(process, arguments)
-
+    worker_pool.close()
     if args.verbose:
         print(f"Total time: {time.time()-t0:.3f}s")
 
-    # jf.merge_files(args.path, args.measurement_id, subfolder = args.subfolder, verbose = args.verbose, cleanup=args.cleanup)
-    # jf.makedirs(path / args.subfolder)
-    jf.merge_files(data_path, args.measurement_id, verbose=True, subfolder=args.subfolder, cleanup = True)
-
-
-    jf.export_tiff(data_path, args.measurement_id,  subfolder="cbf", verbose=True)
-    #jf.export_tiff(data_path, args.measurement_id, subfolder="tiff", verbose = True)
+    jf.merge_files(args.path, args.measurement_id, verbose=True, subfolder=args.subfolder, cleanup = True)
+    jf.export_cbf(args.path, args.measurement_id,  subfolder="cbf", verbose=True)
