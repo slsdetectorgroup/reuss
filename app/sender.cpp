@@ -43,10 +43,8 @@ int main(int argc, char** argv){
         ifs.open(fname, std::ios::binary);
     }
         
-    std::string endpoint = RAW_FRAMES_ENDPOINT;
-    // std::string endpoint = "ipc://sls_raw_data";
-    
-    std::vector<uint16_t> buffer(512*1024);
+    std::string endpoint = RAW_FRAMES_ENDPOINT;    
+    std::vector<uint16_t> buffer(IMAGE_SIZE.rows*IMAGE_SIZE.cols);
     reuss::ImageView image{int64_t(0), reinterpret_cast<char*> (&buffer[0])};
     reuss::ZmqSocket socket(endpoint);
 
@@ -55,8 +53,8 @@ int main(int argc, char** argv){
         if (fname.empty())
             generate_data(buffer);
         else
-            ifs.read(reinterpret_cast<char*> (buffer.data()), 512*1024*2);
-        socket.send(image, 512*1024*2);
+            ifs.read(reinterpret_cast<char*> (buffer.data()), IMAGE_SIZE_BYTES);
+        socket.send(image, IMAGE_SIZE_BYTES);
         fmt::print("{}\n", i);
         // std::this_thread::sleep_for(100ms);
     }
