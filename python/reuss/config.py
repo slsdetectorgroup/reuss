@@ -45,17 +45,6 @@ try:
 except:
     raise ValueError("Could not read det id, please set REUSS_DET_ID")
 
-#Where is the calibration files?
-caldir = os.environ.get("REUSS_CAL_DIR")
-if caldir is None:
-    raise ValueError("Could not read caldir please set REUSS_CAL_DIR")
-caldir = Path(caldir)
-
-#Where do we save data? 
-datadir = os.environ.get("REUSS_DATA_DIR")
-if datadir is None:
-    raise ValueError("Could not read caldir please set REUSS_DATA_DIR")
-datadir = Path(datadir)
 
 class path:
     #Where do we save data? 
