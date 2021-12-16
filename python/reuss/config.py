@@ -1,4 +1,4 @@
-
+import os
 import numpy as np
 from enum import Enum
 import math
@@ -34,6 +34,16 @@ n_cores = 12
 
 pedestal_base_name = "pedestal"
 data_base_name = "data"
-det_id = 121
 
-caldir = Path('/home/l_jungfrau/software/calibration')
+
+#Read machinde specific config from variables
+det_id = os.environ.get('REUSS_DET_ID')
+try:
+    det_id = int(det_id)
+except:
+    raise ValueError("Could not read det id, please set REUSS_DET_ID")
+
+caldir = os.environ.get("REUSS_CAL_DIR")
+if caldir is None:
+    raise ValueError("Could not read caldir please set REUSS_CAL_DIR")
+caldir = Path(caldir)
