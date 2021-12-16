@@ -1,5 +1,10 @@
 # reuss
 
+This is the electron microscopy software for the JUNGFRAU detector. It contains a custom UDP receiver and file writer along with Python tools to convert the data to cbf/tiff.
+
+It it meant to be kept simple and works only for:
+* Single module JUNGFRAU
+* 2 interfaces 
 
 ## Apps
 
