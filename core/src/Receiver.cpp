@@ -4,8 +4,8 @@
 #include <cstdlib>
 #include <fmt/color.h>
 #include <fmt/format.h>
-#include <thread>
 #include <memory>
+#include <thread>
 
 namespace reuss {
 
@@ -29,9 +29,7 @@ void Receiver::stop() {
     sock->shutdown();
 }
 
-int Receiver::lost_packets() const noexcept{
-    return total_lost_packets_;
-}
+int Receiver::lost_packets() const noexcept { return total_lost_packets_; }
 
 void Receiver::receivePackets(int cpu) {
     pin_this_thread(cpu);
@@ -40,27 +38,24 @@ void Receiver::receivePackets(int cpu) {
     PacketHeader header{};
     sock->receivePacket(packet_buffer, header); // waits here for data
     uint64_t currentFrameNumber = header.frameNumber;
-    
+
     int64_t totalFramesReceived = 0;
     while (!stopped_) {
         int numPacketsReceived = 0;
         ImageView img = fifo_.pop_free();
         img.frameNumber = currentFrameNumber;
         while (!stopped_) {
-            //copy full packet all 4 rows
-            // memcpy(img.data + PAYLOAD_SIZE * header.packetNumber,
-            //        packet_buffer + sizeof(PacketHeader), PAYLOAD_SIZE);
-
-            // memset(img.data + PAYLOAD_SIZE * header.packetNumber, PAYLOAD_SIZE, 0);
-            //copy ROI per row 
-            constexpr size_t packet_data_size = (COL_MAX-COL_MIN)*sizeof(uint16_t)*ROWS_PER_PACKET;
+            // copy ROI per row, controlled by COL_MAX and COL_MIN
+            constexpr size_t packet_data_size =
+                (COL_MAX - COL_MIN) * sizeof(uint16_t) * ROWS_PER_PACKET;
             auto offset = packet_data_size * header.packetNumber;
             auto dst = img.data + offset;
-            auto src = &packet_buffer[COL_MIN*sizeof(uint16_t)]+ sizeof(PacketHeader);
-            auto dst_step = (COL_MAX-COL_MIN)*sizeof(uint16_t); //rowsize 
+            auto src = &packet_buffer[COL_MIN * sizeof(uint16_t)] +
+                       sizeof(PacketHeader);
+            auto dst_step = (COL_MAX - COL_MIN) * sizeof(uint16_t); // rowsize
             auto src_step = PKT_BYTES_PER_ROW;
-            for(size_t row=0; row<4; ++row){
-                memcpy(dst, src, (COL_MAX-COL_MIN)*sizeof(u_int16_t));
+            for (size_t row = 0; row < 4; ++row) {
+                memcpy(dst, src, (COL_MAX - COL_MIN) * sizeof(u_int16_t));
                 dst += dst_step;
                 src += src_step;
             }
@@ -76,21 +71,11 @@ void Receiver::receivePackets(int cpu) {
             total_lost_packets_ += lost;
         }
         currentFrameNumber = header.frameNumber;
-        // numPacketsReceived = 0;
         fifo_.push_image(img);
         totalFramesReceived += 1;
-        // if (totalFramesReceived % PRINT_MOD == 0) {
-        //     fmt::print("{} Received: {} frames, lost {} packets\n", cpu,
-        //                totalFramesReceived, total_lost_packets_);
-        //     fmt::print("{} Free: {}, data: {}\n", cpu, fifo_.numFreeSlots(),
-        //                fifo_.numFilledSlots());
-        // }
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(
-        1000)); // make sure we have time to sink images
-    fmt::print("UDP thread done\n");
+    // make sure we have time to sink images
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
-
-
 
 } // namespace reuss

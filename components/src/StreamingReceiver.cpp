@@ -14,7 +14,6 @@ StreamingReceiver::StreamingReceiver(
 StreamingReceiver::~StreamingReceiver() = default;
 
 void StreamingReceiver::start() {
-    constexpr auto endpoint = "tcp://*:4545";
     try {
 
         auto sources = det_->get_udp_sources();
@@ -31,7 +30,7 @@ void StreamingReceiver::start() {
         threads_.emplace_back(&FrameAssembler::assemble, assembler_.get(),
                               cpu++);
 
-        streamer_ = std::make_unique<Streamer>(endpoint, assembler_->fifo());
+        streamer_ = std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, assembler_->fifo());
         threads_.emplace_back(&Streamer::stream, streamer_.get(), cpu++);
 
     } catch (const std::runtime_error &e) {
@@ -40,7 +39,6 @@ void StreamingReceiver::start() {
 }
 
 void StreamingReceiver::stop() {
-    fmt::print("Stopping\n");
     for (auto &r : receivers_)
         r->stop();
     assembler_->stop();

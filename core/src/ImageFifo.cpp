@@ -53,8 +53,6 @@ ImageView ImageFifo::pop_image(std::chrono::nanoseconds wait,
     while (!filled_slots.pop(v) && !stopped) {
         std::this_thread::sleep_for(wait);
     }
-    if (stopped)
-        fmt::print(fg(fmt::color::rosy_brown), "STOPPED!\n");
     return v;
 }
 

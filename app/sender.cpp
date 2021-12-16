@@ -7,6 +7,7 @@ Send random data over zmq, used for debugging and development.
 
 #include "reuss/ZmqSocket.h"
 #include "reuss/ImageView.h"
+#include "reuss/project_defs.h"
 #include <fmt/core.h>
 #include <string>
 #include <vector>
@@ -42,7 +43,7 @@ int main(int argc, char** argv){
         ifs.open(fname, std::ios::binary);
     }
         
-    std::string endpoint = "tcp://*:4545";
+    std::string endpoint = RAW_FRAMES_ENDPOINT;
     // std::string endpoint = "ipc://sls_raw_data";
     
     std::vector<uint16_t> buffer(512*1024);

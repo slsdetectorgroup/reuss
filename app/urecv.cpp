@@ -6,8 +6,6 @@
 #include <iostream>
 #include <thread>
 
-constexpr auto endpoint = "tcp://*:4545";
-
 int main(int argc, char *argv[]) {
     namespace rs = reuss;
     rs::direct_input();
@@ -23,6 +21,11 @@ int main(int argc, char *argv[]) {
                 fmt::print(fg(fmt::color::red), "Received \'q\' aborting!\n");
                 receiver.stop();
                 break;
+            } else if (key == 's') {
+                fmt::print(
+                    "Total frames: {}, last frame: {}, lost packets: {}\n",
+                    receiver.total_frames(), receiver.last_frame(),
+                    receiver.lost_packets());
             }
         }
 

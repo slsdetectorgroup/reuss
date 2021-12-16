@@ -24,18 +24,17 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
         throw std::runtime_error("Failed to open socket");
     if (bind(sockfd_, res->ai_addr, res->ai_addrlen) == -1) {
         close(sockfd_);
-        throw std::runtime_error(fmt::format("Failed to bind socket ({}:{})", node, port));
+        throw std::runtime_error(
+            fmt::format("Failed to bind socket ({}:{})", node, port));
     }
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
 }
 
-
 UdpSocket::~UdpSocket() {
     shutdown();
     ::close(sockfd_);
     sockfd_ = -1;
-    fmt::print("~UdpSocket()\n");
 }
 
 // UdpSocket &UdpSocket::operator=(UdpSocket &&move) noexcept {
@@ -47,17 +46,16 @@ UdpSocket::~UdpSocket() {
 void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
 bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
-    // fmt::print("Socket: {}\n", sockfd_);
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
     if (rc == packet_size_) {
         memcpy(&header, dst, sizeof(header));
         return true;
     } else {
         fmt::print("Warning: read {} bytes\n", rc);
-        if (rc == -1){
+        if (rc == -1) {
+            // strerrorname_np() arrived in glibc 2.6 not using it for now
             int errv = errno;
             fmt::print("errno: {}, {}\n", errv, strerror(errv));
-	    // strerrorname_np() arrived in glibc 2.6
         }
     }
     return false;
