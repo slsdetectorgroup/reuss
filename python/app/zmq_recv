@@ -1,16 +1,37 @@
 #!/usr/bin/env python
 
+import argparse
 import matplotlib.pyplot as plt
 import reuss
+import os
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-s", "--stream", 
+    help="zmq stream", 
+    type=str, default="tcp://localhost:4545"
+)
+parser.add_argument(
+    "-n", "--n_frames", 
+    help="Number of frames to receive", 
+    type=int, default=1
+)
+parser.add_argument('-i', "--interactive", help="Keep the python terminal open",
+action='store_true')
+args = parser.parse_args()
 
-endpoint = "tcp://localhost:4545"
-# endpoint = "ipc://sls_raw_data"
+if args.interactive:
+    #keep repl open by setting to a non empty string
+    os.environ['PYTHONINSPECT'] = 'TRUE'
+    plt.ion()
 
-reciver = reuss.ZmqReceiver(endpoint)
-frame_numbers, data = reciver.receive_n(1)
+reciver = reuss.ZmqReceiver(args.stream)
+frame_numbers, data = reciver.receive_n(args.n_frames)
 
 fig, ax = plt.subplots()
 im = ax.imshow(data[0])
-im.set_clim(2000,7000)
-plt.show()
+im.set_clim(2000, 7000)
+
+if not args.interactive:
+    plt.show()
+

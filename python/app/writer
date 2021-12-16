@@ -14,25 +14,27 @@ def makedirs(base_path, label = ''):
     path = os.path.join(base_path, f'{i:03d}_{t}{label}') + '/'
     print(path)
     os.makedirs(path)
-    return path
+    return Path(path)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--path", help="Output base path", type = Path, default=None)
+    parser.add_argument(
+        "-p", "--path", 
+        help="Output base path", 
+        type = Path, default=rs.config.path.data
+    )
+    parser.add_argument(
+        "-s", "--stream", 
+        help="zmq stream", 
+        type=str, default="tcp://localhost:4545"
+    )
     args = parser.parse_args()
-    
-    endpoint = "tcp://localhost:4545"
-    
-    if args.path is None:
-        path = rs.config.path.data
-    else:
-        path = args.path
-    path = makedirs(path)
+        
+    path = makedirs(args.path)
 
-
-    writer = rs.ZmqWriter(endpoint)
-    writer.set_path(path+'file')
+    writer = rs.ZmqWriter(args.stream)
+    writer.set_path((path/'file').as_posix())
     input('Press enter key to start measure...')
     t0 = time.time()
     writer.start()
@@ -46,7 +48,7 @@ if __name__ == '__main__':
 
     x = input('Lower screen and press enter to measure pedestal or choose N to skip: ')
     if x != 'N':
-        c = rs.DataCollector(endpoint, path = path)
+        c = rs.DataCollector(args.stream, path = path)
         c.take_pedestal()
     print('Done')
 
