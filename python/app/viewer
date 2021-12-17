@@ -36,11 +36,12 @@ import ctypes
 
 import reuss
 import reuss.config as cfg
+import reuss.overlay
 
 #image drawing
-interval = 200 #ms
-cmin = 0
-cmax = 20e3
+interval = cfg.viewer.interval
+cmin = cfg.viewer.cmin
+cmax = cfg.viewer.cmax
 
 
 # x profile
@@ -107,6 +108,9 @@ wait_flag.value = False
 exit_flag = mp.Value(ctypes.c_bool)
 exit_flag.value = False
 
+record_pedestal = mp.Value(ctypes.c_bool)
+record_pedestal.value = False
+
 def read_frames(buffer, dt = None):
     """
     This function reads frames from the zmq stream. It's 
@@ -115,9 +119,15 @@ def read_frames(buffer, dt = None):
     """
     global accframes
 
-    #TODO! something here
-    # pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
+    #To be able to display somethign we need a pedestal!
     pd = reuss.shm.pedestal()
+    if pd is None:
+        print("No pedestal found in shm, recording one now")
+        pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
+        reuss.shm.store_pedestal(pd)
+    else:
+        print("Pedestal loaded from shared memory")
+
     cal = reuss.load_calibration()[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
 
     c = reuss.FrameAccumulator()
@@ -128,7 +138,17 @@ def read_frames(buffer, dt = None):
     image = np.frombuffer(buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
     acc_image = np.frombuffer(acc_buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
 
+    print("Viewer ready!")
+
     while not exit_flag.value:
+        if record_pedestal.value:
+            print("recording pedestal")
+            pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
+            reuss.shm.store_pedestal(pd)
+            c.set_pedestal(pd)
+            record_pedestal.value = False
+            print('Pedestal done')
+
         if wait_flag.value:
             time.sleep(0.1)
         else:
@@ -199,6 +219,13 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         settings_col = 2  
         settings_layout = QtWidgets.QGridLayout()
         layout.addLayout(settings_layout, 0, settings_col, 1, 1, QtCore.Qt.AlignBottom)
+
+
+        #Pedestal
+        self.pedestal_button = QtWidgets.QPushButton("Pedestal", self)
+        settings_layout.addWidget( self.pedestal_button, row,0,1,2)
+        self.pedestal_button.clicked.connect(self.do_pedestal)
+        row+=1
 
 
         #Quick buttons for clim
@@ -304,7 +331,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.update_interval = QtWidgets.QSpinBox(self)
         self.update_interval.setMaximum(5000)
         self.update_interval.setSuffix(' ms')
-        self.update_interval.setValue(interval)
+        self.update_interval.setValue(cfg.viewer.interval)
         settings_layout.addWidget(self.update_interval, row, 1)
 
         row+=1
@@ -427,6 +454,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         exit_flag.value = True
         QtWidgets.QApplication.quit()
 
+    def do_pedestal(self):
+        record_pedestal.value = True
 
     def set_clim(self):
         print(f'set_clim: {self.cmin_in.text()}, {self.cmax_in.text()}')

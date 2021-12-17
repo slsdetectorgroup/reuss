@@ -32,6 +32,11 @@ class path:
 class plot:
     origin = parser['plot']['origin']
 
+class viewer:
+    interval = parser['viewer'].getint('interval')
+    cmin = parser['viewer'].getfloat('cmin')
+    cmax = parser['viewer'].getfloat('cmax')
+
 #We need to set up shm 
 os.makedirs(path.shm, exist_ok=True)
 
@@ -59,3 +64,10 @@ def ncols():
 
 def npixles():
     return nrows() * ncols()
+
+
+def print_config():
+    with open(Path().home()/'.reussrc', 'r') as f:
+        for line in f.readlines():
+            print(line.strip('\n'))
+

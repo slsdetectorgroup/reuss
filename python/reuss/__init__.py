@@ -19,6 +19,6 @@ if found_config:
     from .calibration import load_calibration
     from . import io
     from . import shm
-    from . import overlay
+
 
 

@@ -24,28 +24,22 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
   public:
     ImageData()
         : shape_(), strides_(c_strides<Ndim>(shape_)), size_(0),
-          data_(nullptr){
-              fmt::print("ImageData()\n");
-          };
+          data_(nullptr){};
 
     explicit ImageData(std::array<ssize_t, Ndim> shape)
         : shape_(shape), strides_(c_strides<Ndim>(shape_)),
           size_(std::accumulate(shape_.begin(), shape_.end(), 1,
                                 std::multiplies<ssize_t>())),
-          data_(new T[size_]){
-            //   fmt::print("ImageData(std::array<ssize_t, Ndim> shape)\n");
-          };
+          data_(new T[size_]){};
 
     ImageData(std::array<ssize_t, Ndim> shape, T value) : ImageData(shape) {
         this->operator=(value);
-        // fmt::print("ImageData(std::array<ssize_t, Ndim> shape, T value)\n");
     };
 
     /* When constructing from a DataSpan we need to copy the data since
     ImageData expect to own its data, and span is just a view*/
-    ImageData(DataSpan<T, Ndim> span):ImageData(span.shape()){
+    ImageData(DataSpan<T, Ndim> span) : ImageData(span.shape()) {
         std::copy(span.begin(), span.end(), begin());
-        // fmt::print("ImageData(DataSpan<T, Ndim> span)\n");
     }
 
     // Move constructor
@@ -54,7 +48,6 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
           size_(other.size_), data_(nullptr) {
         data_ = other.data_;
         other.reset();
-        // fmt::print("ImageData(ImageData &&other)\n");
     }
 
     // Copy constructor
@@ -62,18 +55,14 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
         : shape_(other.shape_), strides_(c_strides<Ndim>(shape_)),
           size_(other.size_), data_(new T[size_]) {
         std::copy(other.data_, other.data_ + size_, data_);
-        // fmt::print("ImageData(const ImageData &other)\n");
     }
 
-    ~ImageData() {
-        // fmt::print("~ImageData()\n");
-        delete[] data_;
-    }
+    ~ImageData() { delete[] data_; }
 
     auto begin() { return data_; }
     auto end() { return data_ + size_; }
 
-    using value_type =  T;
+    using value_type = T;
 
     ImageData &operator=(ImageData &&other);      // Move assign
     ImageData &operator=(const ImageData &other); // Copy assign
@@ -132,10 +121,9 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
 
     template <typename... Ix>
     typename std::enable_if<sizeof...(Ix) == Ndim, T &>::type
-    operator()(Ix... index) const{
+    operator()(Ix... index) const {
         return data_[element_offset(strides_, index...)];
     }
-
 
     template <typename... Ix>
     typename std::enable_if<sizeof...(Ix) == Ndim, T>::type value(Ix... index) {

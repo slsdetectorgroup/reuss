@@ -30,6 +30,7 @@ set(PythonFiles
     DataCollector.py
     reussrc.in
     shm.py
+    print_config.py
 )
 
 foreach(FILE ${PythonFiles})

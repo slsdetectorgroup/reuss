@@ -16,7 +16,11 @@ def list():
         print(f)
 
 def pedestal():
-    return  np.load((cfg.path.shm/cfg.pedestal_base_name).with_suffix('.npy'))
+    try:
+        pd = np.load((cfg.path.shm/cfg.pedestal_base_name).with_suffix('.npy'))
+    except:
+        pd = None
+    return pd
 
 def store_pedestal(pd):
     np.save(cfg.path.shm/cfg.pedestal_base_name, pd)

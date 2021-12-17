@@ -41,12 +41,22 @@ Option | Description
 -i     | Interactive mode
 -s     | zmq stream to connect to (default "tcp://localhost:4545")
 
-## ENV Variables 
+## Configuration
 
-Reuss relies on environmental variables for the local configuration. 
+reuss relies on ~/.reussrc for configuration. If the file doesn't exist
+you will be asked to copy it using reuss.default_config() on the first
+import. 
 
-Name             | Description
----------------- | -----------
-REUSS_DET_ID     |  Detector id used to find calibration files
-REUSS_CAL_DIR    |  Directory where the calibration files are located
-REUSS_DATA_DIR   |  Default directory to save data or look for data when loading
+Normal things that you will need to change is the det_id and path to calibration.
+
+
+There is also an option to add overlays which you can preview with:
+
+```
+python -m reuss.overlay
+```
+
+Print the configration
+```
+python -m reuss.print_config
+```
