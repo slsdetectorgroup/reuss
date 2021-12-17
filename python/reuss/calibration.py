@@ -20,3 +20,10 @@ def load_calibration(det_id=cfg.det_id):
 
     print(f'loading: {cfg.path.cal/files[0]}')
     return load_calibration_from_file(os.path.join(cfg.path.cal, files[0]))
+
+def load_pedestal(fname = (cfg.path.shm/cfg.pedestal_base_name).with_suffix('.npy')):
+    #Some checks maybe? 
+    return np.load(fname)
+
+def store_pedestal(pd, fname = cfg.path.shm/cfg.pedestal_base_name):
+    np.save(fname, pd)

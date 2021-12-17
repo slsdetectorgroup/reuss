@@ -35,7 +35,7 @@ import numpy as np
 import ctypes
 
 import reuss
-
+import reuss.config as cfg
 
 #image drawing
 interval = 200 #ms
@@ -115,9 +115,10 @@ def read_frames(buffer, dt = None):
     """
     global accframes
 
-    
-    pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
-    cal = reuss.load_calibration(reuss.config.det_id)[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
+    #TODO! something here
+    # pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
+    pd = reuss.shm.pedestal()
+    cal = reuss.load_calibration()[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
 
     c = reuss.FrameAccumulator()
     c.set_pedestal(pd)
@@ -128,7 +129,6 @@ def read_frames(buffer, dt = None):
     acc_image = np.frombuffer(acc_buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
 
     while not exit_flag.value:
-        
         if wait_flag.value:
             time.sleep(0.1)
         else:
@@ -373,17 +373,14 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ax = self.canvas.figure.subplots()
         self.canvas.figure.patch.set_facecolor(colors.fc)
 
-        #Plot overlays 
-        # circ = plt.Circle((173, 170), 160, fill=False, ec = 'r', lw = 2)
-        # circ2 = plt.Circle((173, 170), 5, fill=False, ec = 'g', lw = 2)
-        # self.ax.add_artist(circ)
-        # self.ax.add_artist(circ2)
+        # Plot overlays from .reussrc
+        reuss.overlay.draw_overlay(self.ax)
 
         #Initial data
         data = np.random.randint(4000, 5000, reuss.config.nrows() * reuss.config.ncols(), dtype=np.uint16).reshape(
             reuss.config.nrows(), reuss.config.ncols()
         )
-        self.im = self.ax.imshow(data, origin = 'lower', cmap = args.cmap)
+        self.im = self.ax.imshow(data, origin = cfg.plot.origin, cmap = args.cmap)
         self.x_line = self.x_ax.plot(data.sum(axis = 0), 'o-')
         # self.y_line = self.y_ax.plot(data.sum(axis = 1), np.arange(data.shape[1]), 'o-')
         self.y_line = self.y_ax.plot(data.sum(axis = 1), 'o-')

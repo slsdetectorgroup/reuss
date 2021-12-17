@@ -48,7 +48,6 @@ constexpr size_t PKT_BYTES_PER_ROW = NCOL*sizeof(uint16_t);
 constexpr size_t COL_MIN = 256;
 constexpr size_t COL_MAX = 768;
 constexpr size_t FRAME_SIZE = NROW * (COL_MAX-COL_MIN) * sizeof(uint16_t);
-// constexpr size_t ASSEMBLED_IMAGE_SIZE = (COL_MAX-COL_MIN)*NROW * sizeof(uint16_t);
 
 constexpr ImageSize IMAGE_SIZE{512u, COL_MAX-COL_MIN};
 constexpr size_t IMAGE_SIZE_BYTES = IMAGE_SIZE.rows*IMAGE_SIZE.cols*sizeof(uint16_t);

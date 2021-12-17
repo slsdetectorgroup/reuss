@@ -25,7 +25,11 @@ set(PythonFiles
     io.py
     formatting.py
     calibration.py
+    overlay.py
+    tools.py
     DataCollector.py
+    reussrc.in
+    shm.py
 )
 
 foreach(FILE ${PythonFiles})
