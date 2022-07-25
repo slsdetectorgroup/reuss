@@ -47,7 +47,7 @@ def threshold_and_sum(data, i, subfolder = "processed", th=5, n_threads=12, verb
             (
                 summed_frames.shape[0],
                 summed_frames.shape[1] + 2,
-                summed_frames.shape[2] + 2,
+                summed_frames.shape[2] + 6,
             )
         )
     for j, frame in enumerate(summed_frames):
@@ -97,8 +97,10 @@ if __name__ == "__main__":
     #Need to cut calibration depending on the data used 
     if pd.shape == (3, 340, 340):
         cal = jf.load_calibration(cfg.det_id)[:, 150:490, 337:677]
-    else:
+    elif pd.shape == (3, 512, 512):
         cal = jf.load_calibration(cfg.det_id)[:, :, 256:768]
+    else:
+        cal = jf.load_calibration(cfg.det_id)
 
 
 

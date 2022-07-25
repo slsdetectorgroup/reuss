@@ -43,7 +43,8 @@ os.makedirs(path.shm, exist_ok=True)
 bitmask = np.array([0x3FFF], dtype=np.uint16)
 
 #TODO! Synch with C++
-roi = [(slice(0, 512, 1), slice(256, 768, 1))]
+#roi = [(slice(0, 512, 1), slice(256, 768, 1))]
+roi = [(slice(0, 512, 1), slice(0, 1024, 1))]
 
 class index(Enum):
     ROW = 0

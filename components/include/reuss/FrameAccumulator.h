@@ -18,7 +18,11 @@ template <typename T> class FrameAccumulator {
     ZmqReceiver r{DEFAULT_RECEIVE};
 
   public:
-    FrameAccumulator() { r.connect(); }
+    FrameAccumulator() { 
+        r.set_zmq_hwm(1);
+        r.connect(); 
+        
+    }
 
     ~FrameAccumulator() { r.disconnect(); }
     void set_threshold(T th) { threshold_ = th; }

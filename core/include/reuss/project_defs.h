@@ -45,16 +45,20 @@ constexpr size_t PKT_BYTES_PER_ROW = NCOL*sizeof(uint16_t);
 
 
 //setup ROI, this controls the size of the streamed out image. 
-constexpr size_t COL_MIN = 256;
-constexpr size_t COL_MAX = 768;
+//constexpr size_t COL_MIN = 256;
+//constexpr size_t COL_MAX = 768;
+constexpr size_t COL_MIN = 0;
+constexpr size_t COL_MAX = 1024;
 constexpr size_t FRAME_SIZE = NROW * (COL_MAX-COL_MIN) * sizeof(uint16_t);
 
 constexpr ImageSize IMAGE_SIZE{512u, COL_MAX-COL_MIN};
 constexpr size_t IMAGE_SIZE_BYTES = IMAGE_SIZE.rows*IMAGE_SIZE.cols*sizeof(uint16_t);
-constexpr size_t DEFAULT_UDP_BUFFER_SIZE = 1024 * 1024 * 50;
+constexpr size_t DEFAULT_UDP_BUFFER_SIZE = 1024 * 1024 * 1000;
 constexpr auto RAW_FRAMES_ENDPOINT = "tcp://*:4545";
 constexpr auto DEFAULT_RECEIVE = "tcp://127.0.0.1:4545";
 constexpr auto DEFAULT_WAIT = std::chrono::microseconds(100);
+//constexpr auto RAW_FRAMES_ENDPOINT = "ipc://tmp/feeds/0";
+//constexpr auto DEFAULT_RECEIVE = "ipc://tmp/feeds/0";
 constexpr size_t IO_ALIGNMENT = 4096;
 constexpr int64_t PRINT_MOD = 1000;
 constexpr size_t BUFFER_SIZE = 1048576;
