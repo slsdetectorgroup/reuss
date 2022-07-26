@@ -26,6 +26,14 @@ set_target_properties(urecv PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
+add_executable(g2recv g2recv.cpp)
+target_link_libraries(g2recv PUBLIC reuss_core_static project_settings reuss_detector reuss_components_shared)
+set_target_properties(g2recv PROPERTIES
+    RUNTIME_OUTPUT_NAME g2recv
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    # PUBLIC_HEADER "${PUBLICHEADERS}"
+)
+
 #Copy extra files to the binary dir
 set(Extras
     em_virtual.config

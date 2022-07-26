@@ -5,6 +5,7 @@ set(PublicHeaders
 set(SourceFiles
   src/Streamer.cpp
   src/Receiver.cpp 
+  src/G2Receiver.cpp
   src/ImageFifo.cpp
   src/UdpSocket.cpp 
   src/ZmqSocket.cpp 
