@@ -4,6 +4,8 @@
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <zmq.h>
+
+#include <cstring>
 namespace reuss {
 
 ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {}
@@ -14,10 +16,13 @@ void ZmqReceiver::connect() {
         throw std::runtime_error("Socket and context is not null");
     context = zmq_ctx_new();
     socket = zmq_socket(context, ZMQ_SUB);
+    fmt::print("Setting ZMQ_RCVHWM to {}\n", zmq_hwm);
+    int rc = zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm)); //should be set before connect
+    if (rc)
+        throw std::runtime_error(fmt::format("Could not set ZMQ_RCVHWM: {}", strerror(errno)));
     zmq_connect(socket, endpoint.c_str());
-    zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm));
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
-    zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout));
+    
 }
 
 void ZmqReceiver::disconnect() {
@@ -67,7 +72,7 @@ int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers,
     return caught_frames;
 }
 
-void ZmqReceiver::set_zmq_hwm(uint64_t hwm) { zmq_hwm = hwm; }
+void ZmqReceiver::set_zmq_hwm(int hwm) { zmq_hwm = hwm; }
 
 void ZmqReceiver::set_timeout(int ms) { timeout = ms; }
 

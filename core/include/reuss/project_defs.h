@@ -43,6 +43,7 @@ constexpr int PACKET_SIZE = sizeof(PacketHeader) + PAYLOAD_SIZE;
 constexpr size_t ROWS_PER_PACKET = 4;
 constexpr size_t PKT_BYTES_PER_ROW = NCOL*sizeof(uint16_t);
 
+constexpr int DEFAULT_ZMQ_SNDHWM = 1000;
 
 //setup ROI, this controls the size of the streamed out image. 
 //constexpr size_t COL_MIN = 256;

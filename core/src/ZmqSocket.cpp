@@ -3,13 +3,19 @@
 #include <stdexcept>
 #include <thread>
 #include <zmq.h>
+#include <cstring>
 namespace reuss {
 
-ZmqSocket::ZmqSocket(const std::string &endpoint) {
+ZmqSocket::ZmqSocket(const std::string &endpoint, int zmq_hwm) {
     context = zmq_ctx_new();
     socket = zmq_socket(context, ZMQ_PUB);
+    fmt::print("Setting ZMQ_SNDHWM to {}\n", zmq_hwm);
+    int rc = zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_hwm, sizeof(zmq_hwm)); 
+    if (rc)
+        throw std::runtime_error(fmt::format("Could not set ZMQ_SNDHWM: {}", strerror(errno)));
     if (zmq_bind(socket, endpoint.c_str()))
         throw std::runtime_error("Could not bind endpoint");
+
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
     fmt::print("Publishing data on on: {}\n", endpoint);

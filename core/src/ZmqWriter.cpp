@@ -38,9 +38,13 @@ void ZmqWriter::write() {
     // zmq setup
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_SUB);
+    
+    int hwm = 10000;
+    fmt::print("Setting ZMQ_RCVHWM in writer to {}\n", hwm);
+    int rc = zmq_setsockopt(socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    if (rc)
+        throw std::runtime_error(fmt::format("Could not set ZMQ_SNDHWM: {}", strerror(errno)));
     zmq_connect(socket, endpoint.c_str());
-    uint64_t hwm = 10000;
-    zmq_setsockopt(socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
 
     auto buffer =
