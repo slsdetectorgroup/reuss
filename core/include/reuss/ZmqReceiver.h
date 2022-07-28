@@ -6,13 +6,14 @@ namespace reuss {
 
 class ZmqReceiver {
     std::string endpoint;
+    size_t frame_size;
     int zmq_hwm = 1000;
     int timeout = -1; // wait forever
     void *context = nullptr;
     void *socket = nullptr;
 
   public:
-    ZmqReceiver(const std::string &endpoint);
+    ZmqReceiver(const std::string &endpoint, size_t frame_size = 1048576);
     ~ZmqReceiver();
     ZmqReceiver(const ZmqReceiver&) = delete;
     ZmqReceiver operator=(const ZmqReceiver&) = delete;

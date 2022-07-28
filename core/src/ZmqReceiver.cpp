@@ -8,7 +8,8 @@
 #include <cstring>
 namespace reuss {
 
-ZmqReceiver::ZmqReceiver(const std::string &endpoint) : endpoint(endpoint) {}
+ZmqReceiver::ZmqReceiver(const std::string &endpoint, size_t frame_size)
+    : endpoint(endpoint), frame_size(frame_size) {}
 ZmqReceiver::~ZmqReceiver() = default;
 
 void ZmqReceiver::connect() {
@@ -17,12 +18,13 @@ void ZmqReceiver::connect() {
     context = zmq_ctx_new();
     socket = zmq_socket(context, ZMQ_SUB);
     fmt::print("Setting ZMQ_RCVHWM to {}\n", zmq_hwm);
-    int rc = zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm)); //should be set before connect
+    int rc = zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm,
+                            sizeof(zmq_hwm)); // should be set before connect
     if (rc)
-        throw std::runtime_error(fmt::format("Could not set ZMQ_RCVHWM: {}", strerror(errno)));
+        throw std::runtime_error(
+            fmt::format("Could not set ZMQ_RCVHWM: {}", strerror(errno)));
     zmq_connect(socket, endpoint.c_str());
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
-    
 }
 
 void ZmqReceiver::disconnect() {
@@ -61,7 +63,7 @@ int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers,
         size_t more_size = sizeof(more);
         zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
         if (more) {
-            int nbytes = zmq_recv(socket, data, 1048576, 0);
+            int nbytes = zmq_recv(socket, data, frame_size, 0);
             if (nbytes == -1)
                 throw std::runtime_error("Got half of a multipart msg!!!");
             data += nbytes;

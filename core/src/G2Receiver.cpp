@@ -19,7 +19,7 @@ G2Receiver::G2Receiver(const std::string &node, const std::string &port)
 
 G2Receiver::G2Receiver(const std::string &node, const std::string &port,
                    size_t fifo_size)
-    : fifo_(fifo_size, G2_FRAME_SIZE) {
+    : fifo_(fifo_size, G2_FRAME_SIZE), preview_fifo_(fifo_size, G2_PAYLOAD_SIZE) {
     sock = std::make_unique<UdpSocket>(node, port, G2_PACKET_SIZE);
     fmt::print("Listening to: {}:{}\n", node, port);
     sock->setBufferSize(1024 * 1024 * 1000);
@@ -43,12 +43,14 @@ void G2Receiver::receivePackets(int cpu) {
 
 
     char packet_buffer[G2_PACKET_SIZE];
+    auto src = &packet_buffer[0] +sizeof(PacketHeader);
     uint64_t currentFrameNumber = 0;
     uint64_t lastFrameNumber = 0;
     int64_t totalFramesReceived = 0;
 
     while (!stopped_) {
         ImageView img = fifo_.pop_free();
+        
         size_t i = 0;
         while (i<G2_PACK && !stopped_){
 
@@ -66,13 +68,19 @@ void G2Receiver::receivePackets(int cpu) {
             lastFrameNumber = currentFrameNumber;
             auto offset = G2_PAYLOAD_SIZE * i; //copy to index position
             auto dst = img.data + offset;
-            auto src = &packet_buffer[0] +sizeof(PacketHeader);
+            
 
             memcpy(dst, src, G2_PAYLOAD_SIZE);
 
             ++i;
 
         }
+        
+        //Push one image to the preview fifo for each pack 
+        ImageView preview = preview_fifo_.pop_free();
+        preview.frameNumber = currentFrameNumber;
+        memcpy(preview.data, src, G2_PAYLOAD_SIZE);
+        preview_fifo_.push_image(preview);
 
         // img.frameNumber = currentFrameNumber;
         img.frameNumber = totalFramesReceived++;

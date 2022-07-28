@@ -25,13 +25,13 @@ if args.interactive:
     os.environ['PYTHONINSPECT'] = 'TRUE'
     plt.ion()
 
-reciver = reuss.ZmqReceiver(args.stream)
+reciver = reuss.ZmqReceiver(args.stream, 1280*1000*2)
 frame_numbers, data = reciver.receive_n(args.n_frames)
 
-fig, ax = plt.subplots()
-im = ax.imshow(data[0])
-im.set_clim(2000, 7000)
+# fig, ax = plt.subplots()
+# im = ax.imshow(data[0])
+# im.set_clim(2000, 7000)
 
-if not args.interactive:
-    plt.show()
+# if not args.interactive:
+#     plt.show()
 

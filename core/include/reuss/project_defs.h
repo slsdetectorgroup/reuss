@@ -71,6 +71,7 @@ constexpr size_t G2_PAYLOAD_SIZE = 2560;
 constexpr size_t G2_PACKET_SIZE = sizeof(PacketHeader) + G2_PAYLOAD_SIZE;
 constexpr size_t G2_PACK = 1000; 
 constexpr size_t G2_FRAME_SIZE = G2_PACK*G2_PAYLOAD_SIZE;
+// constexpr size_t G2_SINGLE_FRAME_SIZE = 2560;
 
 #ifdef DEBUG
 #define DEBUG_MSG(str) do { fmt::print("{}\n", str); } while( false )

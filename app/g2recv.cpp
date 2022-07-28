@@ -18,9 +18,10 @@ int main(int argc, char *argv[]) {
         threads.emplace_back(&rs::G2Receiver::receivePackets, &receiver, 0);
         
         rs::Streamer streamer(RAW_FRAMES_ENDPOINT, receiver.fifo());
-
         threads.emplace_back(&rs::Streamer::stream, &streamer, 1);
 
+        rs::Streamer preview_streamer("tcp://*:5000", receiver.preview_fifo());
+        threads.emplace_back(&rs::Streamer::stream, &preview_streamer, 2);
 
         // Listen for 'q'
         while (true) {
@@ -29,6 +30,7 @@ int main(int argc, char *argv[]) {
                 fmt::print(fg(fmt::color::red), "Received \'q\' aborting!\n");
                 receiver.stop();
                 streamer.stop();
+                preview_streamer.stop();
                 for(auto& t: threads)
                     t.join();
 

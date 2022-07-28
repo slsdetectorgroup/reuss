@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+from PyQt5 import QtWidgets, QtCore, uic
+from pyqtgraph import PlotWidget
+import pyqtgraph as pg
+import sys
+import numpy as np
+
+from slsdet import Gotthard2
+import reuss as rs
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+
+        # #Setup detector and receiver
+        self.det = Gotthard2()
+        self.zmq_rcv = rs.PreviewReceiver('tcp://127.0.0.1:5000', timeout_ms=100)
+        self.zmq_rcv.start()
+
+
+
+        # #Load the UI Page
+        uic.loadUi('g2panel.ui', self)
+
+        self.startButton.clicked.connect(self.det.start)
+
+
+        self.curve = self.plotWidget.plot(pen='y')
+
+    # def update_plot(self):
+    #     data = self.zmq_rcv.get_data()
+    #     self.curve.setData(data)
+
+    def update_status(self):
+        s = str(self.det.status).split('.')[1]
+        self.statusLabel.setText(s)
+
+    def update_plot(self):
+        data = self.zmq_rcv.get_data()
+        self.curve.setData(data[0:1280])
+
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    main = MainWindow()
+    main.show()
+
+    #Timer for updating the plot
+    timer = QtCore.QTimer()
+    timer.timeout.connect(main.update_status)
+    timer.start(100)
+
+    timer2 = QtCore.QTimer()
+    timer2.timeout.connect(main.update_plot)
+    timer2.start(100)
+
+    #Run the app
+    app.exec_()
+
+    # #Stop the receiving process before exiting
+    # main.zmq_rcv.stop()
+
+
+
+if __name__ == '__main__':
+    main()
+

@@ -12,6 +12,7 @@ class UdpSocket;
 
 class G2Receiver {
     ImageFifo fifo_;
+    ImageFifo preview_fifo_;
     std::atomic<bool> stopped_{false};
     std::unique_ptr<UdpSocket> sock;
     std::atomic<int> total_lost_packets_{};
@@ -24,6 +25,8 @@ class G2Receiver {
     int lost_packets() const noexcept;
     void stop();
     ImageFifo *fifo() { return &fifo_; }
+    ImageFifo *preview_fifo() { return &preview_fifo_; }
+
     ~G2Receiver();
 };
 

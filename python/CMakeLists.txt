@@ -28,6 +28,7 @@ set(PythonFiles
     overlay.py
     tools.py
     DataCollector.py
+    PreviewReceiver.py
     reussrc.in
     shm.py
     print_config.py
@@ -48,6 +49,8 @@ set(PythonApps
     collect_raw_pd
     play.py
     read_stream.py
+    g2panel
+    g2panel.ui
 )
 
 foreach(FILE ${PythonApps})
