@@ -9,23 +9,29 @@
 
 int main(int argc, char *argv[]) {
     namespace rs = reuss;
-    rs::direct_input();
-    // try {
+    // rs::direct_input();
+    rs::reset_terminal();
+    try {
     //     // The receiver reads the config from the sls::Detector API
-    //     rs::StreamingReceiver receiver;
-    //     receiver.start();
-        rs::G2Receiver r("127.0.0.1", "50000");
-        std::thread t(&rs::G2Receiver::receivePackets, &r, 0);
-        // t.start();
+        std::vector<std::thread> threads;
+        rs::G2Receiver receiver("10.1.2.125", "50001");
+        threads.emplace_back(&rs::G2Receiver::receivePackets, &receiver, 0);
+        
+        rs::Streamer streamer(RAW_FRAMES_ENDPOINT, receiver.fifo());
+
+        threads.emplace_back(&rs::Streamer::stream, &streamer, 1);
+
 
         // Listen for 'q'
         while (true) {
             auto key = std::cin.get();
             if (key == 'q') {
                 fmt::print(fg(fmt::color::red), "Received \'q\' aborting!\n");
-                r.stop();
-                t.join();
-                // receiver.stop();
+                receiver.stop();
+                streamer.stop();
+                for(auto& t: threads)
+                    t.join();
+
                 break;
             } else if (key == 's') {
                 // fmt::print(
@@ -35,8 +41,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-    // } catch (const std::runtime_error &e) {
-    //     fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
-    // }
-    rs::reset_terminal();
+    } catch (const std::runtime_error &e) {
+        fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
+    }
+    // rs::reset_terminal();
 }

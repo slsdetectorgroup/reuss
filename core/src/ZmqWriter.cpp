@@ -68,7 +68,7 @@ void ZmqWriter::write() {
         size_t more_size = sizeof(more);
         zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
         if (more) {
-            int nbytes = zmq_recv(socket, buffer, 1048576, 0);
+            int nbytes = zmq_recv(socket, buffer, BUFFER_SIZE, 0);
             f.write(frame_number, buffer, nbytes);
             ++frames_written_;
         }

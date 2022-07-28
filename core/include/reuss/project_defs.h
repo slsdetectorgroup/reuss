@@ -62,10 +62,15 @@ constexpr auto DEFAULT_WAIT = std::chrono::microseconds(100);
 //constexpr auto DEFAULT_RECEIVE = "ipc://tmp/feeds/0";
 constexpr size_t IO_ALIGNMENT = 4096;
 constexpr int64_t PRINT_MOD = 1000;
-constexpr size_t BUFFER_SIZE = 1048576;
+constexpr size_t BUFFER_SIZE = 1024*1024*3; //defines maximum frame size, make customizable?
 
 constexpr uint16_t ADC_MASK = 0x3FFF;
 
+// Gotthard2 settings, make some run time configurable?
+constexpr size_t G2_PAYLOAD_SIZE = 2560;
+constexpr size_t G2_PACKET_SIZE = sizeof(PacketHeader) + G2_PAYLOAD_SIZE;
+constexpr size_t G2_PACK = 1000; 
+constexpr size_t G2_FRAME_SIZE = G2_PACK*G2_PAYLOAD_SIZE;
 
 #ifdef DEBUG
 #define DEBUG_MSG(str) do { fmt::print("{}\n", str); } while( false )
