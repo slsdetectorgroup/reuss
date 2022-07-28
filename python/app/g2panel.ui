@@ -13,6 +13,12 @@
   <property name="windowTitle">
    <string>Detector Controls</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(154, 153, 150);</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="PlotWidget" name="plotWidget" native="true">
     <property name="geometry">
@@ -24,7 +30,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="startButton">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -37,11 +43,11 @@
      <string>Start</string>
     </property>
    </widget>
-   <widget class="QSpinBox" name="spinBox">
+   <widget class="QSpinBox" name="spinBoxFrames">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>300</y>
+      <x>70</x>
+      <y>290</y>
       <width>126</width>
       <height>42</height>
      </rect>
@@ -50,10 +56,10 @@
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>190</y>
-      <width>118</width>
-      <height>23</height>
+      <x>70</x>
+      <y>380</y>
+      <width>291</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="value">
