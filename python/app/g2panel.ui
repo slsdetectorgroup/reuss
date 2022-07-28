@@ -60,16 +60,6 @@
      <number>24</number>
     </property>
    </widget>
-   <widget class="KLed" name="kled">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>490</y>
-      <width>16</width>
-      <height>16</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -133,11 +123,6 @@
   </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>KLed</class>
-   <extends>QWidget</extends>
-   <header>kled.h</header>
-  </customwidget>
   <customwidget>
    <class>PlotWidget</class>
    <extends>QWidget</extends>
