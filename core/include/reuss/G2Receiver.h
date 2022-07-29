@@ -17,10 +17,12 @@ class G2Receiver {
     std::unique_ptr<UdpSocket> sock;
     std::atomic<int> total_lost_packets_{};
 
+    std::size_t n_frames;
+
   public:
     G2Receiver(const std::string &node, const std::string &port);
     G2Receiver(const std::string &node, const std::string &port,
-             size_t fifo_size);
+             size_t fifo_size, size_t n_frames);
     void receivePackets(int cpu);
     int lost_packets() const noexcept;
     void stop();

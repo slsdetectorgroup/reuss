@@ -41,6 +41,7 @@ template <typename T> class File {
         meta_[n_written_++] = frame_number;
         writerImpl.write(data, data_size);
     }
+    
     std::string currentFname() {
         return fmt::format("{}_{}.bin", basename_, file_nr_);
     }

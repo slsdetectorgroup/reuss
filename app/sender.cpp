@@ -45,7 +45,7 @@ int main(int argc, char** argv){
         
     std::string endpoint = RAW_FRAMES_ENDPOINT;    
     std::vector<uint16_t> buffer(IMAGE_SIZE.rows*IMAGE_SIZE.cols);
-    reuss::ImageView image{int64_t(0), reinterpret_cast<char*> (&buffer[0])};
+    reuss::ImageView image{int64_t(0), int64_t(1),reinterpret_cast<char*> (&buffer[0])};
     reuss::ZmqSocket socket(endpoint);
 
     for (int i = 0; i<n_frames; ++i){

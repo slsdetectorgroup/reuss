@@ -8,6 +8,7 @@ pybind11_add_module(_reuss
     src/utils.cpp
     src/frameacc.cpp
     src/streaming_receiver.cpp
+    src/g2receiver.cpp
 )
 
 target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared reuss_detector reuss_math)

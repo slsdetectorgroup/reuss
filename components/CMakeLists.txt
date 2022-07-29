@@ -1,11 +1,13 @@
 set(PublicHeaders
     reuss/StreamingReceiver.h
+    reuss/Gotthard2Receiver.h
     reuss/FrameAccumulator.h
     reuss/pedestal.h
 )
 
 set(SourceFiles
   src/StreamingReceiver.cpp
+  src/Gotthard2Receiver.cpp
 )
 
 add_library(

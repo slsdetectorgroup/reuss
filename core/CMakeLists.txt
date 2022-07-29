@@ -14,6 +14,7 @@ set(SourceFiles
   src/FwriteWriter.cpp
   src/ZmqReceiver.cpp
   src/ZmqWriter.cpp
+  src/Writer.cpp
 )
 
 add_library(
