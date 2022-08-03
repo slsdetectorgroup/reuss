@@ -8,30 +8,46 @@ import numpy as np
 from slsdet import Gotthard2
 from pathlib import Path
 import reuss as rs
-class MainWindow(QtWidgets.QMainWindow):
+import time
+from slsdet import Detector
 
+
+
+class MainWindow(QtWidgets.QMainWindow):
+    
     def __init__(self, *args, **kwargs):
+        pg.setConfigOption('background', (154, 153, 150))
+        pg.setConfigOption('foreground', 'k')
+
+
         super(MainWindow, self).__init__(*args, **kwargs)
 
-        self.rcv = rs.Gotthard2Receiver()
-        self.rcv .udp_source = "10.1.2.125:50001"
-        self.rcv .frames = int(1e6)
-        self.rcv .fpath = Path("/home/l_msdetect/erik/tmp/g2")
-        self.rcv.start()
+        self.det = Detector()
+        self.rcv = rs.Receiver("tcp://129.129.202.97:5556")
+        self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
+        self.rcv.frames = self.det.frames
+        self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
 
-
-        # #Setup detector and receiver
-        self.det = Gotthard2()
-        self.zmq_rcv = rs.PreviewReceiver('tcp://127.0.0.1:4547', timeout_ms=100)
+        self.zmq_rcv = rs.PreviewReceiver('tcp://129.129.202.97:4547', timeout_ms=100)
         self.zmq_rcv.start()
-
-
 
         # #Load the UI Page
         uic.loadUi('g2panel.ui', self)
 
-        self.startButton.clicked.connect(self.det.start)
-        self.curve = self.plotWidget.plot(pen='y')
+        self.startButton.clicked.connect(self.start)
+        pen = pg.mkPen(color = (36, 119, 173), width=1,) 
+        self.curve = self.plotWidget.plot(pen=pen)
+
+
+        #initialize fields
+        # self.nameLineEdit.setText(self.rcv.fname)
+        self.pathLineEdit.setText(self.rcv.fpath)
+        self.pathLineEdit.textChanged.connect(self.setPath)
+
+
+        self.fwriteCheckBox.setChecked(self.rcv.fwrite)
+        self.fwriteCheckBox.stateChanged.connect(self.setFwrite)
+
 
     def update_progress(self):
         self.progressBar.setValue(int(self.rcv.progress*100))
@@ -42,15 +58,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_plot(self):
         data = self.zmq_rcv.get_data()
-        self.curve.setData(data[0:1280])
+        self.curve.setData(data)
 
 
     def start(self):
+        self.rcv.start()
+        time.sleep(0.1)
         self.det.start()
 
+    def setPath(self):
+        self.rcv.fpath = self.pathLineEdit.text()
+    
+    def setFwrite(self):
+        self.rcv.fwrite = self.fwriteCheckBox.isChecked()
 
 
-def main():
+if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
     main.show()
@@ -72,10 +95,5 @@ def main():
     app.exec_()
 
     # #Stop the receiving process before exiting
-    # main.zmq_rcv.stop()
-
-
-
-if __name__ == '__main__':
-    main()
+    main.zmq_rcv.stop()
 

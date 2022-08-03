@@ -1,6 +1,6 @@
 import json
 import zmq
-from . import Gotthard2Receiver
+from . import Gotthard2Receiver, json_string
 
 
 class Receiver:
@@ -35,7 +35,7 @@ class Receiver:
             super().__setattr__(key, value)
 
     def send(self, request):
-        s = json.dumps(request)
+        s = json_string(request)
         self.socket.send_string(s)
         r = self.socket.recv_string()
         return json.loads(r)
