@@ -55,7 +55,7 @@ class Receiver:
 
 d = Detector()
 
-r = Receiver("tcp://127.0.0.1:5556") #where to talk to the receiver
+r = Receiver("tcp://129.129.202.97:5556") #where to talk to the receiver
 
 r.udp_source = f"{d.udp_dstip}:{d.udp_dstport}"
 r.frames = d.frames

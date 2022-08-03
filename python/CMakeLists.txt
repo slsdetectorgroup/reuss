@@ -26,6 +26,7 @@ set(PythonFiles
     io.py
     formatting.py
     calibration.py
+    validation.py
     overlay.py
     tools.py
     DataCollector.py

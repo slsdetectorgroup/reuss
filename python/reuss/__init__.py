@@ -18,6 +18,7 @@ if found_config:
     from .PreviewReceiver import PreviewReceiver
     from .formatting import color
     from .calibration import load_calibration
+    from .validation import json_string
     from . import io
     from . import shm
 
