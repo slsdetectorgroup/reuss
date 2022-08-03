@@ -54,6 +54,14 @@ namespace reuss{
         return n_frames;
     }
 
+    void Gotthard2Receiver::setFname(std::string_view fname){
+        base_name = fname;
+    }
+
+    std::string Gotthard2Receiver::Fname() const{
+        return base_name;
+    }
+
     std::string Gotthard2Receiver::UdpSource() const{
         return fmt::format("{}:{}", udp_ip, udp_port);
     }

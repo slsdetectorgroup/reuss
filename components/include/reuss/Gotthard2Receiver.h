@@ -19,6 +19,7 @@ class Gotthard2Receiver{
     std::string udp_port;
     std::vector<std::thread> threads;
     std::filesystem::path fpath;
+    std::string base_name{G2_DEFAULT_BASE_NAME};
 
     G2Receiver* receiver{};
     Streamer* preview_streamer{};
@@ -43,6 +44,9 @@ public:
 
     void setFwrite(bool write);
     bool Fwrite();
+
+    void setFname(std::string_view fname);
+    std::string Fname() const;
 
     void setFpath(std::filesystem::path file_path);
     std::filesystem::path Fpath();

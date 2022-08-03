@@ -14,7 +14,7 @@ void Writer::write(int cpu) {
     stopped_ = false;
     pin_this_thread(cpu);
     fmt::print("Writing to: {}\n", pathname);
-    RawFile<FwriteWriter> f(pathname, 100000);
+    RawFile<FwriteWriter> f(pathname, G2_FRAMES_PER_FILE);
     while (!stopped_ && (total_frames_ < n_frames)) {
         ImageView img;
         if (fifo_->try_pop_image(img)) {
@@ -36,7 +36,6 @@ void Writer::write(int cpu) {
 void Writer::sink(int cpu){
     stopped_ = false;
     pin_this_thread(cpu);
-    fmt::print("Writing disabled\n");
     while (!stopped_ && (total_frames_ < n_frames)) {
         ImageView img;
         if (fifo_->try_pop_image(img)) {

@@ -13,6 +13,7 @@ void init_g2receiver(py::module &m) {
     .def_property("frames", &reuss::Gotthard2Receiver::Frames, &reuss::Gotthard2Receiver::setFrames)
     .def_property("fwrite", &reuss::Gotthard2Receiver::Fwrite, &reuss::Gotthard2Receiver::setFwrite)
     .def_property("fpath", &reuss::Gotthard2Receiver::Fpath, &reuss::Gotthard2Receiver::setFpath)
+    .def_property("fname", &reuss::Gotthard2Receiver::Fname, &reuss::Gotthard2Receiver::setFname)
     .def_property_readonly("done", &reuss::Gotthard2Receiver::done)
     .def_property_readonly("progress", &reuss::Gotthard2Receiver::progress)
     .def("start", &reuss::Gotthard2Receiver::start)
