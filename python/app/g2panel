@@ -39,7 +39,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.curve = self.plotWidget.plot(pen=pen)
 
         #initialize fields
-        # self.nameLineEdit.setText(self.rcv.fname)
+        self.nameLineEdit.setText(self.rcv.fname)
+        self.pathLineEdit.textChanged.connect(self.setFname)
+
         self.pathLineEdit.setText(self.rcv.fpath)
         self.pathLineEdit.textChanged.connect(self.setPath)
 
@@ -79,6 +81,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setPath(self):
         self.rcv.fpath = self.pathLineEdit.text()
+
+    def setFname(self):
+        self.rcv.fname = self.nameLineEdit.text()
     
     def setFwrite(self):
         self.rcv.fwrite = self.fwriteCheckBox.isChecked()
