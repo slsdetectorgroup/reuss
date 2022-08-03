@@ -22,13 +22,31 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
     fmt::print("Created sockfd: {}\n", sockfd_);
     if (sockfd_ == -1)
         throw std::runtime_error("Failed to open socket");
+    
+
+    
+    
     if (bind(sockfd_, res->ai_addr, res->ai_addrlen) == -1) {
         close(sockfd_);
         throw std::runtime_error(
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
+
+    struct timeval timeout;      
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 1000;
+    
+    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                sizeof timeout) < 0)
+        throw std::runtime_error(
+            fmt::format("Failed to set timeout"));
+
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
+
+
+
+
 }
 
 UdpSocket::~UdpSocket() {
@@ -37,12 +55,6 @@ UdpSocket::~UdpSocket() {
     sockfd_ = -1;
 }
 
-// UdpSocket &UdpSocket::operator=(UdpSocket &&move) noexcept {
-//     // move.swap(*this);
-//     fmt::print("HEY\n");
-//     return *this;
-// }
-
 void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
 bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
@@ -50,6 +62,8 @@ bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
     if (rc == packet_size_) {
         memcpy(&header, dst, sizeof(header));
         return true;
+    }else if(rc == -1){
+
     } else {
         fmt::print("Warning: read {} bytes\n", rc);
         if (rc == -1) {
