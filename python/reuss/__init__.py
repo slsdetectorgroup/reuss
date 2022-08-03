@@ -19,6 +19,7 @@ if found_config:
     from .formatting import color
     from .calibration import load_calibration
     from .validation import json_string
+    from .receiver import Receiver
     from . import io
     from . import shm
 

@@ -32,6 +32,7 @@ set(PythonFiles
     DataCollector.py
     PreviewReceiver.py
     reussrc.in
+    receiver.py
     shm.py
     print_config.py
 )
