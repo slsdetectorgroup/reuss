@@ -33,7 +33,6 @@ G2Receiver::G2Receiver(const std::string &node, const std::string &port,
 G2Receiver::~G2Receiver(){
     if (sock)
         sock->shutdown();
-
 }
 
 void G2Receiver::stop() {
