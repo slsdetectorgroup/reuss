@@ -14,7 +14,7 @@ from slsdet import Detector
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    
+
     def __init__(self, *args, **kwargs):
         pg.setConfigOption('background', (154, 153, 150))
         pg.setConfigOption('foreground', 'k')
@@ -38,7 +38,6 @@ class MainWindow(QtWidgets.QMainWindow):
         pen = pg.mkPen(color = (36, 119, 173), width=1,) 
         self.curve = self.plotWidget.plot(pen=pen)
 
-
         #initialize fields
         # self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
@@ -49,8 +48,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fwriteCheckBox.stateChanged.connect(self.setFwrite)
 
 
+
+        #Timers
+        self.progress_timer = QtCore.QTimer()
+        self.progress_timer.timeout.connect(self.update_progress)
+        self.update_progress()
+        # timer3.start(100)
+
+
     def update_progress(self):
-        self.progressBar.setValue(int(self.rcv.progress*100))
+        p = int(self.rcv.progress*100);
+        self.progressBar.setValue(p)
+        if p == 100:
+            self.progress_timer.stop()
 
     def update_status(self):
         s = str(self.det.status).split('.')[1]
@@ -62,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def start(self):
+        self.progress_timer.start(100)
         self.rcv.start()
         time.sleep(0.1)
         self.det.start()
@@ -87,9 +98,7 @@ if __name__ == '__main__':
     timer2.timeout.connect(main.update_plot)
     timer2.start(100)
 
-    timer3 = QtCore.QTimer()
-    timer3.timeout.connect(main.update_progress)
-    timer3.start(100)
+    
 
     #Run the app
     app.exec_()

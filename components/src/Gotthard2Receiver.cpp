@@ -22,6 +22,8 @@ namespace reuss{
         udp_ip = source.substr(0, pos);
         udp_port = source.substr(pos+1);
 
+        stop();
+
         delete receiver;
         receiver = new G2Receiver(udp_ip, udp_port, fifo_size);
         delete preview_streamer;
@@ -77,14 +79,15 @@ namespace reuss{
 
     void Gotthard2Receiver::stop(){
         fmt::print(fg(fmt::color::red), "Stopping receiver!\n");
-            receiver->stop();
-            writer->stop();
-            preview_streamer->stop();
+            if (receiver)
+                receiver->stop();
+            if (writer)
+                writer->stop();
+            if (preview_streamer)
+                preview_streamer->stop();
             for(auto& t: threads)
                 t.join();
-
             threads.clear();
-
             fmt::print(fg(fmt::color::red), "Receiver stopped!\n");
     }
 
