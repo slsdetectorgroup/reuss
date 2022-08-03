@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+
+import errno
+from reuss import Gotthard2Receiver
+import zmq
+
+from argparse import ArgumentParser
+
+
+
+import json
+
+
+
+class ReceiverServer:
+    ok_str = json.dumps({"status": "ok"})
+    error_str = json.dumps({"status": "error", 'reason':'generic error'})
+    def __init__(self, endpoint):
+        self.rcv = Gotthard2Receiver()
+
+
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        socket.bind(endpoint)
+        print(f"Listening to: {endpoint}")
+
+        while True:
+            msg = socket.recv_string()
+            rep = self._execute(msg)
+            socket.send_string(rep)
+
+
+    def _execute(self, request):
+        """Run a json command on the receiver"""
+        request = json.loads(request)
+
+        for key, value in request.items():
+            match key:
+                case "get":
+                    if isinstance(value, str):
+                        value = [value]
+                    res = {}
+                    res["status"] = "ok"
+                    for parameter in value:
+                        try:
+                            # res[parameter] = eval(f"self.rcv.{parameter}")
+                            res[parameter] = getattr(self.rcv, parameter)
+                            print(f"{parameter}: {res[parameter]}")
+                        except AttributeError:
+                            return json.dumps({"status": "error", "reason": f"Receiver has no: {parameter} attribute"})
+                    return json.dumps(res)
+
+                case "run":
+                    if isinstance(value, str):
+                        value = [value]
+
+                    for func in value:
+                        try:
+                            exec(f"self.rcv.{func}()")
+                            return self.ok_str
+                        except:
+                            return self.error_str
+
+                case _:
+                    #no arg means set
+                    try:
+                        setattr(self.rcv, key, value)
+                        print(f"{key}: {value}")
+                    except AttributeError:
+                        return json.dumps({"status": "error", "reason": f"Receiver has no: {key} attribute"})
+
+        return self.ok_str
+
+
+
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument("-p", "--port", help="Number of threads used for processing", type = int, default=5556)
+    args = parser.parse_args()
+
+    r = ReceiverServer(f"tcp://*:{args.port}")
+
+
+
+    
+

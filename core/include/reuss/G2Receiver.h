@@ -16,16 +16,19 @@ class G2Receiver {
     std::atomic<bool> stopped_{false};
     std::unique_ptr<UdpSocket> sock;
     std::atomic<int> total_lost_packets_{};
+    std::atomic<bool> done_{false};
+    std::atomic<double> progress_{};
 
-    std::size_t n_frames;
 
   public:
     G2Receiver(const std::string &node, const std::string &port);
     G2Receiver(const std::string &node, const std::string &port,
-             size_t fifo_size, size_t n_frames);
-    void receivePackets(int cpu);
+             size_t fifo_size);
+    void receive_n(int cpu, size_t n_frames);
     int lost_packets() const noexcept;
     void stop();
+    bool done() const;
+    double progress() const;
     ImageFifo *fifo() { return &fifo_; }
     ImageFifo *preview_fifo() { return &preview_fifo_; }
 

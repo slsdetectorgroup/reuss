@@ -52,6 +52,7 @@ set(PythonApps
     read_stream.py
     g2panel
     g2panel.ui
+    g2recv
 )
 
 foreach(FILE ${PythonApps})
