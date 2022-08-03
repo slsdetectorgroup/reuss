@@ -64,8 +64,6 @@ namespace reuss{
 
     void Gotthard2Receiver::start(){
         fmt::print("Starting receiver\n");
-
-
         writer = std::make_unique<Writer>(receiver->fifo(), n_frames, Pathname());
         if (write_to_file)
             threads.emplace_back(&Writer::write, writer.get(), 1);

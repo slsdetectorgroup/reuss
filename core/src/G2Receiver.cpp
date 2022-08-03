@@ -66,25 +66,25 @@ void G2Receiver::receive_n(int cpu, size_t n_frames) {
         while (i < G2_PACK && !stopped_ && (frames_received < n_frames)) {
 
             PacketHeader header{};
-            sock->receivePacket(packet_buffer, header); // waits here for data
-            currentFrameNumber = header.frameNumber;
+            if(sock->receivePacket(packet_buffer, header)){
+                currentFrameNumber = header.frameNumber;
 
-            // Debug printing
-            if ((currentFrameNumber - lastFrameNumber != 1) && (lastFrameNumber != 0)) {
-                fmt::print(fg(fmt::color::red), "Lost {} frames\n",
-                           currentFrameNumber - lastFrameNumber);
+                // Debug printing
+                if ((currentFrameNumber - lastFrameNumber != 1) && (lastFrameNumber != 0)) {
+                    fmt::print(fg(fmt::color::red), "Lost {} frames\n",
+                            currentFrameNumber - lastFrameNumber);
+                }
+
+                lastFrameNumber = currentFrameNumber;
+                auto offset = G2_PACKET_SIZE * i;
+                auto dst = img.data + offset;
+                memcpy(dst, &packet_buffer[0], G2_PACKET_SIZE);
+
+                ++frames_received;
+                ++i;
+
+                progress_ = static_cast<double>(frames_received) / static_cast<double>(n_frames);
             }
-
-            lastFrameNumber = currentFrameNumber;
-            auto offset = G2_PACKET_SIZE * i;
-            auto dst = img.data + offset;
-            memcpy(dst, &packet_buffer[0], G2_PACKET_SIZE);
-
-            ++frames_received;
-            ++i;
-
-            progress_ = static_cast<double>(frames_received) / static_cast<double>(n_frames);
-
         }
 
         // Push one image to the preview fifo for each pack

@@ -18,15 +18,11 @@ class Gotthard2Receiver{
     std::string udp_ip;
     std::string udp_port;
     std::vector<std::thread> threads;
-
-
     std::filesystem::path fpath;
 
     G2Receiver* receiver{};
     Streamer* preview_streamer{};
-
     std::unique_ptr<Writer> writer{};
-
 
     size_t n_frames{};
     size_t fifo_size{100};

@@ -52,3 +52,11 @@ set_target_properties(reuss_components_static PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     PUBLIC_HEADER "${PublicHeaders}"
 )
+
+if(REUSS_BUILD_TESTS)
+    set(TestSources
+        src/Gotthard2Receiver.test.cpp
+    )
+    target_sources(tests PRIVATE src ${TestSources} )
+    target_link_libraries(tests PRIVATE reuss_components_shared)
+endif(REUSS_BUILD_TESTS)
