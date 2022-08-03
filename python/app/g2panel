@@ -40,10 +40,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #initialize fields
         self.nameLineEdit.setText(self.rcv.fname)
-        self.pathLineEdit.textChanged.connect(self.setFname)
+        self.nameLineEdit.editingFinished.connect(self.setFname)
 
         self.pathLineEdit.setText(self.rcv.fpath)
-        self.pathLineEdit.textChanged.connect(self.setPath)
+        self.pathLineEdit.editingFinished.connect(self.setPath)
 
 
         self.fwriteCheckBox.setChecked(self.rcv.fwrite)

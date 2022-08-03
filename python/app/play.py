@@ -22,7 +22,7 @@ r.udp_source = f"{d.udp_dstip}:{d.udp_dstport}"
 r.frames = d.frames
 
 
-r.start()
+# r.start()
 # def acquire(det, rcv):
 #     rcv.start() 
 #     time.sleep(0.1)

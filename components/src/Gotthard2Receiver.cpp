@@ -67,7 +67,7 @@ namespace reuss{
     }
 
     std::string Gotthard2Receiver::Pathname(){
-        return fpath / "file";
+        return fpath / base_name;
     }
 
     void Gotthard2Receiver::start(){
