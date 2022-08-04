@@ -22,7 +22,6 @@ void Writer::write(int cpu) {
             // DirectWriter
             const size_t nbytes = img.framesInPack*G2_PACKET_SIZE;
             f.write(img.framesInPack, img.data, nbytes);
-
             last_frame_ = img.frameNumber;
             total_frames_ += img.framesInPack;
             fifo_->push_free(img);

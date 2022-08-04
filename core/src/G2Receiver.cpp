@@ -25,7 +25,7 @@ G2Receiver::G2Receiver(const std::string &node, const std::string &port,
       preview_fifo_(fifo_size, G2_PAYLOAD_SIZE){
     sock = std::make_unique<UdpSocket>(node, port, G2_PACKET_SIZE);
     fmt::print("Listening to: {}:{}\n", node, port);
-    sock->setBufferSize(1024 * 1024 * 1000);
+    sock->setBufferSize(G2_UDP_SOCKET_SIZE);
     fmt::print("UDP buffer size: {} MB\n",
                static_cast<double>(sock->bufferSize()) / (1024. * 1024.));
 }
@@ -45,7 +45,7 @@ bool G2Receiver::done() const { return done_; }
 
 double G2Receiver::progress() const { return progress_; }
 
-void G2Receiver::receive_n(int cpu, size_t n_frames) {
+void G2Receiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
     stopped_ = false;
     done_ = false;
     pin_this_thread(cpu);
@@ -61,6 +61,8 @@ void G2Receiver::receive_n(int cpu, size_t n_frames) {
 
     while (!stopped_ && (frames_received < n_frames)) {
         ImageView img = fifo_.pop_free();
+        if (frames_received %10000==0)
+            fmt::print("{}:{}\n", frames_received, fifo_.numFreeSlots());
 
         size_t i = 0;
         while (i < G2_PACK && !stopped_ && (frames_received < n_frames)) {
@@ -80,6 +82,16 @@ void G2Receiver::receive_n(int cpu, size_t n_frames) {
                 auto dst = img.data + offset;
                 memcpy(dst, &packet_buffer[0], G2_PACKET_SIZE);
 
+                //Stream one per n_frames
+                if(frames_received % stream_nth == 0){
+                    ImageView preview = preview_fifo_.pop_free();
+                    preview.frameNumber = currentFrameNumber;
+                    preview.framesInPack = 1;
+                    memcpy(preview.data, src, G2_PAYLOAD_SIZE);
+                    preview_fifo_.push_image(preview);
+                }
+
+
                 ++frames_received;
                 ++i;
 
@@ -87,12 +99,12 @@ void G2Receiver::receive_n(int cpu, size_t n_frames) {
             }
         }
 
-        // Push one image to the preview fifo for each pack
-        ImageView preview = preview_fifo_.pop_free();
-        preview.frameNumber = currentFrameNumber;
-        preview.framesInPack = 1;
-        memcpy(preview.data, src, G2_PAYLOAD_SIZE);
-        preview_fifo_.push_image(preview);
+
+        // ImageView preview = preview_fifo_.pop_free();
+        // preview.frameNumber = currentFrameNumber;
+        // preview.framesInPack = 1;
+        // memcpy(preview.data, src, G2_PAYLOAD_SIZE);
+        // preview_fifo_.push_image(preview);
 
         // img.frameNumber = currentFrameNumber;
         img.frameNumber = frame_index++;

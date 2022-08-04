@@ -18,13 +18,15 @@ class G2Receiver {
     std::atomic<int> total_lost_packets_{};
     std::atomic<bool> done_{false};
     std::atomic<double> progress_{};
+    
+
 
 
   public:
     G2Receiver(const std::string &node, const std::string &port);
     G2Receiver(const std::string &node, const std::string &port,
              size_t fifo_size);
-    void receive_n(int cpu, size_t n_frames);
+    void receive_n(int cpu, size_t n_frames, size_t stream_nth);
     int lost_packets() const noexcept;
     void stop();
     bool done() const;

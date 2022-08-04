@@ -6,11 +6,11 @@
 #include <stdexcept>
 #include <sys/socket.h>
 #include <unistd.h>
+
 namespace reuss {
 UdpSocket::UdpSocket(const std::string &node, const std::string &port,
-                     int packet_size)
+                     size_t packet_size)
     : packet_size_(packet_size) {
-    // open socket
     struct addrinfo hints {};
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
@@ -19,12 +19,9 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
     if (getaddrinfo(node.c_str(), port.c_str(), &hints, &res))
         throw std::runtime_error("Get getaddrinfo failed");
     sockfd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    fmt::print("Created sockfd: {}\n", sockfd_);
+
     if (sockfd_ == -1)
         throw std::runtime_error("Failed to open socket");
-    
-
-    
     
     if (bind(sockfd_, res->ai_addr, res->ai_addrlen) == -1) {
         close(sockfd_);
@@ -32,10 +29,10 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
 
+    //TODO! should we make this configurable, or do we actually don't need it?
     struct timeval timeout;      
     timeout.tv_sec = 0;
     timeout.tv_usec = 1000;
-    
     if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                 sizeof timeout) < 0)
         throw std::runtime_error(
@@ -43,10 +40,6 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
 
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
-
-
-
-
 }
 
 UdpSocket::~UdpSocket() {

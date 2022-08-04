@@ -70,6 +70,13 @@ namespace reuss{
         return fpath / base_name;
     }
 
+    void Gotthard2Receiver::setStreamNth(size_t n){
+        stream_nth = n;
+    }
+    size_t Gotthard2Receiver::StreamNth(){
+        return stream_nth;
+    }
+
     void Gotthard2Receiver::start(){
         fmt::print("Starting receiver\n");
         writer = std::make_unique<Writer>(receiver->fifo(), n_frames, Pathname());
@@ -79,7 +86,7 @@ namespace reuss{
             threads.emplace_back(&Writer::sink, writer.get(), 1);
 
     
-        threads.emplace_back(&G2Receiver::receive_n, receiver, 0, n_frames);
+        threads.emplace_back(&G2Receiver::receive_n, receiver, 0, n_frames, 1024);
         threads.emplace_back(&Streamer::stream, preview_streamer, 2);
     }
 

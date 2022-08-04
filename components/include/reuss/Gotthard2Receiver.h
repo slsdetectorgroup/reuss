@@ -27,6 +27,7 @@ class Gotthard2Receiver{
 
     size_t n_frames{};
     size_t fifo_size{100};
+    size_t stream_nth{1024};
     bool write_to_file{};
     bool receiving_done{};
 
@@ -44,6 +45,9 @@ public:
 
     void setFwrite(bool write);
     bool Fwrite();
+
+    void setStreamNth(size_t n);
+    size_t StreamNth();
 
     void setFname(std::string_view fname);
     std::string Fname() const;

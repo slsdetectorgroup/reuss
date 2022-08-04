@@ -4,11 +4,11 @@
 namespace reuss {
 class UdpSocket {
     int sockfd_ = -1;
-    int packet_size_;
+    size_t packet_size_;
 
   public:
     UdpSocket(const std::string &node, const std::string &port,
-              int packet_size);
+              size_t packet_size);
     ~UdpSocket();
     bool receivePacket(void *dst, PacketHeader &header);
     void setBufferSize(size_t size);
@@ -19,8 +19,5 @@ class UdpSocket {
     UdpSocket(const UdpSocket &) = delete;
     UdpSocket &operator=(UdpSocket const &) = delete;
 
-    // UdpSocket &operator=(UdpSocket &&move) noexcept;
-
-  
 };
 } // namespace reuss
