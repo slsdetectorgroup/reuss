@@ -63,6 +63,45 @@ class ReceiverServer:
 
 
 
+class DummyReceiver:
+    _remote = [item for item in dir(Gotthard2Receiver) if not item.startswith("_")]
+
+    
+    def __init__(self, endpoint):
+        self.fname_ = 'dummy'
+        self.fpath_ = '/path/to/somewhere'
+        self.fwrite = False
+        self.progress = 0.24
+        pass
+
+    def start(self):
+        print("Receiver started")
+        pass
+
+    def stop(self):
+        print("Receiver stopped")
+        pass
+
+    @property
+    def fname(self):
+        return self.fname_
+
+    @fname.setter
+    def fname(self, fname):
+        print(f'Setting fname to: {fname}')
+        self.fname_ = fname
+
+    @property
+    def fpath(self):
+        return self.fpath_
+
+    @fpath.setter
+    def fpath(self, fpath):
+        print(f'Setting fpath to: {fpath}')
+        self.fpath_ = fpath
+
+
+
 class Receiver:
     """
     receiver interface calling side. Talks to the server

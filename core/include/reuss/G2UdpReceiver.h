@@ -14,9 +14,8 @@ namespace reuss {
 class G2UdpReceiver {
     ImageFifo fifo_;
     ImageFifo preview_fifo_;
-    std::atomic<bool> stopped_{false};
-    // std::unique_ptr<UdpSocket> sock;
     UdpSocket sock;
+    std::atomic<bool> stopped_{false};    
     std::atomic<int> total_lost_packets_{};
     std::atomic<bool> done_{false};
     std::atomic<double> progress_{};

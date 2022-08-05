@@ -15,11 +15,12 @@ except IOError:
 if found_config:
     from _reuss import *
     from .DataCollector import DataCollector
-    from .PreviewReceiver import PreviewReceiver
+    from .PreviewReceiver import PreviewReceiver, DummyPreviewReceiver
+    from .DummyDetector import DummyDetector
     from .formatting import color
     from .calibration import load_calibration
     from .validation import json_string
-    from .receiver import Receiver, ReceiverServer
+    from .receiver import Receiver, ReceiverServer, DummyReceiver
     from . import io
     from . import shm
 

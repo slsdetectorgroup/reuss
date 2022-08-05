@@ -30,6 +30,7 @@ set(PythonFiles
     overlay.py
     tools.py
     DataCollector.py
+    DummyDetector.py
     PreviewReceiver.py
     reussrc.in
     receiver.py
