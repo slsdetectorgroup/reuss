@@ -19,7 +19,7 @@ TEST_CASE("emptyu"){
 }
 
 // TEST_CASE("stop doesn't hang"){
-//     G2Receiver r("127.0.0.1", "51230");
+//     G2UdpReceiver r("127.0.0.1", "51230");
 //     r.stop();
 // }
 

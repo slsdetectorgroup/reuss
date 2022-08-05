@@ -2,13 +2,11 @@
 #include "reuss/ImageFifo.h"
 #include "reuss/ImageView.h"
 #include "reuss/project_defs.h"
-
 #include "reuss/utils.h"
+
 #include <fmt/color.h>
 #include <fmt/format.h>
 #include <string>
-
-#include <stdlib.h> //posix_memalign
 
 namespace reuss {
 

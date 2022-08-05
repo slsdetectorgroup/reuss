@@ -25,7 +25,7 @@ namespace reuss{
         stop();
 
         delete receiver;
-        receiver = new G2Receiver(udp_ip, udp_port, fifo_size);
+        receiver = new G2UdpReceiver(udp_ip, udp_port, fifo_size);
         delete preview_streamer;
         preview_streamer = new Streamer("tcp://*:4547", receiver->preview_fifo());
     }
@@ -86,7 +86,7 @@ namespace reuss{
             threads.emplace_back(&Writer::sink, writer.get(), 1);
 
     
-        threads.emplace_back(&G2Receiver::receive_n, receiver, 0, n_frames, 1024);
+        threads.emplace_back(&G2UdpReceiver::receive_n, receiver, 0, n_frames, 1024);
         threads.emplace_back(&Streamer::stream, preview_streamer, 2);
     }
 

@@ -1,14 +1,14 @@
-#include "reuss/G2Receiver.h"
+#include "reuss/G2UdpReceiver.h"
 
 #include <catch2/catch.hpp>
 #include <thread>
-using reuss::G2Receiver;
+using reuss::G2UdpReceiver;
 
 
 
 TEST_CASE("Create and set basic properties"){
 
-    G2Receiver r("127.0.0.1", "51230");
+    G2UdpReceiver r("127.0.0.1", "51230");
     
     REQUIRE(r.done() == false);
     REQUIRE(r.progress() == 0.0);
@@ -18,7 +18,7 @@ TEST_CASE("Create and set basic properties"){
 }
 
 TEST_CASE("stop doesn't hang"){
-    G2Receiver r("127.0.0.1", "51230");
+    G2UdpReceiver r("127.0.0.1", "51230");
     r.stop();
 }
 

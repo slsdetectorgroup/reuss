@@ -5,7 +5,7 @@ set(PublicHeaders
 set(SourceFiles
   src/Streamer.cpp
   src/Receiver.cpp 
-  src/G2Receiver.cpp
+  src/G2UdpReceiver.cpp
   src/ImageFifo.cpp
   src/UdpSocket.cpp 
   src/ZmqSocket.cpp 
@@ -21,7 +21,7 @@ add_library(
     reuss_core_object OBJECT ${SourceFiles} 
 )
 
-target_link_libraries(reuss_core_object PRIVATE reuss::settings fmt::fmt Threads::Threads zmq)
+target_link_libraries(reuss_core_object PRIVATE reuss::settings fmt::fmt Threads::Threads libzmq)
 target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(reuss_core_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_core_object
@@ -55,7 +55,7 @@ add_library(reuss::core_shared ALIAS reuss_core_shared)
 if(REUSS_BUILD_TESTS)
     set(TestSources
         src/StaticString.test.cpp
-        src/G2Receiver.test.cpp
+        src/G2UdpReceiver.test.cpp
         src/UdpSocket.test.cpp
     )
     target_sources(tests PRIVATE src ${TestSources} )

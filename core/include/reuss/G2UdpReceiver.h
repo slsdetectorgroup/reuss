@@ -10,7 +10,7 @@ namespace reuss {
 
 class UdpSocket;
 
-class G2Receiver {
+class G2UdpReceiver {
     ImageFifo fifo_;
     ImageFifo preview_fifo_;
     std::atomic<bool> stopped_{false};
@@ -19,12 +19,9 @@ class G2Receiver {
     std::atomic<bool> done_{false};
     std::atomic<double> progress_{};
     
-
-
-
   public:
-    G2Receiver(const std::string &node, const std::string &port);
-    G2Receiver(const std::string &node, const std::string &port,
+    G2UdpReceiver(const std::string &node, const std::string &port);
+    G2UdpReceiver(const std::string &node, const std::string &port,
              size_t fifo_size);
     void receive_n(int cpu, size_t n_frames, size_t stream_nth);
     int lost_packets() const noexcept;
@@ -34,7 +31,7 @@ class G2Receiver {
     ImageFifo *fifo() { return &fifo_; }
     ImageFifo *preview_fifo() { return &preview_fifo_; }
 
-    ~G2Receiver();
+    ~G2UdpReceiver();
 };
 
 } // namespace reuss

@@ -10,11 +10,16 @@
 
 namespace reuss {
 void pin_this_thread(int i) {
+#ifdef __APPLE__
+    fmt::print(fg(fmt::terminal_color::yellow),
+               "WARNING: Setting thread affinity is not implemented for MacOS");
+#else
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
     CPU_SET(i, &cpuset);
     if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset) != 0)
         throw std::runtime_error("Could not pin thread");
+#endif
 }
 
 void set_realtime_priority() {

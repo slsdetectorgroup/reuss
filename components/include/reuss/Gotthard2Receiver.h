@@ -7,7 +7,7 @@
 #include <memory>
 #include <filesystem>
 
-#include "reuss/G2Receiver.h"
+#include "reuss/G2UdpReceiver.h"
 #include "reuss/Streamer.h"
 #include "reuss/Writer.h"
 
@@ -21,7 +21,7 @@ class Gotthard2Receiver{
     std::filesystem::path fpath;
     std::string base_name{G2_DEFAULT_BASE_NAME};
 
-    G2Receiver* receiver{};
+    G2UdpReceiver* receiver{};
     Streamer* preview_streamer{};
     std::unique_ptr<Writer> writer{};
 

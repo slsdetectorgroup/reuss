@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(reuss)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -15,7 +16,7 @@ option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
-
+option(REUSS_BUILD_DETECTOR "Build the detector interface" OFF)
 
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -29,8 +30,6 @@ set(ClangFormat_EXCLUDE_PATTERNS  "build/"
                                   "python/"
                                   ${CMAKE_BINARY_DIR})
 
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_RPATH $ORIGIN)
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -73,23 +72,24 @@ if(REUSS_BUILD_TESTS)
   find_package(Catch2 REQUIRED)
   add_subdirectory(tests)
 endif(REUSS_BUILD_TESTS)
-# find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
+
+find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 add_subdirectory(core)
-add_subdirectory(math)
+# add_subdirectory(math)
 
 
-#Build only detector static libs, nothing else is needed for control
-set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
-set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
-set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
-set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
-add_subdirectory(libs/slsDetectorPackage)
-add_subdirectory(detector)
-
-add_subdirectory(components)
-add_subdirectory(app)
-
+if(REUSS_BUILD_DETECTOR)
+  #Build only detector static libs, nothing else is needed for control
+  set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+  set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
+  set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
+  set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
+  add_subdirectory(libs/slsDetectorPackage)
+  add_subdirectory(detector)
+  add_subdirectory(components)
+  add_subdirectory(app)
+endif(REUSS_BUILD_DETECTOR)
 
 
 if(REUSS_BUILD_PYTHON)

@@ -22,21 +22,20 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
 
     if (sockfd_ == -1)
         throw std::runtime_error("Failed to open socket");
-    
+
     if (bind(sockfd_, res->ai_addr, res->ai_addrlen) == -1) {
         close(sockfd_);
         throw std::runtime_error(
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
 
-    //TODO! should we make this configurable, or do we actually don't need it?
-    struct timeval timeout;      
-    timeout.tv_sec = 0;
+    // TODO! should we make this configurable, or do we actually don't need it?
+    struct timeval timeout;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 1000;
-    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
-                sizeof timeout) < 0)
-        throw std::runtime_error(
-            fmt::format("Failed to set timeout"));
+    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) <
+        0)
+        throw std::runtime_error(fmt::format("Failed to set timeout"));
 
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
@@ -55,14 +54,15 @@ bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
     if (rc == packet_size_) {
         memcpy(&header, dst, sizeof(header));
         return true;
-    }else if(rc == -1){
-
     } else {
-        fmt::print("Warning: read {} bytes\n", rc);
         if (rc == -1) {
             // strerrorname_np() arrived in glibc 2.6 not using it for now
-            int errv = errno;
-            fmt::print("errno: {}, {}\n", errv, strerror(errv));
+            // also not available on apple
+            int errv{errno};
+            if (errv != EAGAIN)
+                fmt::print("errno: {}, {}\n", errv, strerror(errv));
+        } else {
+            fmt::print("Warning: read {} bytes\n", rc);
         }
     }
     return false;
@@ -79,6 +79,11 @@ size_t UdpSocket::bufferSize() const {
     uint64_t size = 0;
     socklen_t optlen = sizeof(uint64_t);
     getsockopt(sockfd_, SOL_SOCKET, SO_RCVBUF, &size, &optlen);
+
+#ifdef __APPLE__
+    return size;
+#else
     return size / 2;
+#endif
 }
 } // namespace reuss
