@@ -7,8 +7,8 @@
 #include <vector>
 // #include <iostream>
 
-#include "protolib/DataType.h"
-namespace pl {
+#include "DataType.h"
+namespace reuss {
 
 // copy between
 inline std::string_view find_between(const char d1, const char d2,
@@ -146,4 +146,4 @@ class NumpyFileHeader {
     }
 };
 
-} // namespace pl
+} // namespace reuss

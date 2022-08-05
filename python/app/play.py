@@ -33,8 +33,8 @@ def acquire(det, rcv):
     print('')
     rcv.stop()
 
-
-
-# acquire(d,r)
+r.fpath = '/home/l_msdetect/erik/tmp/g2'
+r.fwrite = True
+acquire(d,r)
 
 

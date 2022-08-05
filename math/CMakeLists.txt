@@ -15,11 +15,11 @@ target_link_libraries(reuss_math INTERFACE fmt)
 
 if(REUSS_BUILD_TESTS)
     set(TestSources
-        # src/ImageData.test.cpp
-        # src/DataSpan.test.cpp
-        # src/DataType.test.cpp
-        # src/NumpyFileHeader.test.cpp
-        # src/file_io.test.cpp
+        src/ImageData.test.cpp
+        src/DataSpan.test.cpp
+        src/DataType.test.cpp
+        src/NumpyFileHeader.test.cpp
+        src/file_io.test.cpp
     )
     target_sources(tests PRIVATE src ${TestSources} )
     target_link_libraries(tests PRIVATE reuss_math reuss::settings)

@@ -76,7 +76,7 @@ endif(REUSS_BUILD_TESTS)
 find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 add_subdirectory(core)
-# add_subdirectory(math)
+add_subdirectory(math)
 
 
 if(REUSS_BUILD_DETECTOR)

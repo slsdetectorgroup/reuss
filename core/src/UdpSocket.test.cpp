@@ -1,4 +1,4 @@
-#include "UdpSocket.h"
+#include "reuss/UdpSocket.h"
 #include "reuss/project_defs.h"
 #include <catch2/catch.hpp>
 
@@ -46,32 +46,30 @@ int open_socket(int port) {
 TEST_CASE("Let the socket timeout and see that we get false and no hang"){
     UdpSocket s("127.0.0.1", "5055", 1024);
     char buffer[1024];
-    PacketHeader header;
-    auto r = s.receivePacket(&buffer[0], header);
+    auto r = s.receivePacket(&buffer[0]);
     REQUIRE(r == false);
 }
 
 TEST_CASE("Receive a packet"){
 
-    PacketHeader header_to_send{};
-    header_to_send.frameNumber = 123;
-    constexpr size_t packet_size = 1024;
-    UdpSocket s("127.0.0.1", "50556", packet_size);
-    char buffer[packet_size];
+    constexpr size_t data_size = 1024-sizeof(PacketHeader);
+    PacketBuffer<data_size> data;
+    data.header.frameNumber = 123;
 
-    char data[packet_size];
-    memset(&data[0], '\0', sizeof(data));
-    memcpy(&data[0], &header_to_send, sizeof(header_to_send));
-    PacketHeader header;
+    
+    UdpSocket s("127.0.0.1", "50556", sizeof(data));
+
+
 
     int fd = open_socket(50556);
-    auto n = write(fd, &data[0], packet_size);
-    REQUIRE(n == packet_size);
+    auto n = write(fd, &data, sizeof(data));
+    REQUIRE(n == 1024);
 
-    REQUIRE(s.receivePacket(&buffer[0], header));
+    PacketBuffer<data_size> buf;
+    REQUIRE(s.receivePacket(&buf));
     close(fd);
 
-    REQUIRE(header.frameNumber == 123);
+    REQUIRE(buf.header.frameNumber == 123);
 
 }
 

@@ -10,7 +10,7 @@ class UdpSocket {
     UdpSocket(const std::string &node, const std::string &port,
               size_t packet_size);
     ~UdpSocket();
-    bool receivePacket(void *dst, PacketHeader &header);
+    bool receivePacket(void *dst);
     void setBufferSize(size_t size);
     size_t bufferSize() const;
     void shutdown();

@@ -1,4 +1,4 @@
-#include "UdpSocket.h"
+#include "reuss/UdpSocket.h"
 #include <cstring> //memset
 #include <fmt/format.h>
 #include <netdb.h>
@@ -18,8 +18,8 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
     struct addrinfo *res{nullptr};
     if (getaddrinfo(node.c_str(), port.c_str(), &hints, &res))
         throw std::runtime_error("Get getaddrinfo failed");
+    
     sockfd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
     if (sockfd_ == -1)
         throw std::runtime_error("Failed to open socket");
 
@@ -28,15 +28,6 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
         throw std::runtime_error(
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
-
-    // TODO! should we make this configurable, or do we actually don't need it?
-    struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 1000;
-    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) <
-        0)
-        throw std::runtime_error(fmt::format("Failed to set timeout"));
-
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
 }
@@ -49,18 +40,16 @@ UdpSocket::~UdpSocket() {
 
 void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
-bool UdpSocket::receivePacket(void *dst, PacketHeader &header) {
+bool UdpSocket::receivePacket(void *dst) {
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
     if (rc == packet_size_) {
-        memcpy(&header, dst, sizeof(header));
         return true;
     } else {
         if (rc == -1) {
             // strerrorname_np() arrived in glibc 2.6 not using it for now
             // also not available on apple
             int errv{errno};
-            if (errv != EAGAIN)
-                fmt::print("errno: {}, {}\n", errv, strerror(errv));
+            fmt::print("errno: {}, {}\n", errv, strerror(errv));
         } else {
             fmt::print("Warning: read {} bytes\n", rc);
         }

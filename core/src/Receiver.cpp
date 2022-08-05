@@ -1,5 +1,5 @@
 #include "reuss/Receiver.h"
-#include "UdpSocket.h"
+#include "reuss/UdpSocket.h"
 #include <chrono>
 #include <cstdlib>
 #include <fmt/color.h>
@@ -34,10 +34,11 @@ int Receiver::lost_packets() const noexcept { return total_lost_packets_; }
 void Receiver::receivePackets(int cpu) {
     pin_this_thread(cpu);
     set_realtime_priority();
-    char packet_buffer[PACKET_SIZE];
-    PacketHeader header{};
-    sock->receivePacket(packet_buffer, header); // waits here for data
-    uint64_t currentFrameNumber = header.frameNumber;
+    // char packet_buffer[PACKET_SIZE];
+    // PacketHeader header{};
+    PacketBuffer<PAYLOAD_SIZE> packet_buffer;
+    sock->receivePacket(&packet_buffer); // waits here for data
+    uint64_t currentFrameNumber = packet_buffer.header.frameNumber;
 
     int64_t totalFramesReceived = 0;
     while (!stopped_) {
@@ -48,9 +49,9 @@ void Receiver::receivePackets(int cpu) {
             // copy ROI per row, controlled by COL_MAX and COL_MIN
             constexpr size_t packet_data_size =
                 (COL_MAX - COL_MIN) * sizeof(uint16_t) * ROWS_PER_PACKET;
-            auto offset = packet_data_size * header.packetNumber;
+            auto offset = packet_data_size * packet_buffer.header.packetNumber;
             auto dst = img.data + offset;
-            auto src = &packet_buffer[COL_MIN * sizeof(uint16_t)] +
+            auto src = &packet_buffer.data[COL_MIN * sizeof(uint16_t)] +
                        sizeof(PacketHeader);
             auto dst_step = (COL_MAX - COL_MIN) * sizeof(uint16_t); // rowsize
             auto src_step = PKT_BYTES_PER_ROW;
@@ -61,8 +62,8 @@ void Receiver::receivePackets(int cpu) {
             }
 
             ++numPacketsReceived;
-            sock->receivePacket(packet_buffer, header); // waits here for data
-            if (currentFrameNumber != header.frameNumber)
+            sock->receivePacket(&packet_buffer); // waits here for data
+            if (currentFrameNumber != packet_buffer.header.frameNumber)
                 break;
         }
         if (numPacketsReceived != PACKETS_PER_FRAME) {
@@ -70,7 +71,7 @@ void Receiver::receivePackets(int cpu) {
             fmt::print("Frame: {} lost {} pkts\n", currentFrameNumber, lost);
             total_lost_packets_ += lost;
         }
-        currentFrameNumber = header.frameNumber;
+        currentFrameNumber = packet_buffer.header.frameNumber;
         fifo_.push_image(img);
         totalFramesReceived += 1;
     }

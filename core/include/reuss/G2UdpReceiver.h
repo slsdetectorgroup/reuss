@@ -2,19 +2,21 @@
 #include "reuss/ImageFifo.h"
 #include "reuss/ImageView.h"
 #include "reuss/project_defs.h"
+#include "reuss/UdpSocket.h"
 #include "utils.h"
 #include <memory>
 #include <atomic>
 
 namespace reuss {
 
-class UdpSocket;
+
 
 class G2UdpReceiver {
     ImageFifo fifo_;
     ImageFifo preview_fifo_;
     std::atomic<bool> stopped_{false};
-    std::unique_ptr<UdpSocket> sock;
+    // std::unique_ptr<UdpSocket> sock;
+    UdpSocket sock;
     std::atomic<int> total_lost_packets_{};
     std::atomic<bool> done_{false};
     std::atomic<double> progress_{};

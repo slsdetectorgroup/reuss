@@ -24,6 +24,12 @@ struct PacketHeader {
     uint8_t version;
 };
 
+template<size_t DataSize>
+struct PacketBuffer{
+        PacketHeader header;
+        char data[DataSize];
+};
+
 struct ImageSize{
     size_t rows{}; 
     size_t cols{};
@@ -76,6 +82,10 @@ constexpr size_t G2_PACK = 1024;
 constexpr size_t G2_FRAME_SIZE = G2_PACK*G2_PACKET_SIZE;
 constexpr size_t G2_FRAMES_PER_FILE = 1'000'000;
 constexpr auto G2_DEFAULT_BASE_NAME = "file";
+
+//Check that there is no issue with packing
+// static_assert(sizeof(PacketBuffer)==G2_PACKET_SIZE);
+
 
 #ifdef DEBUG
 #define DEBUG_MSG(str) do { fmt::print("{}\n", str); } while( false )
