@@ -1,9 +1,9 @@
 #include "reuss/UdpSocket.h"
-#include <cstring> //memset
 #include <fmt/format.h>
+#include <stdexcept>
+
 #include <netdb.h>
 #include <netinet/in.h>
-#include <stdexcept>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -42,7 +42,7 @@ void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
 bool UdpSocket::receivePacket(void *dst) {
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
-    if (rc == packet_size_) {
+    if (rc == static_cast<ssize_t>(packet_size_)) {
         return true;
     } else {
         if (rc == -1) {
