@@ -44,15 +44,13 @@ bool UdpSocket::receivePacket(void *dst) {
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
     if (rc == static_cast<ssize_t>(packet_size_)) {
         return true;
-    } else {
-        if (rc == -1) {
+    } else if (rc == -1) {
             // strerrorname_np() arrived in glibc 2.6 not using it for now
             // also not available on apple
             int errv{errno};
             fmt::print("errno: {}, {}\n", errv, strerror(errv));
-        } else {
+    } else {
             fmt::print("Warning: read {} bytes\n", rc);
-        }
     }
     return false;
 }
