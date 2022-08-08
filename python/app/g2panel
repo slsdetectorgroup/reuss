@@ -12,24 +12,21 @@ import time
 import reuss as rs
 from slsdet import Detector
 
-
-
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         pg.setConfigOption('background', (154, 153, 150))
         pg.setConfigOption('foreground', 'k')
-
-
+        
         print(args)
-
         super(MainWindow, self).__init__()
-
         uic.loadUi('g2panel.ui', self)
+        
         if args[0].demo:
             self.det = rs.DummyDetector()
             self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
             self.zmq_rcv = rs.DummyPreviewReceiver('tcp://129.129.202.97:4547')
+            self.zmq_rcv.start()
 
         else:
             self.det = Detector()
@@ -61,6 +58,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.progress_timer.timeout.connect(self.update_progress)
         self.update_progress()
 
+        self.plot_timer =  QtCore.QTimer()
+        self.plot_timer.timeout.connect(self.update_plot)
+        # timer2.start(100)
+
 
 
     def update_progress(self):
@@ -68,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.progressBar.setValue(p)
         if p == 100:
             self.progress_timer.stop()
+            self.plot_timer.stop()
 
     def update_status(self):
         s = str(self.det.status).split('.')[1]
@@ -80,6 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start(self):
         self.progress_timer.start(100)
+        self.plot_timer.start(50)
         self.rcv.start()
         time.sleep(0.1)
         self.det.start()
@@ -118,11 +121,6 @@ if __name__ == '__main__':
     timer = QtCore.QTimer()
     timer.timeout.connect(main.update_status)
     timer.start(100)
-
-    timer2 = QtCore.QTimer()
-    timer2.timeout.connect(main.update_plot)
-    timer2.start(100)
-
     
 
     #Run the app

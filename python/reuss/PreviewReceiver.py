@@ -1,6 +1,7 @@
 import ctypes
 import multiprocessing as mp
 import numpy as np
+import time
 import zmq 
 
 class DummyPreviewReceiver:
@@ -41,7 +42,6 @@ class DummyPreviewReceiver:
         """Read images from the receiver zmq stream"""
 
         while not self.exit_flag.value:
-
             data = np.random.randint(0,100, 1280, dtype = np.uint16)
             with self.buffer.get_lock():
                 image = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)

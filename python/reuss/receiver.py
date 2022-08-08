@@ -1,7 +1,8 @@
 import json
 import zmq
 from . import Gotthard2Receiver, json_string
-
+from threading import Thread
+import time
 
 class ReceiverServer:
     """
@@ -66,21 +67,28 @@ class ReceiverServer:
 class DummyReceiver:
     _remote = [item for item in dir(Gotthard2Receiver) if not item.startswith("_")]
 
-    
     def __init__(self, endpoint):
         self.fname_ = 'dummy'
         self.fpath_ = '/path/to/somewhere'
-        self.fwrite = False
-        self.progress = 0.24
+        self.fwrite_ = False
+        self.frames_ = 100
+        self.current_frame_ = 0
         pass
 
+    def _increment(self):
+        print("running increment")
+        while self.current_frame_ < self.frames_:
+            self.current_frame_ += 1
+            time.sleep(0.1)
+
     def start(self):
+        self.current_frame_ = 0
         print("Receiver started")
-        pass
+        self.t = Thread(target = self._increment, args = [])
+        self.t.start()
 
     def stop(self):
         print("Receiver stopped")
-        pass
 
     @property
     def fname(self):
@@ -100,6 +108,27 @@ class DummyReceiver:
         print(f'Setting fpath to: {fpath}')
         self.fpath_ = fpath
 
+    @property
+    def frames(self):
+        return self.frames_
+
+    @frames.setter
+    def frames(self, frames):
+        print(f'Setting frames to: {frames}')
+        self.frames_ = frames
+
+    @property
+    def progress(self):
+        return self.current_frame_/self.frames_
+
+    @property
+    def fwrite(self):
+        return self.fwrite_
+
+    @fwrite.setter
+    def fwrite(self, val):
+        print(f"Setting fwrite to: {val}")
+        self.fwrite_ = val
 
 
 class Receiver:
@@ -122,6 +151,7 @@ class Receiver:
 
     def start(self):
         self.send({"run": "start"})
+
 
     def stop(self):
         self.send({"run": "stop"})
