@@ -272,6 +272,22 @@
         <number>999</number>
        </property>
       </widget>
+      <widget class="QCheckBox" name="fwriteCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>200</x>
+         <y>90</y>
+         <width>91</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>fwrite</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QFrame" name="frame_3">
       <property name="geometry">
@@ -929,22 +945,6 @@
       <string>TextLabel</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QCheckBox" name="fwriteCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>880</y>
-      <width>91</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <property name="text">
-     <string>fwrite</string>
-    </property>
    </widget>
    <widget class="QLabel" name="label_7">
     <property name="geometry">
