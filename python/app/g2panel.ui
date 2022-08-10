@@ -6,151 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1453</width>
-    <height>1036</height>
+    <width>1430</width>
+    <height>1034</height>
    </rect>
   </property>
-  <property name="palette">
-   <palette>
-    <active/>
-    <inactive/>
-    <disabled/>
-   </palette>
-  </property>
   <property name="windowTitle">
-   <string>Gotthard2 Panel [experimental]</string>
-  </property>
-  <property name="layoutDirection">
-   <enum>Qt::LeftToRight</enum>
-  </property>
-  <property name="autoFillBackground">
-   <bool>false</bool>
+   <string>Gotthard GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QCheckBox" name="fwriteCheckBox">
+   <widget class="PlotWidget" name="plotWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>890</y>
-      <width>91</width>
-      <height>25</height>
+      <x>420</x>
+      <y>40</y>
+      <width>1001</width>
+      <height>501</height>
      </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <property name="text">
-     <string>fwrite</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>830</x>
-      <y>10</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Analog Output</string>
-    </property>
-   </widget>
-   <widget class="QFrame" name="frame">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>930</y>
-      <width>1411</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <widget class="QPushButton" name="startButton">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>103</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Start the Acquisition Process</string>
-     </property>
-     <property name="text">
-      <string>Start</string>
-     </property>
-    </widget>
-    <widget class="QProgressBar" name="progressBar">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>10</y>
-       <width>1151</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="value">
-      <number>24</number>
-     </property>
-    </widget>
-    <widget class="QLabel" name="statusLabel">
-     <property name="geometry">
-      <rect>
-       <x>1310</x>
-       <y>10</y>
-       <width>101</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>550</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Gam Bit</string>
     </property>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>10</y>
       <width>401</width>
       <height>741</height>
      </rect>
@@ -158,11 +36,11 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab_3">
+    <widget class="QWidget" name="tab">
      <attribute name="title">
       <string>Detector Settings</string>
      </attribute>
-     <widget class="QLabel" name="label_23">
+     <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -181,7 +59,7 @@
        <string>Exposure Time :</string>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="exposureSpinBox_2">
+     <widget class="QDoubleSpinBox" name="exposureSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -203,7 +81,7 @@
        <double>99.998999999999995</double>
       </property>
      </widget>
-     <widget class="QComboBox" name="expTimeComboBox_2">
+     <widget class="QComboBox" name="expTimeComboBox">
       <property name="geometry">
        <rect>
         <x>300</x>
@@ -234,7 +112,7 @@
        </property>
       </item>
      </widget>
-     <widget class="QFrame" name="frame_5">
+     <widget class="QFrame" name="frame_2">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -249,7 +127,7 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <widget class="QLabel" name="label_24">
+      <widget class="QLabel" name="label_3">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -268,7 +146,7 @@
         <string>Timing Modes :</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="triggerRadioButton_2">
+      <widget class="QRadioButton" name="triggerRadioButton">
        <property name="geometry">
         <rect>
          <x>290</x>
@@ -281,7 +159,7 @@
         <string>Trigger</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="autoRadioButton_2">
+      <widget class="QRadioButton" name="autoRadioButton">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -298,7 +176,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="widget_2" native="true">
+     <widget class="QWidget" name="widget" native="true">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -365,7 +243,7 @@
         <string>Enter File Name</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_25">
+      <widget class="QLabel" name="label_5">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -378,7 +256,7 @@
         <string>Index</string>
        </property>
       </widget>
-      <widget class="QSpinBox" name="indexSpinBox_2">
+      <widget class="QSpinBox" name="indexSpinBox">
        <property name="geometry">
         <rect>
          <x>90</x>
@@ -395,7 +273,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_6">
+     <widget class="QFrame" name="frame_3">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -410,7 +288,7 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <widget class="QLabel" name="label_26">
+      <widget class="QLabel" name="label_6">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -423,7 +301,7 @@
         <string>Save File?</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="yesRadioButton_2">
+      <widget class="QRadioButton" name="yesRadioButton">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -439,7 +317,7 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QRadioButton" name="noRadioButton_2">
+      <widget class="QRadioButton" name="noRadioButton">
        <property name="geometry">
         <rect>
          <x>300</x>
@@ -453,7 +331,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_27">
+     <widget class="QLabel" name="label_9">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -472,7 +350,7 @@
        <string>Period :</string>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="periodSpinBox_2">
+     <widget class="QDoubleSpinBox" name="periodSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -491,7 +369,7 @@
        <double>0.001000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="frameSpinBox_2">
+     <widget class="QDoubleSpinBox" name="frameSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -513,7 +391,7 @@
        <double>9999.000000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="triggerSpinBoxc_2">
+     <widget class="QDoubleSpinBox" name="triggerSpinBoxc">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -532,7 +410,7 @@
        <double>0.000000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="delayTriggerSpinBox_2">
+     <widget class="QDoubleSpinBox" name="delayTriggerSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -551,7 +429,7 @@
        <double>0.001000000000000</double>
       </property>
      </widget>
-     <widget class="QLabel" name="label_28">
+     <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -570,7 +448,7 @@
        <string># Frames :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_29">
+     <widget class="QLabel" name="label_11">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -589,7 +467,7 @@
        <string># Triggers :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_30">
+     <widget class="QLabel" name="label_12">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -608,7 +486,7 @@
        <string>Delay after Trigger :</string>
       </property>
      </widget>
-     <widget class="QFrame" name="frame_7">
+     <widget class="QFrame" name="frame_4">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -623,7 +501,7 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <widget class="QLabel" name="label_31">
+      <widget class="QLabel" name="label_13">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -642,7 +520,7 @@
         <string>Gam :</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="dynamicRadioButton_2">
+      <widget class="QRadioButton" name="dynamicRadioButton">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -658,7 +536,7 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QRadioButton" name="g1RadioButton_2">
+      <widget class="QRadioButton" name="g1RadioButton">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -671,7 +549,7 @@
         <string>fixed G1</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="g2RadioButton_2">
+      <widget class="QRadioButton" name="g2RadioButton">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -685,7 +563,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_32">
+     <widget class="QLabel" name="label_14">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -704,7 +582,7 @@
        <string>High Voltage :</string>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="highVoltageSpinBox_2">
+     <widget class="QDoubleSpinBox" name="highVoltageSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -726,7 +604,7 @@
        <double>499.000000000000000</double>
       </property>
      </widget>
-     <widget class="QLabel" name="label_33">
+     <widget class="QLabel" name="label_15">
       <property name="geometry">
        <rect>
         <x>270</x>
@@ -745,7 +623,7 @@
        <string>V</string>
       </property>
      </widget>
-     <widget class="QComboBox" name="periodTimeComboBox_2">
+     <widget class="QComboBox" name="periodTimeComboBox">
       <property name="geometry">
        <rect>
         <x>300</x>
@@ -773,7 +651,7 @@
        </property>
       </item>
      </widget>
-     <widget class="QComboBox" name="triggerTimeComboBox_2">
+     <widget class="QComboBox" name="triggerTimeComboBox">
       <property name="geometry">
        <rect>
         <x>300</x>
@@ -802,11 +680,11 @@
       </item>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_4">
+    <widget class="QWidget" name="tab_2">
      <attribute name="title">
       <string>Plot Settings</string>
      </attribute>
-     <widget class="QLabel" name="label_34">
+     <widget class="QLabel" name="label_16">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -825,7 +703,7 @@
        <string>X min :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_35">
+     <widget class="QLabel" name="label_17">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -844,7 +722,7 @@
        <string>X max :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_36">
+     <widget class="QLabel" name="label_18">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -863,7 +741,7 @@
        <string>Y min :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_37">
+     <widget class="QLabel" name="label_19">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -882,7 +760,7 @@
        <string>Y max :</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_38">
+     <widget class="QLabel" name="label_20">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -901,7 +779,7 @@
        <string>Refresh Rate :</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="xMinLineEdit_2">
+     <widget class="QLineEdit" name="xMinLineEdit">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -923,7 +801,7 @@
        <string/>
       </property>
      </widget>
-     <widget class="QLineEdit" name="xMaxLineEdit_2">
+     <widget class="QLineEdit" name="xMaxLineEdit">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -939,7 +817,7 @@
        <number>4</number>
       </property>
      </widget>
-     <widget class="QLineEdit" name="yMinLineEdit_2">
+     <widget class="QLineEdit" name="yMinLineEdit">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -955,7 +833,7 @@
        <number>4</number>
       </property>
      </widget>
-     <widget class="QLineEdit" name="yMaxLineEdit_2">
+     <widget class="QLineEdit" name="yMaxLineEdit">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -971,7 +849,7 @@
        <number>4</number>
       </property>
      </widget>
-     <widget class="QLineEdit" name="refreshRateLineEdit_2">
+     <widget class="QLineEdit" name="refreshRateLineEdit">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -989,21 +867,140 @@
      </widget>
     </widget>
    </widget>
-   <widget class="PlotWidget" name="analogPlotWidget" native="true">
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>920</y>
+      <width>1411</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="startButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>103</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Start the Acquisition Process</string>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>10</y>
+       <width>1151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="statusLabel">
+     <property name="geometry">
+      <rect>
+       <x>1310</x>
+       <y>10</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QCheckBox" name="fwriteCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>880</y>
+      <width>91</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>fwrite</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>0</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Analog Output</string>
+    </property>
+   </widget>
+   <widget class="PlotWidget" name="gamBitPlotWidget" native="true">
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>50</y>
+      <y>580</y>
       <width>1001</width>
-      <height>501</height>
+      <height>331</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>540</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Gam Bit</string>
     </property>
    </widget>
    <widget class="QPushButton" name="closeButton">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>790</y>
+      <y>780</y>
       <width>361</width>
       <height>31</height>
      </rect>
@@ -1018,82 +1015,47 @@
      <string>Safely Close Detector</string>
     </property>
    </widget>
-   <widget class="PlotWidget" name="gamBitPlotWidget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>420</x>
-      <y>590</y>
-      <width>1001</width>
-      <height>331</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1453</width>
+     <width>1430</width>
      <height>27</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuAbout">
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuAbout"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="actionNew">
-   <property name="text">
-    <string>New</string>
-   </property>
-  </action>
+  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
    </property>
   </action>
-  <action name="actionUpdate">
+  <action name="actionOpen">
    <property name="text">
-    <string>Update</string>
-   </property>
-  </action>
-  <action name="actionAbout_Detector">
-   <property name="text">
-    <string>About Detector</string>
-   </property>
-  </action>
-  <action name="actionInfo">
-   <property name="text">
-    <string>Info</string>
-   </property>
-  </action>
-  <action name="actionPreferences">
-   <property name="text">
-    <string>Preferences</string>
-   </property>
-  </action>
-  <action name="actionSave_2">
-   <property name="text">
-    <string>Save</string>
-   </property>
-  </action>
-  <action name="actionUpdate_2">
-   <property name="text">
-    <string>Update</string>
+    <string>Open</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
-   </property>
-  </action>
-  <action name="actionNew_2">
-   <property name="text">
-    <string>New</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -1111,5 +1073,54 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>yesRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>widget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>187</x>
+     <y>680</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>207</x>
+     <y>760</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>noRadioButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>widget</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>327</x>
+     <y>680</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>207</x>
+     <y>760</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>activated()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>715</x>
+     <y>514</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
