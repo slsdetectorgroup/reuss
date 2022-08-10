@@ -15,7 +15,7 @@ import reuss as rs
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
-        pg.setConfigOption('background', (154, 153, 150))
+        pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
         print(args)
@@ -52,8 +52,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pathLineEdit.editingFinished.connect(self.setPath)
 
 
-        self.fwriteCheckBox.setChecked(self.rcv.fwrite)
-        self.fwriteCheckBox.stateChanged.connect(self.setFwrite)
+        # self.fwriteCheckBox.setChecked(self.rcv.fwrite)
+        # self.fwriteCheckBox.stateChanged.connect(self.setFwrite)
         #Timers
         self.progress_timer = QtCore.QTimer()
         self.progress_timer.timeout.connect(self.update_progress)
@@ -94,8 +94,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def setFname(self):
         self.rcv.fname = self.nameLineEdit.text()
     
-    def setFwrite(self):
-        self.rcv.fwrite = self.fwriteCheckBox.isChecked()
+    # def setFwrite(self):
+    #     self.rcv.fwrite = self.fwriteCheckBox.isChecked()
 
 
 if __name__ == '__main__':
