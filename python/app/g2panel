@@ -21,6 +21,8 @@ class MainWindow(QtWidgets.QMainWindow):
         print(args)
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
+        pen = pg.mkPen(color = (36, 119, 173), width=1,) 
+        self.curve = self.plotWidget.plot(pen=pen)
         
         if args[0].demo:
             self.det = rs.DummyDetector()
@@ -40,20 +42,31 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     
+        self.update_fields()
+
+
         self.startButton.clicked.connect(self.start)
-        pen = pg.mkPen(color = (36, 119, 173), width=1,) 
-        self.curve = self.plotWidget.plot(pen=pen)
+    
+        #For simple attributes it is possible to connect directly using a lambda 
+        # do avoid having to make an extra function
+        self.highVoltageSpinBox.valueChanged.connect(lambda x: setattr(self.det, 'highvoltage', x))
 
-        #initialize fields
-        self.nameLineEdit.setText(self.rcv.fname)
+        #Needs a function since editingFinished doesn't pass a parameter
         self.nameLineEdit.editingFinished.connect(self.setFname)
-
-        self.pathLineEdit.setText(self.rcv.fpath)
         self.pathLineEdit.editingFinished.connect(self.setPath)
 
+        #Exposure time should be set on both unit and value change
+        self.expTimeComboBox.currentIndexChanged.connect(self.setExptime)
+        self.exposureSpinBox.valueChanged.connect(self.setExptime)
 
-        # self.fwriteCheckBox.setChecked(self.rcv.fwrite)
-        # self.fwriteCheckBox.stateChanged.connect(self.setFwrite)
+        self.frameSpinBox.valueChanged.connect(self.setFrames)
+
+
+
+
+        #Plot related settings
+
+
         #Timers
         self.progress_timer = QtCore.QTimer()
         self.progress_timer.timeout.connect(self.update_progress)
@@ -61,9 +74,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.plot_timer =  QtCore.QTimer()
         self.plot_timer.timeout.connect(self.update_plot)
-        # timer2.start(100)
 
 
+
+    def update_fields(self):
+        """Update all fields in the GUI with current values from the detector"""
+        self.frameSpinBox.setValue(self.det.frames)
+        self.nameLineEdit.setText(self.rcv.fname)
+        self.pathLineEdit.setText(self.rcv.fpath)
+
+        #TODO! Add the additional fields
 
     def update_progress(self):
         p = int(self.rcv.progress*100)
@@ -94,8 +114,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def setFname(self):
         self.rcv.fname = self.nameLineEdit.text()
     
-    # def setFwrite(self):
-    #     self.rcv.fwrite = self.fwriteCheckBox.isChecked()
+    def setFrames(self):
+        #number of frames needs to go to both receiver and detector
+        self.rcv.frames = self.frameSpinBox.value()
+        self.det.frames = self.frameSpinBox.value()
+
+    def setExptime(self):
+        match self.expTimeComboBox.currentIndex():
+            case 0:
+                unit = 1e-3
+            case 1:
+                unit = 1e-6
+            case 2:
+                unit = 1e-9
+        self.det.exptime = self.exposureSpinBox.value()*unit
 
 
 if __name__ == '__main__':
