@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1442</width>
-    <height>1034</height>
+    <width>1436</width>
+    <height>1018</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Gotthard GUI</string>
+   <string>Gotthard2 GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="PlotWidget" name="plotWidget" native="true">
@@ -20,7 +20,7 @@
       <x>420</x>
       <y>40</y>
       <width>1001</width>
-      <height>501</height>
+      <height>611</height>
      </rect>
     </property>
    </widget>
@@ -72,13 +72,13 @@
        <string>Set Exposure Time </string>
       </property>
       <property name="decimals">
-       <number>3</number>
+       <number>4</number>
       </property>
       <property name="minimum">
        <double>0.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>99.998999999999995</double>
+       <double>9999999.000000000000000</double>
       </property>
      </widget>
      <widget class="QComboBox" name="expTimeComboBox">
@@ -226,22 +226,6 @@
         <number>999</number>
        </property>
       </widget>
-      <widget class="QCheckBox" name="fwriteCheckBox">
-       <property name="geometry">
-        <rect>
-         <x>200</x>
-         <y>90</y>
-         <width>91</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>fwrite</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QLabel" name="label_9">
       <property name="geometry">
@@ -275,10 +259,16 @@
        <string>Set Period</string>
       </property>
       <property name="decimals">
-       <number>3</number>
+       <number>4</number>
       </property>
       <property name="minimum">
-       <double>0.001000000000000</double>
+       <double>0.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>9999999.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>0.000000000000000</double>
       </property>
      </widget>
      <widget class="QDoubleSpinBox" name="frameSpinBox">
@@ -335,10 +325,16 @@
        <string>Set The delay after trigger</string>
       </property>
       <property name="decimals">
-       <number>3</number>
+       <number>4</number>
       </property>
       <property name="minimum">
-       <double>0.001000000000000</double>
+       <double>0.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>9999999.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>0.000000000000000</double>
       </property>
      </widget>
      <widget class="QLabel" name="label_10">
@@ -424,9 +420,9 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>438</y>
+        <y>448</y>
         <width>51</width>
-        <height>31</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="font">
@@ -591,7 +587,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Gam :</string>
+        <string>Gain :</string>
        </property>
       </widget>
       <widget class="QRadioButton" name="dynamicRadioButton">
@@ -717,8 +713,8 @@
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -736,8 +732,8 @@
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -755,8 +751,8 @@
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -774,8 +770,8 @@
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -793,8 +789,8 @@
       </property>
       <property name="font">
        <font>
-        <weight>75</weight>
-        <bold>true</bold>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -887,13 +883,52 @@
        <number>4</number>
       </property>
      </widget>
+     <widget class="QCheckBox" name="pedestalCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>270</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pedestal Correction </string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>290</y>
+        <width>261</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>(first 100 frames as pedestal from zmq)</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="maskCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>320</y>
+        <width>161</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Mask bad Channels</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>920</y>
+      <y>900</y>
       <width>1411</width>
       <height>61</height>
      </rect>
@@ -913,8 +948,17 @@
        <height>41</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="toolTip">
       <string>Start the Acquisition Process</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(0, 206, 99);</string>
      </property>
      <property name="text">
       <string>Start</string>
@@ -923,83 +967,28 @@
     <widget class="QProgressBar" name="progressBar">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>130</x>
        <y>10</y>
-       <width>1151</width>
+       <width>1271</width>
        <height>41</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
      <property name="value">
       <number>24</number>
      </property>
     </widget>
-    <widget class="QLabel" name="statusLabel">
-     <property name="geometry">
-      <rect>
-       <x>1310</x>
-       <y>10</y>
-       <width>101</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>830</x>
-      <y>0</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Analog Output</string>
-    </property>
    </widget>
    <widget class="PlotWidget" name="gamBitPlotWidget" native="true">
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>580</y>
+      <y>680</y>
       <width>1001</width>
-      <height>331</height>
+      <height>191</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>540</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>15</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Gam Bit</string>
     </property>
    </widget>
    <widget class="QPushButton" name="closeButton">
@@ -1008,7 +997,7 @@
       <x>30</x>
       <y>780</y>
       <width>361</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
@@ -1017,8 +1006,37 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="toolTip">
+     <string>Safely Power Off the Detectors after Experiments</string>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(202, 0, 0);
+border-color: rgb(0, 0, 0);
+color: rgb(255, 255, 0);</string>
+    </property>
     <property name="text">
-     <string>Safely Close Detector</string>
+     <string>Safely Power Off Detector</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="statusLabel">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>850</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
@@ -1027,23 +1045,21 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1442</width>
+     <width>1436</width>
      <height>27</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionSave"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionExit"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionExit"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
