@@ -10,7 +10,7 @@ from pathlib import Path
 import time
 
 import reuss as rs
-from slsdet import Detector
+
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -29,6 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.zmq_rcv.start()
 
         else:
+            from slsdet import Detector
             self.det = Detector()
             self.rcv = rs.Receiver(args[0].receiver_endpoint)
             self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
