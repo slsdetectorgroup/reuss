@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from PyQt5 import QtWidgets, QtCore, uic
 import pyqtgraph as pg
-from pyqtgraph import PlotWidget
+from pyqtgraph import *
 
 from argparse import ArgumentParser
 import sys
@@ -18,11 +18,37 @@ class MainWindow(QtWidgets.QMainWindow):
         pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
+
         print(args)
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
-        pen = pg.mkPen(color = (36, 119, 173), width=1,) 
+
+        Xmin = int(self.xMinLineEdit.text())
+        Xmax = int(self.xMaxLineEdit.text())
+        Ymin = int(self.yMinLineEdit.text())
+        Ymax = int(self.yMaxLineEdit.text())
+
+        print(Xmax)
+
+
+        pen = pg.mkPen(color = (36, 119, 173), width=1) 
+        # y = range(0, 100)
+        # x = range(0, 150)
+
         self.curve = self.plotWidget.plot(pen=pen)
+        self.plotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Output [ADC]</span>")
+        self.plotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        self.plotWidget.setXRange(Xmin, Xmax, padding=0)
+        self.plotWidget.setYRange(Ymin, Ymax, padding=0)
+
+        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
+        self.gamBitPlotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Gain Bit</span>")
+        self.gamBitPlotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        self.gamBitPlotWidget.setXRange(Xmin, Xmax, padding=0)
+        self.gamBitPlotWidget.setYRange(0, 2, padding=0)
+
+
+        
         
         if args[0].demo:
             self.det = rs.DummyDetector()
@@ -142,6 +168,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_plot(self):
         data = self.zmq_rcv.get_data()
         self.curve.setData(data)
+        self.p1.setData(data)
 
 
     def start(self):
@@ -211,7 +238,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def fixedG2Gain(self, selected):
         if selected:
-            print('fixed G1')  
+            print('fixed G2')  
 
    #Setting Gain modes
     def autoMode(self, selected):

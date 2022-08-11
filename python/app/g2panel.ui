@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -843,6 +843,9 @@
         <width>113</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="inputMask">
+       <string/>
       </property>
       <property name="text">
        <string>0</string>
