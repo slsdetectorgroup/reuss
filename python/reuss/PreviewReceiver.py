@@ -5,6 +5,8 @@ import time
 import zmq 
 
 class DummyPreviewReceiver:
+    n_channels = 1280
+    bytes_per_channel = 2
     def __init__(self, endpoint, timeout_ms = -1):
         self.endpoint = endpoint
         self.timeout_ms = timeout_ms
@@ -14,6 +16,9 @@ class DummyPreviewReceiver:
         self.exit_flag.value = False 
 
         self.collect_pedestal_ = False
+
+        #Mask, only from the GUI thread
+        self.mask = np.zeros(self.n_channels, dtype = np.bool_)
 
     def start(self):
         """
@@ -38,7 +43,9 @@ class DummyPreviewReceiver:
         """
         with self.buffer.get_lock():
             data = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
-            return data.copy() #to avoid a reference to the buffer
+            data = data.copy()
+            data[self.mask] = 0
+            return data
 
     def _read_stream(self):
         """Read images from the receiver zmq stream"""
@@ -66,6 +73,8 @@ class DummyPreviewReceiver:
 
 
 class PreviewReceiver:
+    n_channels = 1280
+    bytes_per_channel = 2
     def __init__(self, endpoint, timeout_ms = -1):
         """
         Initialize the class, and set up the zmq connection
@@ -73,7 +82,7 @@ class PreviewReceiver:
         self.endpoint = endpoint
         self.timeout_ms = timeout_ms
 
-        self.buffer = mp.Array(ctypes.c_uint8, 1280*2)
+        self.buffer = mp.Array(ctypes.c_uint8, self.n_channels*self.bytes_per_channel)
         self.exit_flag = mp.Value(ctypes.c_bool)
         self.exit_flag.value = False 
 
@@ -82,9 +91,12 @@ class PreviewReceiver:
         self.pedestal_frames.value = 100
         self.pd_counter = mp.Value(ctypes.c_int32)
         self.pd_counter.value = 0
-        self.pedestal_buffer = mp.Array(ctypes.c_uint64, 1280)
+        self.pedestal_buffer = mp.Array(ctypes.c_uint64, self.n_channels)
         self.collect_pedestal_ = mp.Value(ctypes.c_bool)
         self.collect_pedestal_.value = False 
+
+        #Mask, only from the GUI thread
+        self.mask = np.zeros(self.n_channels, dtype = np.bool_)
 
     def start(self):
         """
@@ -105,15 +117,22 @@ class PreviewReceiver:
     def get_data(self):
         """
         Get a copy of the data in the buffer. 
+        Always applies pedestal correction, but pd can be zero
+        Always applies mask
+
         TODO! could check if new data is there?
         """
         with self.buffer.get_lock():
             data = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
             pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
             if self.collect_pedestal_.value:
-                return data.astype(np.float)
+                data = data.astype(np.float)
+                data[self.mask] = 0
+                return data
             else:
-                return data.astype(np.float)-pd 
+                data = data.astype(np.float)-pd 
+                data[self.mask] = 0
+                return data
     
     @property
     def collect_pedestal(self):

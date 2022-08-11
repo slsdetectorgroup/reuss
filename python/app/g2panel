@@ -29,6 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
             self.zmq_rcv = rs.DummyPreviewReceiver('tcp://129.129.202.97:4547')
             self.zmq_rcv.start()
+            self.zmq_rcv.mask[100:200] = True
 
         else:
             from slsdet import Detector
@@ -75,6 +76,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_timer =  QtCore.QTimer()
         self.plot_timer.timeout.connect(self.update_plot)
 
+
+        #help
+        self.actionAbout.triggered.connect(self.show_about)
+
+
+    def show_about(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Gotthard2 GUI")
+        msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Froejdh")
+        x = msg.exec_()
 
 
     def update_fields(self):
