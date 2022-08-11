@@ -28,9 +28,6 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.addPlot()
 
-
-        
-        
         if args[0].demo:
             self.det = rs.DummyDetector()
             self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
@@ -95,18 +92,6 @@ class MainWindow(QtWidgets.QMainWindow):
         #Setting and getting index values
         self.indexSpinBox.valueChanged.connect(lambda x: setattr(self.rcv, 'findex', x))
 
-        #setting the axis values with the updates
-        self.xMinLineEdit.editingFinished.connect(self.addPlot)
-        self.xMaxLineEdit.editingFinished.connect(self.addPlot)
-        self.yMinLineEdit.editingFinished.connect(self.addPlot)
-        self.yMaxLineEdit.editingFinished.connect(self.addPlot)
-
-        #Power off button
-        self.closeButton.clicked.connect(self.powerOffDetector)
-
-        self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
-
-
         #Plot related settings
 
         #using a validator to make sure we have an integer, then set the streaming
@@ -115,6 +100,26 @@ class MainWindow(QtWidgets.QMainWindow):
         validator.setRange( 1, 100000)
         self.refreshRateLineEdit.setValidator(validator) 
         self.refreshRateLineEdit.editingFinished.connect(self.setStreamNth)
+
+
+        #setting the axis values with the updates
+        self.xMinLineEdit.setValidator(validator)
+        self.xMinLineEdit.editingFinished.connect(self.addPlot)
+        self.xMaxLineEdit.setValidator(validator)
+        self.xMaxLineEdit.editingFinished.connect(self.addPlot)
+        self.yMinLineEdit.setValidator(validator)
+        self.yMinLineEdit.editingFinished.connect(self.addPlot)
+        self.xMaxLineEdit.setValidator(validator)
+        self.yMaxLineEdit.editingFinished.connect(self.addPlot)
+
+        #Power off button
+        self.closeButton.clicked.connect(self.powerOffDetector)
+
+
+        #Pedestal correction 
+        self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
+
+
 
 
         #Timers
