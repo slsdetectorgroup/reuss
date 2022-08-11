@@ -9,14 +9,14 @@ import sys
 from pathlib import Path
 
 from reuss import Receiver
-from slsdet import Detector
+from slsdet import Detector, runStatus
 
 
 
 
 d = Detector()
 
-r = Receiver("tcp://129.129.202.97:5556") #where to talk to the receiver
+r = Receiver("tcp://127.0.0.1:5556") #where to talk to the receiver
 
 r.udp_source = f"{d.udp_dstip}:{d.udp_dstport}"
 r.frames = d.frames
@@ -26,11 +26,12 @@ def acquire(det, rcv):
     rcv.start() 
     time.sleep(0.1)
     det.start()
-
-    while not rcv.done:
+    time.sleep(0.1)
+    while det.status == runStatus.RUNNING:
         print(f"{rcv.progress*100:3.0f}%", end = '\r')
         time.sleep(0.1)
     print('')
+    time.sleep(1)
     rcv.stop()
 
 r.fpath = '/home/l_msdetect/erik/tmp/g2'

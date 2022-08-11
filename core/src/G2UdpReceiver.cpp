@@ -28,7 +28,10 @@ G2UdpReceiver::G2UdpReceiver(const std::string &node, const std::string &port,
 }
 
 G2UdpReceiver::~G2UdpReceiver() = default;
-void G2UdpReceiver::stop() { stopped_ = true; }
+void G2UdpReceiver::stop() { 
+    stopped_ = true; 
+    sock.shutdown();
+}
 int G2UdpReceiver::lost_packets() const noexcept { return total_lost_packets_; }
 bool G2UdpReceiver::done() const { return done_; }
 double G2UdpReceiver::progress() const { return progress_; }

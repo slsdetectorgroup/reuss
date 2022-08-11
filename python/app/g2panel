@@ -10,11 +10,13 @@ from pathlib import Path
 import time
 
 import reuss as rs
-
+from slsdet import Detector, runStatus
 
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
+
+        self.last_progress = 0
         pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
@@ -32,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.zmq_rcv.mask[100:200] = True
 
         else:
-            from slsdet import Detector
+            from slsdet import Detector, runStatus
             self.det = Detector()
             self.rcv = rs.Receiver(args[0].receiver_endpoint)
             self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
@@ -139,11 +141,25 @@ class MainWindow(QtWidgets.QMainWindow):
         #TODO! Add the additional fields
 
     def update_progress(self):
-        p = int(self.rcv.progress*100)
-        self.progressBar.setValue(p)
-        if p == 100:
+
+        progress_d = self.rcv.progress*100
+        p_int = int(progress_d)
+
+        self.progressBar.setValue(p_int)
+        pc = 0
+        if progress_d == self.last_progress and p_int!=0:
+            print(progress_d, self.last_progress)
+            if self.det.status == runStatus.IDLE:
+                time.sleep(1)
+                self.progress_timer.stop()
+                self.plot_timer.stop()
+                self.rcv.stop()
+
+        if p_int == 100:
             self.progress_timer.stop()
             self.plot_timer.stop()
+
+        self.last_progress = progress_d
 
     def update_status(self):
         s = str(self.det.status).split('.')[1]
