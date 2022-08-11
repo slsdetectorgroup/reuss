@@ -293,7 +293,7 @@
        <double>9999.000000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="triggerSpinBoxc">
+     <widget class="QDoubleSpinBox" name="triggerSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -600,7 +600,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Dyanmic</string>
+        <string>Dynamic</string>
        </property>
        <property name="checked">
         <bool>true</bool>

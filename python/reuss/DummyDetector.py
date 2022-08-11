@@ -9,6 +9,7 @@ class DummyDetector:
         self.current_frame_ = 0
         self.exptime_ = 0
         self.highvoltage_ = 0
+        self.index_ = 2
 
     @property
     def status(self):
@@ -47,8 +48,35 @@ class DummyDetector:
 
     @exptime.setter
     def exptime(self, val):
-        print(f'Setting exptime to: {val}')
+        print(f'Setting exptime to: {val} s')
         self.exptime_ = val
+
+    @property
+    def period(self):
+        return self.period_
+
+    @period.setter
+    def period(self, val):
+        print(f'Setting periods to: {val} s')
+        self.period_ = val
+
+    @property
+    def delayTrigger(self):
+        return self.delayTrigger_
+
+    @delayTrigger.setter
+    def delayTrigger(self, val):
+        print(f'Setting Delay Trigger to: {val} s')
+        self.delayTrigger_ = val
+
+    @property
+    def trigger(self):
+        return self.trigger_
+
+    @trigger.setter
+    def trigger(self, val):
+        print(f'Setting trigger to: {val}')
+        self.trigger_ = val
 
     @property
     def highvoltage(self):
@@ -58,3 +86,12 @@ class DummyDetector:
     def highvoltage(self, val):
         print(f'Setting highvoltage to: {val} V')
         self.highvoltage_ = val
+
+    @property
+    def index(self):
+        return self.index_
+
+    @index.setter
+    def index(self, val):
+        print(f'Setting file Index to: {val}')
+        self.index_ = val
