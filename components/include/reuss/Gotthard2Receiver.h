@@ -28,6 +28,7 @@ class Gotthard2Receiver{
     size_t n_frames{};
     size_t fifo_size{100};
     size_t stream_nth{1024};
+    size_t findex{};
     bool write_to_file{};
     bool receiving_done{};
 
@@ -45,6 +46,9 @@ public:
 
     void setFwrite(bool write);
     bool Fwrite();
+
+    void setFindex(size_t i);
+    size_t Findex() const;
 
     void setStreamNth(size_t n);
     size_t StreamNth();
