@@ -13,6 +13,8 @@ class DummyPreviewReceiver:
         self.exit_flag = mp.Value(ctypes.c_bool)
         self.exit_flag.value = False 
 
+        self.collect_pedestal_ = False
+
     def start(self):
         """
         Start the process that will read the zmq stream and put 
@@ -47,6 +49,18 @@ class DummyPreviewReceiver:
                 image = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
                 np.copyto(image, data)
             time.sleep(0.5)
+
+
+    @property
+    def collect_pedestal(self):
+        return self.collect_pedestal_
+
+    @collect_pedestal.setter
+    def collect_pedestal(self, val):
+        print('collect pedestal set to {val}')
+        self.collect_pedestal_ = val
+
+        
     
 
 
