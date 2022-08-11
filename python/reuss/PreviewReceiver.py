@@ -51,11 +51,6 @@ class DummyPreviewReceiver:
 
 
 
-
-
-
-
-
 class PreviewReceiver:
     def __init__(self, endpoint, timeout_ms = -1):
         """
@@ -67,6 +62,15 @@ class PreviewReceiver:
         self.buffer = mp.Array(ctypes.c_uint8, 1280*2)
         self.exit_flag = mp.Value(ctypes.c_bool)
         self.exit_flag.value = False 
+
+        #Pedestal
+        self.pedestal_frames = mp.Value(ctypes.c_int32)
+        self.pedestal_frames.value = 100
+        self.pd_counter = mp.Value(ctypes.c_int32)
+        self.pd_counter.value = 0
+        self.pedestal_buffer = mp.Array(ctypes.c_uint64, 1280)
+        self.collect_pedestal_ = mp.Value(ctypes.c_bool)
+        self.collect_pedestal_.value = False 
 
     def start(self):
         """
@@ -91,7 +95,25 @@ class PreviewReceiver:
         """
         with self.buffer.get_lock():
             data = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
-            return data.copy() #to avoid a reference to the buffer
+            pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
+            if self.collect_pedestal_.value:
+                return data.astype(np.float)
+            else:
+                return data.astype(np.float)-pd 
+    
+    @property
+    def collect_pedestal(self):
+        return self.collect_pedestal_
+
+    @collect_pedestal.setter
+    def collect_pedestal(self, val):
+        self.pd_counter.value = 0
+        self.collect_pedestal_.value = val
+
+        #If the stae changed we zero out the pedestal
+        with self.pedestal_buffer.get_lock():
+            pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
+            pd[:] = 0
 
     def _read_stream(self):
         """Read images from the receiver zmq stream"""
@@ -103,15 +125,25 @@ class PreviewReceiver:
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
         self.socket.setsockopt(zmq.RCVTIMEO, self.timeout_ms)
 
+
+
         while not self.exit_flag.value:
             #Try to read an image, if timeout then try again
             try:
                 data, frame_number = self._read_frame()
                 with self.buffer.get_lock():
                     image = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
-                    # tmp = tmp.astype(np.uint16)
+                    pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
                     np.copyto(image, data)
-    
+                
+                    if self.collect_pedestal_.value:
+                        pd += data
+                        self.pd_counter.value += 1
+                        print(f'Got {self.pd_counter.value}/{self.pedestal_frames.value} pedestal frames')
+                        if self.pd_counter.value == self.pedestal_frames.value:
+                            self.collect_pedestal_.value = False
+                            pd//=self.pd_counter.value
+
             except zmq.error.Again:
                 pass
 

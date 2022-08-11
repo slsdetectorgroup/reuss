@@ -61,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.frameSpinBox.valueChanged.connect(self.setFrames)
 
-
+        self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
 
 
         #Plot related settings
