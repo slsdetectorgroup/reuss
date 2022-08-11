@@ -121,6 +121,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
         self.indexSpinBox.setValue(self.det.index)
+        self.exposureSpinBox.setValue(self.det.exptime)
+        self.periodSpinBox.setValue(self.det.period)
+        self.triggerSpinBox.setValue(self.det.trigger)
+        self.delayTriggerSpinBox.setValue(self.det.delayTrigger)
 
         #TODO! Add the additional fields
 
