@@ -26,29 +26,7 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('g2panel.ui', self)
         
         
-        #Getting the intial value set from ui
-        Xmin = int(self.xMinLineEdit.text())
-        Xmax = int(self.xMaxLineEdit.text())
-        Ymin = int(self.yMinLineEdit.text())
-        Ymax = int(self.yMaxLineEdit.text())
-
-
-        pen = pg.mkPen(color = (36, 119, 173), width=1) 
-        #Plotting the data
-        self.curve = self.plotWidget.plot(pen=pen)
-        #adding labels for the plots
-        self.plotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Output [ADC]</span>")
-        self.plotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
-        #setting the max and  min axis values
-        self.plotWidget.setXRange(Xmin, Xmax, padding=0)
-        self.plotWidget.setYRange(Ymin, Ymax, padding=0)
-
-        #Plotting second plot for gain bit
-        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
-        self.gamBitPlotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Gain Bit</span>")
-        self.gamBitPlotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
-        self.gamBitPlotWidget.setXRange(Xmin, Xmax, padding=0)
-        self.gamBitPlotWidget.setYRange(0, 2, padding=0.05)
+        self.addPlot()
 
 
         
@@ -79,7 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
-        self.highVoltageSpinBox.valueChanged.connect(lambda x: setattr(self.det, 'highvoltage', x))
+        self.highVoltageSpinBox.editingFinished.connect(self.setHighVolatge)
 
         #Needs a function since editingFinished doesn't pass a parameter
         self.nameLineEdit.editingFinished.connect(self.setFname)
@@ -115,6 +93,12 @@ class MainWindow(QtWidgets.QMainWindow):
         #Setting and getting index values
         self.indexSpinBox.editingFinished.connect(self.setIndex)
 
+        #setting the axis values with the updates
+        self.xMinLineEdit.editingFinished.connect(self.addPlot)
+        self.xMaxLineEdit.editingFinished.connect(self.addPlot)
+        self.yMinLineEdit.editingFinished.connect(self.addPlot)
+        self.yMaxLineEdit.editingFinished.connect(self.addPlot)
+
         #Power off button
         self.closeButton.clicked.connect(self.powerOffDetector)
 
@@ -135,6 +119,32 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #help
         self.actionAbout.triggered.connect(self.show_about)
+
+    #to add plot and update it according to the values from GUI
+    def addPlot(self):
+        #Getting the intial value set from ui
+        Xmin = int(self.xMinLineEdit.text())
+        Xmax = int(self.xMaxLineEdit.text())
+        Ymin = int(self.yMinLineEdit.text())
+        Ymax = int(self.yMaxLineEdit.text())
+
+
+        pen = pg.mkPen(color = (36, 119, 173), width=1) 
+        #Plotting the data
+        self.curve = self.plotWidget.plot(pen=pen)
+        #adding labels for the plots
+        self.plotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Output [ADC]</span>")
+        self.plotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        #setting the max and  min axis values
+        self.plotWidget.setXRange(Xmin, Xmax, padding=0.01)
+        self.plotWidget.setYRange(Ymin, Ymax, padding=0.01)
+
+        #Plotting second plot for gain bit
+        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
+        self.gamBitPlotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Gain Bit</span>")
+        self.gamBitPlotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        self.gamBitPlotWidget.setXRange(Xmin, Xmax, padding=0.01)
+        self.gamBitPlotWidget.setYRange(0, 2, padding=0.05)
 
 
     def show_about(self):
@@ -194,6 +204,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def setTrigger(self):
         #number of frames needs to go to both receiver and detector
         self.det.trigger = self.triggerSpinBox.value()
+
+    def setHighVolatge(self):
+        self.det.highvoltage = self.highVoltageSpinBox.value()
 
 
     #Function for setting exposure time and time unit
