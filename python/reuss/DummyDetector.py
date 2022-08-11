@@ -7,9 +7,12 @@ class DummyDetector:
         self.status_ = "detectorStatus.IDLE"
         self.frames_ = 100
         self.current_frame_ = 0
-        self.exptime_ = 0
-        self.highvoltage_ = 0
+        self.exptime_ = 1.0000
+        self.highvoltage_ = 2.00
         self.index_ = 2
+        self.delayTrigger_ = 2
+        self.period_ = 2.0000
+        self.trigger_ = 2
 
     @property
     def status(self):
@@ -88,10 +91,10 @@ class DummyDetector:
         self.highvoltage_ = val
 
     @property
-    def index(self):
+    def findex(self):
         return self.index_
 
-    @index.setter
-    def index(self, val):
+    @findex.setter
+    def findex(self, val):
         print(f'Setting file Index to: {val}')
         self.index_ = val

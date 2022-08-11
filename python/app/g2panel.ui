@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -271,7 +271,7 @@
        <double>0.000000000000000</double>
       </property>
      </widget>
-     <widget class="QSpinBox" name="frameSpinBox">
+     <widget class="QDoubleSpinBox" name="frameSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -283,11 +283,17 @@
       <property name="toolTip">
        <string>Set Frames Number</string>
       </property>
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="minimum">
+       <double>1.000000000000000</double>
+      </property>
       <property name="maximum">
-       <number>100000000</number>
+       <double>9999.000000000000000</double>
       </property>
      </widget>
-     <widget class="QSpinBox" name="triggerSpinBox">
+     <widget class="QDoubleSpinBox" name="triggerSpinBox">
       <property name="geometry">
        <rect>
         <x>160</x>
@@ -299,8 +305,11 @@
       <property name="toolTip">
        <string>Set Triggers</string>
       </property>
-      <property name="maximum">
-       <number>100000000</number>
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="minimum">
+       <double>0.000000000000000</double>
       </property>
      </widget>
      <widget class="QDoubleSpinBox" name="delayTriggerSpinBox">
@@ -835,6 +844,9 @@
         <height>31</height>
        </rect>
       </property>
+      <property name="inputMask">
+       <string/>
+      </property>
       <property name="text">
        <string>0</string>
       </property>
@@ -1037,7 +1049,7 @@ color: rgb(255, 255, 0);</string>
      <x>0</x>
      <y>0</y>
      <width>1436</width>
-     <height>29</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -1052,13 +1064,6 @@ color: rgb(255, 255, 0);</string>
     </property>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuLoad">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="loadChanMask"/>
-   </widget>
-   <addaction name="menuLoad"/>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -1081,11 +1086,6 @@ color: rgb(255, 255, 0);</string>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
-   </property>
-  </action>
-  <action name="loadChanMask">
-   <property name="text">
-    <string>Load bad channels mask</string>
    </property>
   </action>
  </widget>

@@ -20,12 +20,16 @@ class MainWindow(QtWidgets.QMainWindow):
         pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
+
         print(args)
+
+        #Load UI file as main Window
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
-        pen = pg.mkPen(color = (36, 119, 173), width=1,) 
-        self.curve = self.plotWidget.plot(pen=pen)
         
+        
+        self.addPlot()
+
         if args[0].demo:
             self.det = rs.DummyDetector()
             self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
@@ -52,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
-        self.highVoltageSpinBox.valueChanged.connect(lambda x: setattr(self.det, 'highvoltage', x))
+        self.highVoltageSpinBox.editingFinished.connect(self.setHighVolatge)
 
         #Needs a function since editingFinished doesn't pass a parameter
         self.nameLineEdit.editingFinished.connect(self.setFname)
@@ -90,12 +94,6 @@ class MainWindow(QtWidgets.QMainWindow):
         #Setting and getting index values
         self.indexSpinBox.valueChanged.connect(lambda x: setattr(self.rcv, 'findex', x))
 
-        #Power off button
-        self.closeButton.clicked.connect(self.powerOffDetector)
-
-        self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
-
-
         #Plot related settings
 
         #using a validator to make sure we have an integer, then set the streaming
@@ -104,6 +102,26 @@ class MainWindow(QtWidgets.QMainWindow):
         validator.setRange( 1, 100000)
         self.refreshRateLineEdit.setValidator(validator) 
         self.refreshRateLineEdit.editingFinished.connect(self.setStreamNth)
+
+
+        #setting the axis values with the updates
+        self.xMinLineEdit.setValidator(validator)
+        self.xMinLineEdit.editingFinished.connect(self.addPlot)
+        self.xMaxLineEdit.setValidator(validator)
+        self.xMaxLineEdit.editingFinished.connect(self.addPlot)
+        self.yMinLineEdit.setValidator(validator)
+        self.yMinLineEdit.editingFinished.connect(self.addPlot)
+        self.xMaxLineEdit.setValidator(validator)
+        self.yMaxLineEdit.editingFinished.connect(self.addPlot)
+
+        #Power off button
+        self.closeButton.clicked.connect(self.powerOffDetector)
+
+
+        #Pedestal correction 
+        self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
+
+
 
 
         #Timers
@@ -118,6 +136,32 @@ class MainWindow(QtWidgets.QMainWindow):
         #help
         self.actionAbout.triggered.connect(self.show_about)
 
+    #to add plot and update it according to the values from GUI
+    def addPlot(self):
+        #Getting the intial value set from ui
+        Xmin = int(self.xMinLineEdit.text())
+        Xmax = int(self.xMaxLineEdit.text())
+        Ymin = int(self.yMinLineEdit.text())
+        Ymax = int(self.yMaxLineEdit.text())
+
+
+        pen = pg.mkPen(color = (36, 119, 173), width=1) 
+        #Plotting the data
+        self.curve = self.plotWidget.plot(pen=pen)
+        #adding labels for the plots
+        self.plotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Output [ADC]</span>")
+        self.plotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        #setting the max and  min axis values
+        self.plotWidget.setXRange(Xmin, Xmax, padding=0.01)
+        self.plotWidget.setYRange(Ymin, Ymax, padding=0.01)
+
+        #Plotting second plot for gain bit
+        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
+        self.gamBitPlotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Gain Bit</span>")
+        self.gamBitPlotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
+        self.gamBitPlotWidget.setXRange(Xmin, Xmax, padding=0.01)
+        self.gamBitPlotWidget.setYRange(0, 2, padding=0.05)
+
 
     def show_about(self):
         msg = QtWidgets.QMessageBox()
@@ -125,18 +169,24 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Froejdh")
         x = msg.exec_()
 
-
+    #updating values from detector to GUI
     def update_fields(self):
         """Update all fields in the GUI with current values from the detector"""
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
+
+        self.exposureSpinBox.setValue(self.det.exptime)
+        self.periodSpinBox.setValue(self.det.period)
+        self.triggerSpinBox.setValue(self.det.trigger)
+        self.delayTriggerSpinBox.setValue(self.det.delayTrigger)
         self.indexSpinBox.setValue(self.rcv.findex)
 
         #TODO check logic? 
         # self.yesRadioButton.setChecked(self.rcv.fwrite)
         self.noRadioButton.setChecked(not self.rcv.fwrite)
         self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
+
 
         #TODO! Add the additional fields
 
@@ -168,6 +218,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_plot(self):
         data = self.zmq_rcv.get_data()
         self.curve.setData(data)
+        self.p1.setData(data)
 
 
     def start(self):
@@ -191,6 +242,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def setTrigger(self):
         #number of frames needs to go to both receiver and detector
         self.det.trigger = self.triggerSpinBox.value()
+
+    def setHighVolatge(self):
+        self.det.highvoltage = self.highVoltageSpinBox.value()
 
 
     #Function for setting exposure time and time unit
@@ -237,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def fixedG2Gain(self, selected):
         if selected:
-            print('fixed G1')  
+            print('fixed G2')  
 
    #Setting Gain modes
     def autoMode(self, selected):
