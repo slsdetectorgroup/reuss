@@ -149,7 +149,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
-        self.indexSpinBox.setValue(self.det.index)
         self.exposureSpinBox.setValue(self.det.exptime)
         self.periodSpinBox.setValue(self.det.period)
         self.triggerSpinBox.setValue(self.det.trigger)
