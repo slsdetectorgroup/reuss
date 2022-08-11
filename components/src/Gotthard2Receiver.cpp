@@ -67,7 +67,8 @@ namespace reuss{
     }
 
     std::string Gotthard2Receiver::Pathname(){
-        return fpath / base_name;
+        // return fpath / base_name;
+        return fmt::format("{}_{}", (fpath/base_name).c_str(), findex);
     }
 
     void Gotthard2Receiver::setStreamNth(size_t n){
@@ -86,7 +87,7 @@ namespace reuss{
             threads.emplace_back(&Writer::sink, writer.get(), 1);
 
     
-        threads.emplace_back(&G2UdpReceiver::receive_n, receiver, 0, n_frames, 1024);
+        threads.emplace_back(&G2UdpReceiver::receive_n, receiver, 0, n_frames, stream_nth);
         threads.emplace_back(&Streamer::stream, preview_streamer, 2);
     }
 
@@ -116,5 +117,13 @@ namespace reuss{
             return receiver->progress();
         else    
             return 0;
+    }
+
+
+    void Gotthard2Receiver::setFindex(size_t i){
+        findex = i;
+    }
+    size_t Gotthard2Receiver::Findex() const{
+        return findex;
     }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
             self.rcv.frames = self.det.frames
             self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
-            self.zmq_rcv = rs.PreviewReceiver('tcp://129.129.202.97:4547', timeout_ms=100)
+            self.zmq_rcv = rs.PreviewReceiver('tcp://127.0.0.1:4547', timeout_ms=100)
             self.zmq_rcv.start()
 
 
@@ -62,6 +62,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #Needs a function since editingFinished doesn't pass a parameter
         self.nameLineEdit.editingFinished.connect(self.setFname)
         self.pathLineEdit.editingFinished.connect(self.setPath)
+
+        self.yesRadioButton.toggled.connect(lambda x: setattr(self.rcv, 'fwrite', x))
 
         #Exposure time should be set on both unit and value change
         self.expTimeComboBox.currentIndexChanged.connect(self.setExptime)
@@ -91,7 +93,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.delayTriggerSpinBox.editingFinished.connect(self.setDelayTrigger)
 
         #Setting and getting index values
-        self.indexSpinBox.editingFinished.connect(self.setIndex)
+        self.indexSpinBox.valueChanged.connect(lambda x: setattr(self.rcv, 'findex', x))
 
         #setting the axis values with the updates
         self.xMinLineEdit.editingFinished.connect(self.addPlot)
@@ -106,6 +108,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         #Plot related settings
+
+        #using a validator to make sure we have an integer, then set the streaming
+        #frequency of the preview
+        validator = QtGui.QIntValidator() 
+        validator.setRange( 1, 100000)
+        self.refreshRateLineEdit.setValidator(validator) 
+        self.refreshRateLineEdit.editingFinished.connect(self.setStreamNth)
 
 
         #Timers
@@ -159,10 +168,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
+
         self.exposureSpinBox.setValue(self.det.exptime)
         self.periodSpinBox.setValue(self.det.period)
         self.triggerSpinBox.setValue(self.det.trigger)
         self.delayTriggerSpinBox.setValue(self.det.delayTrigger)
+        self.indexSpinBox.setValue(self.rcv.findex)
+
+        #TODO check logic? 
+        # self.yesRadioButton.setChecked(self.rcv.fwrite)
+        self.noRadioButton.setChecked(not self.rcv.fwrite)
+        self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
+
 
         #TODO! Add the additional fields
 
@@ -264,14 +281,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if selected:
             print('Trigger timing mode')
 
-
-    def setIndex(self):
-        self.det.index = self.indexSpinBox.value()
-
     #Safely powering off the detectors
     def powerOffDetector(self):
         self.det.highvoltage = 0.0
         self.highVoltageSpinBox.setValue(self.det.highvoltage)
+
+
+    def setStreamNth(self):
+        self.rcv.stream_nth = int(self.refreshRateLineEdit.text())
 
 if __name__ == '__main__':
 
