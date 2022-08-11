@@ -73,6 +73,8 @@ class DummyReceiver:
         self.fwrite_ = False
         self.frames_ = 100
         self.current_frame_ = 0
+        self.findex_ = 0
+        self.stream_nth_ = 1024
         pass
 
     def _increment(self):
@@ -130,6 +132,23 @@ class DummyReceiver:
         print(f"Setting fwrite to: {val}")
         self.fwrite_ = val
 
+    @property
+    def findex(self):
+        return self.findex_
+
+    @findex.setter
+    def findex(self, val):
+        print(f'Setting file Index to: {val}')
+        self.findex_ = val
+
+    @property
+    def stream_nth(self):
+        return self.stream_nth_
+
+    @stream_nth.setter
+    def stream_nth(self, val):
+        print(f'Setting file Index to: {val}')
+        self.stream_nth_ = val
 
 class Receiver:
     """
