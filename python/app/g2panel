@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from socket import timeout
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
@@ -10,7 +11,7 @@ from pathlib import Path
 import time
 
 import reuss as rs
-from slsdet import Detector, runStatus
+#from slsdet import Detector, runStatus
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -27,7 +28,13 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
         
-        
+        pen = pg.mkPen(color = (36, 119, 173), width=1) 
+        #Plotting the data
+        self.curve = self.plotWidget.plot(pen=pen)
+
+        #Plotting second plot for gain bit
+        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
+
         self.addPlot()
 
         if args[0].demo:
@@ -99,17 +106,20 @@ class MainWindow(QtWidgets.QMainWindow):
         #using a validator to make sure we have an integer, then set the streaming
         #frequency of the preview
         validator = QtGui.QIntValidator() 
-        validator.setRange( 1, 100000)
+        validator.setRange(1, 100000)
         self.refreshRateLineEdit.setValidator(validator) 
         self.refreshRateLineEdit.editingFinished.connect(self.setStreamNth)
-
 
         #setting the axis values with the updates and adding validations for the integer input only
         self.xMinLineEdit.setValidator(validator)
         self.xMinLineEdit.editingFinished.connect(self.addPlot)
         self.xMaxLineEdit.setValidator(validator)
         self.xMaxLineEdit.editingFinished.connect(self.addPlot)
-        self.yMinLineEdit.setValidator(validator)
+
+        #Allowing for negetive values too in Ymin
+        validation = QtGui.QIntValidator()
+        validation.setRange(-100000, 100000)
+        self.yMinLineEdit.setValidator(validation)
         self.yMinLineEdit.editingFinished.connect(self.addPlot)
         self.xMaxLineEdit.setValidator(validator)
         self.yMaxLineEdit.editingFinished.connect(self.addPlot)
@@ -143,10 +153,6 @@ class MainWindow(QtWidgets.QMainWindow):
         Ymin = int(self.yMinLineEdit.text())
         Ymax = int(self.yMaxLineEdit.text())
 
-
-        pen = pg.mkPen(color = (36, 119, 173), width=1) 
-        #Plotting the data
-        self.curve = self.plotWidget.plot(pen=pen)
         #adding labels for the plots
         self.plotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Output [ADC]</span>")
         self.plotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
@@ -154,8 +160,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plotWidget.setXRange(Xmin, Xmax, padding=0.01)
         self.plotWidget.setYRange(Ymin, Ymax, padding=0.01)
 
-        #Plotting second plot for gain bit
-        self.p1 = self.gamBitPlotWidget.plot(pen=pen)
         self.gamBitPlotWidget.setLabel('left',"<span style=\"color:black;font-size:14px\">Gain Bit</span>")
         self.gamBitPlotWidget.setLabel('bottom',"<span style=\"color:black;font-size:14px\">Channel [#]</span>")
         self.gamBitPlotWidget.setXRange(Xmin, Xmax, padding=0.01)
@@ -320,7 +324,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #Safely powering off the detectors
     def powerOffDetector(self):
-        self.det.highvoltage = 0.0
+        self.det.highvoltage = 0
         self.highVoltageSpinBox.setValue(self.det.highvoltage)
 
     #Setting the referesh rate from the receiver
