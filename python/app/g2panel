@@ -10,7 +10,7 @@ from pathlib import Path
 import time
 
 import reuss as rs
-#from slsdet import Detector, runStatus
+from slsdet import Detector, runStatus
 
 class MainWindow(QtWidgets.QMainWindow):
 
