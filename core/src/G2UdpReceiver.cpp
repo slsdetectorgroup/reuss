@@ -23,9 +23,8 @@ G2UdpReceiver::G2UdpReceiver(const std::string &node, const std::string &port,
                              size_t fifo_size)
     : fifo_(fifo_size, G2_FRAME_SIZE),
       preview_fifo_(fifo_size, G2_PAYLOAD_SIZE),
-      sock(node, port, G2_PACKET_SIZE) {
-    sock.setBufferSize(G2_UDP_SOCKET_SIZE);
-}
+      node(node),
+      port(port){}
 
 G2UdpReceiver::~G2UdpReceiver() = default;
 void G2UdpReceiver::stop() { 
@@ -48,49 +47,68 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
     size_t frames_received = 0;
     int64_t frame_index = 0; // index to address frames when sending bunches
 
+    UdpSocket sock(node, port, G2_PACKET_SIZE);
+    sock.setBufferSize(G2_UDP_SOCKET_SIZE);
+
     while (!stopped_ && (frames_received < n_frames)) {
         ImageView img = fifo_.pop_free();
         size_t i = 0;
-        while (i < G2_PACK && !stopped_ && (frames_received < n_frames)) {
-
-            if (sock.receivePacket(&pbuf)) {
-                currentFrameNumber = pbuf.header.frameNumber;
-
-                // Debug printing
-                if ((currentFrameNumber - lastFrameNumber != 1) &&
-                    (lastFrameNumber != 0)) {
-                    fmt::print(fg(fmt::color::red), "Lost {} frames\n",
-                               currentFrameNumber - lastFrameNumber);
-                }
-
-                lastFrameNumber = currentFrameNumber;
-                auto offset = G2_PACKET_SIZE * i;
-                auto dst = img.data + offset;
-                memcpy(dst, &pbuf, G2_PACKET_SIZE);
-
-                // Stream one per n_frames
-                if (frames_received % stream_nth == 0) {
-                    ImageView preview = preview_fifo_.pop_free();
-                    preview.frameNumber = currentFrameNumber;
-                    preview.framesInPack = 1;
-                    memcpy(preview.data, &pbuf.data[0], G2_PAYLOAD_SIZE);
-                    preview_fifo_.push_image(preview);
-                }
-
-                ++frames_received;
-                ++i;
-
-                progress_ = static_cast<double>(frames_received) /
+        int rc = sock.multirecv(img.data);
+        // fmt::print("Got: {} packets\n", rc);
+        if(rc != -1){
+            frames_received += rc;
+            ++i;
+            img.framesInPack = rc;
+            progress_ = static_cast<double>(frames_received) /
                             static_cast<double>(n_frames);
-            }
+        }else{
+            img.framesInPack = 0;
         }
-        img.frameNumber = frame_index++;
-        img.framesInPack = i;
+        // while (i < G2_PACK && !stopped_ && (frames_received < n_frames)) {
+
+        //     if (sock.receivePacket(&pbuf)) {
+        //         currentFrameNumber = pbuf.header.frameNumber;
+
+        //         // Debug printing
+        //         if ((currentFrameNumber - lastFrameNumber != 1) &&
+        //             (lastFrameNumber != 0)) {
+        //             fmt::print(fg(fmt::color::red), "Lost {} frames\n",
+        //                        currentFrameNumber - lastFrameNumber);
+        //         }
+
+        //         lastFrameNumber = currentFrameNumber;
+        //         auto offset = G2_PACKET_SIZE * i;
+        //         auto dst = img.data + offset;
+        //         memcpy(dst, &pbuf, G2_PACKET_SIZE);
+
+        //         // Stream one per n_frames
+        //         if (frames_received % stream_nth == 0) {
+        //             ImageView preview = preview_fifo_.pop_free();
+        //             preview.frameNumber = currentFrameNumber;
+        //             preview.framesInPack = 1;
+        //             memcpy(preview.data, &pbuf.data[0], G2_PAYLOAD_SIZE);
+        //             preview_fifo_.push_image(preview);
+        //         }
+
+        //         ++frames_received;
+        //         ++i;
+
+        //         progress_ = static_cast<double>(frames_received) /
+        //                     static_cast<double>(n_frames);
+        //     }
+        // }
+        // img.frameNumber = frame_index++;
+        // img.framesInPack = i;
+        ImageView preview = preview_fifo_.pop_free();
+        preview.framesInPack = 1;
+        memcpy(preview.data, img.data+sizeof(PacketHeader), G2_PAYLOAD_SIZE); //copy first pkg
+        preview_fifo_.push_image(preview);
         fifo_.push_image(img);
     }
     // make sure we have time to sink images
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     done_ = true;
+    fmt::print("Caught {}/{} frames\n", frames_received, n_frames);
     fmt::print("G2UdpReceiver done\n");
 }
 
