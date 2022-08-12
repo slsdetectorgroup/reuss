@@ -28,6 +28,17 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
         throw std::runtime_error(
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
+
+    //TODO! should we make this configurable, or do we actually don't need it?
+    struct timeval timeout;      
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 1000;
+    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                sizeof timeout) < 0)
+        throw std::runtime_error(
+            fmt::format("Failed to set timeout"));
+
+
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
 }

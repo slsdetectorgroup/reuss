@@ -39,6 +39,8 @@ class ReceiverServer:
                             print(f"{parameter}: {res[parameter]}")
                         except AttributeError:
                             return json.dumps({"status": "error", "reason": f"Receiver has no: {parameter} attribute"})
+                        except Exception as e:
+                            return json.dumps({"status": "error", "reason": f"Exception: {e}, \n{key}:{value}"})
                     return json_string(res)
 
                 case "run":
@@ -57,8 +59,15 @@ class ReceiverServer:
                     try:
                         setattr(self.rcv, key, value)
                         print(f"{key}: {value}")
+
                     except AttributeError:
                         return json.dumps({"status": "error", "reason": f"Receiver has no: {key} attribute"})
+
+                    except TypeError as e:
+                        return json.dumps({"status": "error", "reason": f"TypeError: {e}, \n{key}:{value}"})
+
+                    except Exception as e:
+                        return json.dumps({"status": "error", "reason": f"Exception: {e}, \n{key}:{value}"})
 
         return self.ok_str
 

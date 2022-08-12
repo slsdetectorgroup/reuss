@@ -124,15 +124,16 @@ class PreviewReceiver:
         """
         with self.buffer.get_lock():
             data = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
+            gain = np.right_shift(data, 14)
             pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
             if self.collect_pedestal_.value:
                 data = data.astype(np.float)
                 data[self.mask] = 0
-                return data
+                return data, gain
             else:
                 data = data.astype(np.float)-pd 
                 data[self.mask] = 0
-                return data
+                return data, gain
     
     @property
     def collect_pedestal(self):

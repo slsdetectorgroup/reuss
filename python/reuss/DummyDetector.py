@@ -64,20 +64,20 @@ class DummyDetector:
         self.period_ = val
 
     @property
-    def delayTrigger(self):
+    def delay(self):
         return self.delayTrigger_
 
-    @delayTrigger.setter
-    def delayTrigger(self, val):
+    @delay.setter
+    def delay(self, val):
         print(f'Setting Delay Trigger to: {val} s')
         self.delayTrigger_ = val
 
     @property
-    def trigger(self):
+    def triggers(self):
         return self.trigger_
 
-    @trigger.setter
-    def trigger(self, val):
+    @triggers.setter
+    def triggers(self, val):
         print(f'Setting trigger to: {val}')
         self.trigger_ = val
 

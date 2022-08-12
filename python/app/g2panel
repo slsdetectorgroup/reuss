@@ -178,8 +178,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.exposureSpinBox.setValue(self.det.exptime)
         self.periodSpinBox.setValue(self.det.period)
-        self.triggerSpinBox.setValue(self.det.trigger)
-        self.delayTriggerSpinBox.setValue(self.det.delayTrigger)
+        self.triggerSpinBox.setValue(self.det.triggers)
+        self.delayTriggerSpinBox.setValue(self.det.delay)
         self.indexSpinBox.setValue(self.rcv.findex)
 
         #TODO check logic? 
@@ -201,6 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print(progress_d, self.last_progress)
             if self.det.status == runStatus.IDLE:
                 time.sleep(1)
+                print("Issuing stop!")
                 self.progress_timer.stop()
                 self.plot_timer.stop()
                 self.rcv.stop()
@@ -216,9 +217,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusLabel.setText(s)
 
     def update_plot(self):
-        data = self.zmq_rcv.get_data()
+        data, gain = self.zmq_rcv.get_data()
         self.curve.setData(data)
-        self.p1.setData(data)
+        self.p1.setData(gain)
 
 
     def start(self):
@@ -241,7 +242,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setTrigger(self):
         #number of frames needs to go to both receiver and detector
-        self.det.trigger = self.triggerSpinBox.value()
+        self.det.triggers = self.triggerSpinBox.value()
 
     def setHighVolatge(self):
         self.det.highvoltage = self.highVoltageSpinBox.value()
@@ -278,7 +279,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 unit = 1e-6
             case 2:
                 unit = 1e-9
-        self.det.delayTrigger = self.delayTriggerSpinBox.value()*unit
+        self.det.delay = self.delayTriggerSpinBox.value()*unit
 
     #Setting Gain modes
     def dynamicGain(self, selected):
