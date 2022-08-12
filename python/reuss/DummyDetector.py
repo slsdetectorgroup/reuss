@@ -91,10 +91,10 @@ class DummyDetector:
         self.highvoltage_ = val
 
     @property
-    def findex(self):
+    def index(self):
         return self.index_
 
-    @findex.setter
-    def findex(self, val):
+    @index.setter
+    def index(self, val):
         print(f'Setting file Index to: {val}')
         self.index_ = val

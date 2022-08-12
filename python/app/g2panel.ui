@@ -1101,7 +1101,7 @@ color: rgb(255, 255, 0);</string>
  <connections>
   <connection>
    <sender>yesRadioButton</sender>
-   <signal>clicked()</signal>
+   <signal>clicked(bool)</signal>
    <receiver>widget</receiver>
    <slot>show()</slot>
    <hints>
