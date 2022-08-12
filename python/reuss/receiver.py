@@ -147,7 +147,7 @@ class DummyReceiver:
 
     @stream_nth.setter
     def stream_nth(self, val):
-        print(f'Setting file Index to: {val}')
+        print(f'Setting referesh rate to: {val}')
         self.stream_nth_ = val
 
 class Receiver:

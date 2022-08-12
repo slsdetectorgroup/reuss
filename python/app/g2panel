@@ -48,10 +48,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.zmq_rcv.start()
 
 
-    
         self.update_fields()
 
-
+        #Function for start button
         self.startButton.clicked.connect(self.start)
     
         #For simple attributes it is possible to connect directly using a lambda 
@@ -62,6 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nameLineEdit.editingFinished.connect(self.setFname)
         self.pathLineEdit.editingFinished.connect(self.setPath)
 
+        #Enabling the file write options when yes button is clicked
         self.yesRadioButton.toggled.connect(lambda x: setattr(self.rcv, 'fwrite', x))
 
         #Exposure time should be set on both unit and value change
@@ -92,7 +92,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.delayTriggerSpinBox.editingFinished.connect(self.setDelayTrigger)
 
         #Setting and getting index values
-        self.indexSpinBox.valueChanged.connect(lambda x: setattr(self.rcv, 'findex', x))
+        self.indexSpinBox.editingFinished.connect(self.setIndex)
 
         #Plot related settings
 
@@ -104,7 +104,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.refreshRateLineEdit.editingFinished.connect(self.setStreamNth)
 
 
-        #setting the axis values with the updates
+        #setting the axis values with the updates and adding validations for the integer input only
         self.xMinLineEdit.setValidator(validator)
         self.xMinLineEdit.editingFinished.connect(self.addPlot)
         self.xMaxLineEdit.setValidator(validator)
@@ -121,14 +121,13 @@ class MainWindow(QtWidgets.QMainWindow):
         #Pedestal correction 
         self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
 
-
-
-
         #Timers
+        #Timer to update the progress bar
         self.progress_timer = QtCore.QTimer()
         self.progress_timer.timeout.connect(self.update_progress)
         self.update_progress()
 
+        #Timer to update the plots
         self.plot_timer =  QtCore.QTimer()
         self.plot_timer.timeout.connect(self.update_plot)
 
@@ -138,7 +137,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #to add plot and update it according to the values from GUI
     def addPlot(self):
-        #Getting the intial value set from ui
+        #Getting the intial axis value set from ui
         Xmin = int(self.xMinLineEdit.text())
         Xmax = int(self.xMaxLineEdit.text())
         Ymin = int(self.yMinLineEdit.text())
@@ -175,7 +174,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
-
         self.exposureSpinBox.setValue(self.det.exptime)
         self.periodSpinBox.setValue(self.det.period)
         self.triggerSpinBox.setValue(self.det.trigger)
@@ -183,12 +181,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.indexSpinBox.setValue(self.rcv.findex)
 
         #TODO check logic? 
-        # self.yesRadioButton.setChecked(self.rcv.fwrite)
+        #Setting the save file radio buttons from the receiver.
         self.noRadioButton.setChecked(not self.rcv.fwrite)
+
+        #adding condition to hide the file saving options when the writing option is false
+        if self.rcv.fwrite == False:
+            self.widget.hide()
+        #Updating the referech rater of the stream from the receiver
         self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
 
 
         #TODO! Add the additional fields
+
 
     def update_progress(self):
 
@@ -211,16 +215,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.last_progress = progress_d
 
+    #Updating the status of the detector
     def update_status(self):
         s = str(self.det.status).split('.')[1]
         self.statusLabel.setText(s)
 
+    #Function to update the plot
     def update_plot(self):
         data = self.zmq_rcv.get_data()
         self.curve.setData(data)
         self.p1.setData(data)
 
-
+    #To start the acquire process
     def start(self):
         self.progress_timer.start(100)
         self.plot_timer.start(50)
@@ -228,23 +234,32 @@ class MainWindow(QtWidgets.QMainWindow):
         time.sleep(0.1)
         self.det.start()
 
+    #Setting intial file path
     def setPath(self):
         self.rcv.fpath = self.pathLineEdit.text()
 
+    #Setting initial file name
     def setFname(self):
         self.rcv.fname = self.nameLineEdit.text()
     
+    #Setting initial frames
     def setFrames(self):
         #number of frames needs to go to both receiver and detector
         self.rcv.frames = self.frameSpinBox.value()
         self.det.frames = self.frameSpinBox.value()
 
+    #Setting initial trigger
     def setTrigger(self):
         #number of frames needs to go to both receiver and detector
         self.det.trigger = self.triggerSpinBox.value()
 
+    #setting and updating high voltage
     def setHighVolatge(self):
         self.det.highvoltage = self.highVoltageSpinBox.value()
+
+    #updating index values
+    def setIndex(self):
+        self.rcv.findex = self.indexSpinBox.value()
 
 
     #Function for setting exposure time and time unit
@@ -293,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if selected:
             print('fixed G2')  
 
-   #Setting Gain modes
+   #Setting timing  modes
     def autoMode(self, selected):
         if selected:
             print('Auto timing mode')
@@ -307,7 +322,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.det.highvoltage = 0.0
         self.highVoltageSpinBox.setValue(self.det.highvoltage)
 
-
+    #Setting the referesh rate from the receiver
     def setStreamNth(self):
         self.rcv.stream_nth = int(self.refreshRateLineEdit.text())
 
