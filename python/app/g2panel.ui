@@ -271,47 +271,6 @@
        <double>0.000000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="frameSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>190</y>
-        <width>101</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Set Frames Number</string>
-      </property>
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="minimum">
-       <double>1.000000000000000</double>
-      </property>
-      <property name="maximum">
-       <double>9999.000000000000000</double>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="triggerSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>240</y>
-        <width>101</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Set Triggers</string>
-      </property>
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="minimum">
-       <double>0.000000000000000</double>
-      </property>
-     </widget>
      <widget class="QDoubleSpinBox" name="delayTriggerSpinBox">
       <property name="geometry">
        <rect>
@@ -392,28 +351,6 @@
       </property>
       <property name="text">
        <string>High Voltage :</string>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="highVoltageSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>440</y>
-        <width>101</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Enter voltage</string>
-      </property>
-      <property name="decimals">
-       <number>2</number>
-      </property>
-      <property name="minimum">
-       <double>0.000000000000000</double>
-      </property>
-      <property name="maximum">
-       <double>499.000000000000000</double>
       </property>
      </widget>
      <widget class="QLabel" name="label_15">
@@ -697,6 +634,45 @@
        <string>Delay after Trigger :</string>
       </property>
      </widget>
+     <widget class="QSpinBox" name="frameSpinBox">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>190</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>100000000</number>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="triggerSpinBox">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>240</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>100000000</number>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="highVoltageSpinBox">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>440</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>100000000</number>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -813,7 +789,7 @@
        <string>0</string>
       </property>
       <property name="maxLength">
-       <number>4</number>
+       <number>5</number>
       </property>
       <property name="placeholderText">
        <string/>
@@ -832,7 +808,7 @@
        <string>1280</string>
       </property>
       <property name="maxLength">
-       <number>4</number>
+       <number>5</number>
       </property>
      </widget>
      <widget class="QLineEdit" name="yMinLineEdit">
@@ -851,7 +827,7 @@
        <string>0</string>
       </property>
       <property name="maxLength">
-       <number>4</number>
+       <number>5</number>
       </property>
      </widget>
      <widget class="QLineEdit" name="yMaxLineEdit">
@@ -867,7 +843,7 @@
        <string>4095</string>
       </property>
       <property name="maxLength">
-       <number>4</number>
+       <number>5</number>
       </property>
      </widget>
      <widget class="QLineEdit" name="refreshRateLineEdit">
@@ -883,7 +859,7 @@
        <string>1000</string>
       </property>
       <property name="maxLength">
-       <number>4</number>
+       <number>5</number>
       </property>
      </widget>
      <widget class="QCheckBox" name="pedestalCheckBox">
