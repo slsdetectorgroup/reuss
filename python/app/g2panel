@@ -5,7 +5,7 @@ import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
 from argparse import ArgumentParser
-import sys
+import sys, os
 import numpy as np
 from pathlib import Path
 import time
@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #Pedestal correction 
         self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
-
+        
         #Timers
         #Timer to update the progress bar
         self.progress_timer = QtCore.QTimer()
@@ -140,6 +140,10 @@ class MainWindow(QtWidgets.QMainWindow):
         #Timer to update the plots
         self.plot_timer =  QtCore.QTimer()
         self.plot_timer.timeout.connect(self.update_plot)
+
+        #mask
+        self.actionLoadMask.triggered.connect(self.load_mask)
+        self.maskCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'mask_channels', x))
 
 
         #help
@@ -169,8 +173,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_about(self):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Gotthard2 GUI")
-        msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Froejdh")
+        msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Frojdh")
         x = msg.exec_()
+
+    def load_mask(self):
+        response = QtWidgets.QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Select a mask file',
+            directory=os.getcwd(),
+            # filter=file_filter,
+            # initialFilter='Excel File (*.xlsx *.xls)'
+        )
+        self.zmq_rcv.load_mask(response[0])
+
+
 
     #updating values from detector to GUI
     def update_fields(self):
@@ -208,7 +224,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.autoRadioButton.setChecked(True)
             case timingMode.TRIGGER_EXPOSURE:
                 self.triggerRadioButton.setChecked(True)
-                
+
         #TODO! Add the additional fields
 
 

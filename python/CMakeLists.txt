@@ -62,3 +62,14 @@ foreach(FILE ${PythonApps})
     configure_file( app/${FILE}  
     ${CMAKE_BINARY_DIR}/${FILE})
 endforeach(FILE ${PYTHON_FILES})
+
+#Python test files 
+set(PythonTests
+    test_load_channel_mask.py
+    channel_mask.txt
+)
+
+foreach(FILE ${PythonTests})
+    configure_file( tests/${FILE}  
+    ${CMAKE_BINARY_DIR}/python_tests/${FILE})
+endforeach(FILE ${PYTHON_FILES})

@@ -5,6 +5,7 @@ from . import config
 import tifffile
 from pathlib import Path
 import os
+import re
 
 def _expand(image):
     if image.shape != (512,512):
@@ -69,3 +70,22 @@ def get_measurement_path(path, start):
         return path / folder[0]
     else:
         raise ValueError("Could not find measurement directory")
+
+
+def load_g2channel_mask(fname):
+    fname = Path(fname)
+    if fname.suffix == '.npy':
+        mask = np.load(fname)
+    else:
+        with open(fname) as f:
+            mask = np.zeros(1280, dtype = np.bool_)
+            for line in f:
+                for ch in re.split(',| ', line.strip('\n')):
+                    if ch:
+                        try:
+                            channel = int(ch)
+                            mask[channel] = True
+                        except:
+                            print(f"could not decode: {ch}")
+
+    return mask
