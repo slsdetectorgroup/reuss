@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         pg.setConfigOption('foreground', 'k')
         
 
-        print(args)
+        # print(args)
 
         #Load UI file as main Window
         super(MainWindow, self).__init__()

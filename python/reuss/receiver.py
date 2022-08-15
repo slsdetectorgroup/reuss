@@ -93,7 +93,6 @@ class Receiver:
     def start(self):
         self.send({"run": "start"})
 
-
     def stop(self):
         self.send({"run": "stop"})
 
