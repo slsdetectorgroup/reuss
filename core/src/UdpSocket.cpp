@@ -31,8 +31,8 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
 
     //TODO! should we make this configurable, or do we actually don't need it?
     struct timeval timeout;      
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
     if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
                 sizeof timeout) < 0)
         throw std::runtime_error(
@@ -58,27 +58,23 @@ void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 bool UdpSocket::receivePacket(void *dst) {
     // return true;
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
-    if (rc == static_cast<ssize_t>(packet_size_)) 
+    if (rc == static_cast<ssize_t>(packet_size_)) {
         return true;
-    else
-        return false;
-    // } else if (rc == -1) {
-    //         // strerrorname_np() arrived in glibc 2.6 not using it for now
-    //         // also not available on apple
-    //         int errv{errno};
-    //         fmt::print("errno: {}, {}\n", errv, strerror(errv));
-    // } else {
-    //         fmt::print("Warning: read {} bytes\n", rc);
-    // }
-    // return false;
+    } else if (rc == -1) {
+            // strerrorname_np() arrived in glibc 2.6 not using it for now
+            // also not available on apple
+            int errv{errno};
+            if (!(errv == EAGAIN || errv == EWOULDBLOCK))
+                fmt::print("errno: {}, {}\n", errv, strerror(errv));
+    } else {
+            fmt::print("Warning: read {} bytes\n", rc);
+    }
+    return false;
 }
 
 int UdpSocket::multirecv(void *dst){
-
-
     struct mmsghdr msgs[G2_PACK];
     struct iovec iovecs[G2_PACK];
-    // char bufs[VLEN][BUFSIZE+1];
     struct timespec timeout;
     timeout.tv_sec = 1;
     timeout.tv_nsec = 0;

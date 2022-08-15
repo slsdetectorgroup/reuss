@@ -34,8 +34,8 @@ def acquire(det, rcv):
     time.sleep(1)
     rcv.stop()
 
-r.fpath = '/dev/shm/g2'
-r.fwrite = False
+r.fpath = '/home/l_msdetect/erik/tmp/g2'
+r.fwrite = True
 acquire(d,r)
 
 

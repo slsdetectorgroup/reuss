@@ -122,10 +122,15 @@ class PreviewReceiver:
 
         TODO! could check if new data is there?
         """
+        g2_bitmask = np.array([0xFFF], dtype=np.uint16)
         with self.buffer.get_lock():
             data = np.frombuffer(self.buffer.get_obj(), dtype=np.uint16)
-            gain = np.right_shift(data, 14)
+            gain = np.right_shift(data, 12)
+            gain[gain==3] = 2
+            data = np.bitwise_and(data, g2_bitmask)
+
             pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
+            
             if self.collect_pedestal_.value:
                 data = data.astype(np.float)
                 data[self.mask] = 0
@@ -144,7 +149,7 @@ class PreviewReceiver:
         self.pd_counter.value = 0
         self.collect_pedestal_.value = val
 
-        #If the stae changed we zero out the pedestal
+        #If the state changed we zero out the pedestal
         with self.pedestal_buffer.get_lock():
             pd = np.frombuffer(self.pedestal_buffer.get_obj(), dtype=np.uint64)
             pd[:] = 0
@@ -172,10 +177,13 @@ class PreviewReceiver:
                 
                     if self.collect_pedestal_.value:
                         pd += data
+                        print(pd[1], data[1])
                         self.pd_counter.value += 1
                         print(f'Got {self.pd_counter.value}/{self.pedestal_frames.value} pedestal frames')
                         if self.pd_counter.value == self.pedestal_frames.value:
                             self.collect_pedestal_.value = False
+                            print(pd)
+                            print(self.pd_counter.value)
                             pd//=self.pd_counter.value
 
             except zmq.error.Again:

@@ -11,7 +11,8 @@ from pathlib import Path
 import time
 
 import reuss as rs
-#from slsdet import Detector, runStatus
+
+# from slsdet import Detector, runStatus, detectorSettings, timingMode
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -45,7 +46,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.zmq_rcv.mask[100:200] = True
 
         else:
-            from slsdet import Detector, runStatus
             self.det = Detector()
             self.rcv = rs.Receiver(args[0].receiver_endpoint)
             self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
@@ -194,7 +194,21 @@ class MainWindow(QtWidgets.QMainWindow):
         #Updating the referech rater of the stream from the receiver
         self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
 
+        match self.det.settings:
+            case detectorSettings.DYNAMICGAIN:
+                self.dynamicRadioButton.setChecked(True)
+            case detectorSettings.FIXGAIN1:
+                self.g1RadioButton.setChecked(True)
+            case detectorSettings.FIXGAIN2:
+                self.g2RadioButton.setChecked(True)
 
+
+        match self.det.timing:
+            case timingMode.AUTO_TIMING:
+                self.autoRadioButton.setChecked(True)
+            case timingMode.TRIGGER_EXPOSURE:
+                self.triggerRadioButton.setChecked(True)
+                
         #TODO! Add the additional fields
 
 
@@ -303,24 +317,24 @@ class MainWindow(QtWidgets.QMainWindow):
     #Setting Gain modes
     def dynamicGain(self, selected):
         if selected:
-            print('Dynamic')
+            self.det.settings = detectorSettings.DYNAMICGAIN
     
     def fixedG1Gain(self, selected):
         if selected:
-            print('fixed G1')
+            self.det.settings = detectorSettings.FIXGAIN1
 
     def fixedG2Gain(self, selected):
         if selected:
-            print('fixed G2')  
+            self.det.settings = detectorSettings.FIXGAIN2
 
    #Setting timing  modes
     def autoMode(self, selected):
         if selected:
-            print('Auto timing mode')
+            self.det.timing = timingMode.AUTO_TIMING
     
     def triggerMode(self, selected):
         if selected:
-            print('Trigger timing mode')
+            self.det.timing = timingMode.TRIGGER_EXPOSURE
 
     #Safely powering off the detectors
     def powerOffDetector(self):
@@ -331,9 +345,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def setStreamNth(self):
         self.rcv.stream_nth = int(self.refreshRateLineEdit.text())
 
+
+
 if __name__ == '__main__':
-
-
+    
     parser = ArgumentParser()
     parser.add_argument(
         "receiver_endpoint", 
@@ -348,6 +363,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
+    if args.demo:
+        #import from mock
+        pass
+    else:
+        from slsdet import Detector, runStatus, detectorSettings, timingMode
+
     main = MainWindow(args)
     main.show()
 
