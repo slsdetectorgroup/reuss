@@ -11,8 +11,7 @@ from pathlib import Path
 import time
 
 import reuss as rs
-
-# from slsdet import Detector, runStatus, detectorSettings, timingMode
+from slsdet import Detector, runStatus, detectorSettings, timingMode
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -37,24 +36,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.p1 = self.gamBitPlotWidget.plot(pen=pen)
 
         self.addPlot()
-
-        if args[0].demo:
-            self.det = rs.DummyDetector()
-            self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
-            self.zmq_rcv = rs.DummyPreviewReceiver('tcp://129.129.202.97:4547')
-            self.zmq_rcv.start()
-            self.zmq_rcv.mask[100:200] = True
-
-        else:
-            self.det = Detector()
-            self.rcv = rs.Receiver(args[0].receiver_endpoint)
-            self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
-            self.rcv.frames = self.det.frames
-            self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
-            self.zmq_rcv = rs.PreviewReceiver('tcp://127.0.0.1:4547', timeout_ms=100)
-            self.zmq_rcv.start()
-
-
+        self.det = Detector()
+        self.rcv = rs.Receiver(args[0].receiver_endpoint)
+        self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
+        self.rcv.frames = self.det.frames
+        self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
+        preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
+        self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
+        self.zmq_rcv.start()
         self.update_fields()
 
         #Function for start button
@@ -369,21 +358,15 @@ if __name__ == '__main__':
     parser.add_argument(
         "receiver_endpoint", 
         help="Zmq endpoint to connect to the receiver", 
+        default = 'tcp://127.0.0.1:5556',
+        nargs = '?',
         type=str,
     )
-    parser.add_argument(
-        "-d", "--demo", 
-        help="Demo mode, doesn't require detector", 
-        action='store_true'
-    )
+
 
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
-    if args.demo:
-        #import from mock
-        pass
-    else:
-        from slsdet import Detector, runStatus, detectorSettings, timingMode
+
 
     main = MainWindow(args)
     main.show()
