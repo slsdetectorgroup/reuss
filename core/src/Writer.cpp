@@ -12,6 +12,7 @@ Writer::Writer(ImageFifo *fifo, size_t n_frames, std::string_view pathname)
 
 void Writer::write(int cpu) {
     stopped_ = false;
+    done_ = false;
     pin_this_thread(cpu);
     fmt::print("Writing to: {}\n", pathname);
     RawFile<FwriteWriter> f(pathname, G2_FRAMES_PER_FILE);
@@ -30,10 +31,12 @@ void Writer::write(int cpu) {
         std::this_thread::sleep_for(DEFAULT_WAIT);
     }
     fmt::print("Writer done, total: {}\n", total_frames_);
+    done_ = true;
 }
 
 void Writer::sink(int cpu){
     stopped_ = false;
+    done_ = false;
     pin_this_thread(cpu);
     while (!stopped_ && (total_frames_ < n_frames)) {
         ImageView img;
@@ -45,6 +48,7 @@ void Writer::sink(int cpu){
         }
         std::this_thread::sleep_for(DEFAULT_WAIT);
     }
+    done_ = true;
 }
 
 void Writer::stop(){
@@ -57,6 +61,10 @@ int64_t Writer::last_frame() const{
 
 int64_t Writer::total_frames() const{
     return total_frames_;
+}
+
+bool Writer::done() const{
+    return done_;
 }
 
 } // namespace reuss

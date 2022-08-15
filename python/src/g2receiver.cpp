@@ -17,6 +17,7 @@ void init_g2receiver(py::module &m) {
     .def_property("findex", &reuss::Gotthard2Receiver::Findex, &reuss::Gotthard2Receiver::setFindex)
     .def_property("stream_nth", &reuss::Gotthard2Receiver::StreamNth, &reuss::Gotthard2Receiver::setStreamNth)
     .def_property_readonly("done", &reuss::Gotthard2Receiver::done)
+    .def_property_readonly("running", &reuss::Gotthard2Receiver::running)
     .def_property_readonly("pathname", &reuss::Gotthard2Receiver::Pathname)
     .def_property_readonly("progress", &reuss::Gotthard2Receiver::progress)
     .def("start", &reuss::Gotthard2Receiver::start)
