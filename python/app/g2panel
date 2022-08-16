@@ -9,7 +9,6 @@ import sys, os
 import numpy as np
 from pathlib import Path
 import time
-from rich import print
 
 import reuss as rs
 from slsdet import Detector, runStatus, detectorSettings, timingMode
@@ -39,19 +38,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addPlot()
         self.det = Detector()
         self.rcv = rs.Receiver(args[0].receiver_endpoint)
-        
-        print('receiver up')
         self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
         self.rcv.frames = self.det.frames
         self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
         preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
         self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
-        print('preview up')
         self.zmq_rcv.start()
         self.update_fields()
 
         #Function for start button
         self.startButton.clicked.connect(self.start)
+
+        #Connecting stop button to stop function
+        self.stopButton.clicked.connect(self.stopProcess)
     
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
@@ -192,6 +191,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.triggerSpinBox.setValue(self.det.triggers)
         self.delayTriggerSpinBox.setValue(self.det.delay)
         self.indexSpinBox.setValue(self.rcv.findex)
+        self.highVoltageSpinBox.setValue(self.det.highvoltage)
 
         #TODO check logic? 
         #Setting the save file radio buttons from the receiver.
@@ -262,13 +262,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def start(self):
         #check idle!
         if self.rcv.running:
-            print('Cannot start while running')
+            self.stopProcess()
         else:
             self.progress_timer.start(100)
             self.plot_timer.start(50)
             self.rcv.start()
             time.sleep(0.1)
             self.det.start()
+    
+    def stopProcess(self):
+        self.det.stop()
+
 
     #Setting intial file path
     def setPath(self):
@@ -357,6 +361,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def powerOffDetector(self):
         self.det.highvoltage = 0
         self.highVoltageSpinBox.setValue(self.det.highvoltage)
+        time.sleep(1)
+
 
     #Setting the referesh rate from the receiver
     def setStreamNth(self):
@@ -379,15 +385,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
 
-    try:
-        main = MainWindow(args)
-        main.show()
 
-    except Exception as e:
-        print(f"[red]{e}[/red]")
-        exit(1)
-
-    
+    main = MainWindow(args)
+    main.show()
 
     #Timer for updating the plot
     timer = QtCore.QTimer()
@@ -400,6 +400,4 @@ if __name__ == '__main__':
 
     # #Stop the receiving process before exiting
     main.zmq_rcv.stop()
-
-
 
