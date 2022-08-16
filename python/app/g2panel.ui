@@ -918,6 +918,47 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>10</y>
+       <width>1271</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="stopButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>103</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>Stop the Acquisition Process</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(202, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+    </widget>
     <widget class="QPushButton" name="startButton">
      <property name="geometry">
       <rect>
@@ -941,22 +982,6 @@
      </property>
      <property name="text">
       <string>Start</string>
-     </property>
-    </widget>
-    <widget class="QProgressBar" name="progressBar">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>10</y>
-       <width>1271</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="value">
-      <number>24</number>
      </property>
     </widget>
    </widget>
@@ -1098,6 +1123,22 @@ color: rgb(255, 255, 0);</string>
    </hints>
   </connection>
   <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>715</x>
+     <y>514</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>noRadioButton</sender>
    <signal>clicked(bool)</signal>
    <receiver>widget</receiver>
@@ -1114,18 +1155,50 @@ color: rgb(255, 255, 0);</string>
    </hints>
   </connection>
   <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
+   <sender>startButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>startButton</receiver>
+   <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>81</x>
+     <y>957</y>
     </hint>
     <hint type="destinationlabel">
-     <x>715</x>
-     <y>514</y>
+     <x>81</x>
+     <y>957</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>startButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>stopButton</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>957</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>81</x>
+     <y>957</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stopButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>startButton</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>957</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>81</x>
+     <y>957</y>
     </hint>
    </hints>
   </connection>
