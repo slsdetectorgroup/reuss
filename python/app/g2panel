@@ -261,14 +261,14 @@ class MainWindow(QtWidgets.QMainWindow):
     #To start the acquire process
     def start(self):
         #check idle!
-        if self.rcv.running:
-            self.stopProcess()
-        else:
-            self.progress_timer.start(100)
-            self.plot_timer.start(50)
-            self.rcv.start()
-            time.sleep(0.1)
-            self.det.start()
+        # if self.rcv.running:
+        #     self.stopProcess()
+        # else:
+        self.progress_timer.start(100)
+        self.plot_timer.start(50)
+        self.rcv.start()
+        time.sleep(0.1)
+        self.det.start()
     
     def stopProcess(self):
         self.det.stop()
