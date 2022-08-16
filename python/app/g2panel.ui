@@ -1171,10 +1171,10 @@ color: rgb(255, 255, 0);</string>
    </hints>
   </connection>
   <connection>
-   <sender>stopButton</sender>
+   <sender>startButton</sender>
    <signal>clicked(bool)</signal>
    <receiver>stopButton</receiver>
-   <slot>hide()</slot>
+   <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>81</x>
@@ -1190,22 +1190,6 @@ color: rgb(255, 255, 0);</string>
    <sender>stopButton</sender>
    <signal>clicked(bool)</signal>
    <receiver>startButton</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>81</x>
-     <y>957</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>81</x>
-     <y>957</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startButton</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>stopButton</receiver>
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">

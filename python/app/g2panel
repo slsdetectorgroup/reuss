@@ -243,6 +243,8 @@ class MainWindow(QtWidgets.QMainWindow):
             while not self.rcv.done:
                 time.sleep(0.1)
             self.rcv.stop()
+            self.stopButton.hide()
+            self.startButton.show()
             
 
         self.last_progress = progress_d
@@ -271,7 +273,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.det.start()
     
     def stopProcess(self):
-        self.det.stop()
+            self.det.stop()
+
+
 
 
     #Setting intial file path
