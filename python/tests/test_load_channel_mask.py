@@ -14,5 +14,8 @@ def test_load():
     reference[20] = True
     reference[40] = True
     reference[190] = True
+    reference[200:300] = True
+    reference[315] = True
+    reference[400:423] = True
 
     assert np.all(mask == reference)

@@ -80,12 +80,22 @@ def load_g2channel_mask(fname):
         with open(fname) as f:
             mask = np.zeros(1280, dtype = np.bool_)
             for line in f:
+                line, *_ = line.partition('#')
                 for ch in re.split(',| ', line.strip('\n')):
                     if ch:
-                        try:
-                            channel = int(ch)
-                            mask[channel] = True
-                        except:
-                            print(f"could not decode: {ch}")
+                        if ':' in ch:
+                            try:
+                                low, high = ch.split(':')
+                                low = int(low)
+                                high = int(high)
+                                mask[low:high] = True
+                            except:
+                                print(f"could not decode: {ch}")
+                        else:
+                            try:
+                                channel = int(ch)
+                                mask[channel] = True
+                            except:
+                                print(f"could not decode: {ch}")
 
     return mask

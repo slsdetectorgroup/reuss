@@ -33,3 +33,23 @@ g2panel
 g2panel tcp://127.0.0.1:5556
 
 ```
+
+### Bad channel mask
+
+It's possible in the GUI (or when operating from the command line) to load a mask for channels that should be set to 0 in the preview. 
+
+The syntax is rather permissive allowing for listing of single channels as well as a range. #is used for comments. 
+
+```bash
+127
+13
+
+124,
+10, 20 40 #some comment
+190
+200:300
+315, 400:423
+#500:300
+
+
+```

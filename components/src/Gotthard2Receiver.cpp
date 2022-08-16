@@ -112,11 +112,14 @@ namespace reuss{
     }
 
     bool Gotthard2Receiver::done() const{
-        bool ret = false;
+        //Assume done unless someone is not
+        bool ret = true;
         if (receiver)
             ret = ret && receiver->done();
+
         if (writer)
             ret = ret && writer->done();
+
         return ret;
     }
 

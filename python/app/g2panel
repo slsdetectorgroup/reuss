@@ -9,6 +9,7 @@ import sys, os
 import numpy as np
 from pathlib import Path
 import time
+from rich import print
 
 import reuss as rs
 from slsdet import Detector, runStatus, detectorSettings, timingMode
@@ -38,11 +39,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addPlot()
         self.det = Detector()
         self.rcv = rs.Receiver(args[0].receiver_endpoint)
+        
+        print('receiver up')
         self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
         self.rcv.frames = self.det.frames
         self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
         preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
         self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
+        print('preview up')
         self.zmq_rcv.start()
         self.update_fields()
 
@@ -375,9 +379,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
 
+    try:
+        main = MainWindow(args)
+        main.show()
 
-    main = MainWindow(args)
-    main.show()
+    except Exception as e:
+        print(f"[red]{e}[/red]")
+        exit(1)
+
+    
 
     #Timer for updating the plot
     timer = QtCore.QTimer()
@@ -390,4 +400,6 @@ if __name__ == '__main__':
 
     # #Stop the receiving process before exiting
     main.zmq_rcv.stop()
+
+
 

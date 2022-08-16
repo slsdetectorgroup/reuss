@@ -1,7 +1,8 @@
+import ctypes
 import json
 import zmq
 from . import Gotthard2Receiver, json_string
-from threading import Thread
+import multiprocessing as mp
 import time
 
 class ReceiverServer:
@@ -10,17 +11,35 @@ class ReceiverServer:
     """
     ok_str = json.dumps({"status": "ok"})
     error_str = json.dumps({"status": "error", 'reason':'generic error'})
+    timeout_ms = 1000
     def __init__(self, endpoint):
-        self.rcv = Gotthard2Receiver()
-        context = zmq.Context()
-        socket = context.socket(zmq.REP)
-        socket.bind(endpoint)
-        print(f"Listening to: {endpoint}")
+        self.stopped = mp.Value(ctypes.c_bool)
+        self.stopped.value = False
+        self.endpoint = endpoint
 
-        while True:
-            msg = socket.recv_string()
-            rep = self._execute(msg)
-            socket.send_string(rep)
+        
+
+    def run(self):
+        self.rcv = Gotthard2Receiver()
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.REP)
+        self.socket.setsockopt(zmq.RCVTIMEO, self.timeout_ms)
+        self.socket.bind(self.endpoint)
+        print(f"Listening to: {self.endpoint}")
+
+        while not self.stopped.value:
+            try:
+                msg = self.socket.recv_string()
+                rep = self._execute(msg)
+                self.socket.send_string(rep)
+            except zmq.ZMQError as e:
+                pass
+        print('Bye!')
+
+
+    def stop(self):
+        self.stopped.value = True
+
 
 
     def _execute(self, request):
@@ -85,16 +104,25 @@ class Receiver:
     _remote = [item for item in dir(Gotthard2Receiver) if not item.startswith("_")]
 
     def __init__(self, endpoint):
-        context = zmq.Context()
+        self.context = zmq.Context()
         self.endpoint = endpoint
-        self.socket = context.socket(zmq.REQ)
+        self.socket = self.context.socket(zmq.REQ)
+        self.socket.setsockopt(zmq.SNDTIMEO, 2000)
+        self.socket.setsockopt(zmq.RCVTIMEO, 2000)
+        self.socket.setsockopt(zmq.LINGER, 0)
         self.socket.connect(endpoint)
+
+        # ask for status to force zmq to connect, handle error
+        try:
+            self.__getattr__('running')
+        except Exception as e:
+            raise RuntimeError("Could not connect to receiver")
 
     def start(self):
         self.send({"run": "start"})
 
     def stop(self):
-        self.send({"run": "stop"})
+        self.send({"run": "stop"})   
 
     def __getattr__(self, key):
         reply = self.send({"get": key})
@@ -110,6 +138,9 @@ class Receiver:
 
     def send(self, request):
         s = json_string(request)
-        self.socket.send_string(s)
-        r = self.socket.recv_string()
+        try:
+            self.socket.send_string(s)
+            r = self.socket.recv_string()
+        except Exception as e:
+            raise RuntimeError(f"Receiver socket error: {e}")
         return json.loads(r)
