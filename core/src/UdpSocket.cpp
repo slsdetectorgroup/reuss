@@ -28,8 +28,23 @@ UdpSocket::UdpSocket(const std::string &node, const std::string &port,
         throw std::runtime_error(
             fmt::format("Failed to bind socket ({}:{})", node, port));
     }
+
+    //TODO! should we make this configurable, or do we actually don't need it?
+    struct timeval timeout;      
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
+    if (setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                sizeof timeout) < 0)
+        throw std::runtime_error(
+            fmt::format("Failed to set timeout"));
+
+
     freeaddrinfo(res);
     fmt::print("UDP connected to: {}:{}\n", node, port);
+
+
+
+    //Setup bu
 }
 
 UdpSocket::~UdpSocket() {
@@ -41,6 +56,7 @@ UdpSocket::~UdpSocket() {
 void UdpSocket::shutdown() { ::shutdown(sockfd_, SHUT_RDWR); }
 
 bool UdpSocket::receivePacket(void *dst) {
+    // return true;
     auto rc = recvfrom(sockfd_, dst, packet_size_, 0, nullptr, nullptr);
     if (rc == static_cast<ssize_t>(packet_size_)) {
         return true;
@@ -48,11 +64,36 @@ bool UdpSocket::receivePacket(void *dst) {
             // strerrorname_np() arrived in glibc 2.6 not using it for now
             // also not available on apple
             int errv{errno};
-            fmt::print("errno: {}, {}\n", errv, strerror(errv));
+            if (!(errv == EAGAIN || errv == EWOULDBLOCK))
+                fmt::print("errno: {}, {}\n", errv, strerror(errv));
     } else {
             fmt::print("Warning: read {} bytes\n", rc);
     }
     return false;
+}
+
+int UdpSocket::multirecv(void *dst){
+    struct mmsghdr msgs[G2_PACK];
+    struct iovec iovecs[G2_PACK];
+    struct timespec timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_nsec = 0;
+
+
+    memset(msgs, 0, sizeof(msgs));
+    for (int i = 0; i < G2_PACK; i++) {
+        // iovecs[i].iov_base         = bufs[i];
+        iovecs[i].iov_base         = dst+i*G2_PACKET_SIZE;
+        iovecs[i].iov_len          = G2_PACK;
+        msgs[i].msg_hdr.msg_iov    = &iovecs[i];
+        msgs[i].msg_hdr.msg_iovlen = 1;
+    }
+
+    int rc = recvmmsg(sockfd_, msgs, G2_PACK, 0, &timeout);
+    return rc;
+    // int recvmmsg(int sockfd, struct mmsghdr *msgvec, unsigned int vlen,
+    //                     int flags, struct timespec *timeout);
+
 }
 
 void UdpSocket::setBufferSize(size_t size) {

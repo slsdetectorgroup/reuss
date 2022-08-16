@@ -12,6 +12,7 @@ namespace reuss {
 class Writer {
     ImageFifo *fifo_;
     std::atomic<bool> stopped_{false};
+    std::atomic<bool> done_{false};
     std::atomic<int64_t> last_frame_ = -1;
     std::atomic<int64_t> total_frames_ = 0;
     size_t n_frames{};
@@ -25,5 +26,6 @@ class Writer {
     void stop();
     int64_t last_frame() const;
     int64_t total_frames() const;
+    bool done() const;
 };
 } // namespace reuss

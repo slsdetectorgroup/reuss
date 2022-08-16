@@ -54,6 +54,10 @@ namespace reuss{
         return n_frames;
     }
 
+    bool Gotthard2Receiver::running() const{
+        return running_;
+    }
+
     void Gotthard2Receiver::setFname(std::string_view fname){
         base_name = fname;
     }
@@ -80,6 +84,7 @@ namespace reuss{
 
     void Gotthard2Receiver::start(){
         fmt::print("Starting receiver\n");
+        running_ = true;
         writer = std::make_unique<Writer>(receiver->fifo(), n_frames, Pathname());
         if (write_to_file)
             threads.emplace_back(&Writer::write, writer.get(), 1);
@@ -93,23 +98,26 @@ namespace reuss{
 
     void Gotthard2Receiver::stop(){
         fmt::print(fg(fmt::color::red), "Stopping receiver!\n");
-            if (receiver)
-                receiver->stop();
-            if (writer)
-                writer->stop();
-            if (preview_streamer)
-                preview_streamer->stop();
-            for(auto& t: threads)
-                t.join();
-            threads.clear();
-            fmt::print(fg(fmt::color::red), "Receiver stopped!\n");
+        if (receiver)
+            receiver->stop();
+        if (writer)
+            writer->stop();
+        if (preview_streamer)
+            preview_streamer->stop();
+        for(auto& t: threads)
+            t.join();
+        threads.clear();
+        fmt::print(fg(fmt::color::red), "Receiver stopped!\n");
+        running_ = false;
     }
 
     bool Gotthard2Receiver::done() const{
+        bool ret = false;
         if (receiver)
-            return receiver->done();
-        else    
-            return false;
+            ret = ret && receiver->done();
+        if (writer)
+            ret = ret && writer->done();
+        return ret;
     }
 
     double Gotthard2Receiver::progress() const{

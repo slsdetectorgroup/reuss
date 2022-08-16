@@ -15,6 +15,8 @@ class UdpSocket {
     size_t bufferSize() const;
     void shutdown();
 
+    int multirecv(void *dst);
+
     // No copy since the class manage the underlying socket
     UdpSocket(const UdpSocket &) = delete;
     UdpSocket &operator=(UdpSocket const &) = delete;

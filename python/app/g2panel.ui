@@ -1036,8 +1036,9 @@ color: rgb(255, 255, 0);</string>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>Setting</string>
+     <string>File</string>
     </property>
+    <addaction name="actionLoadMask"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1057,6 +1058,11 @@ color: rgb(255, 255, 0);</string>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLoadMask">
+   <property name="text">
+    <string>Load channel mask</string>
    </property>
   </action>
   <action name="actionAbout">

@@ -30,7 +30,9 @@ class Gotthard2Receiver{
     size_t stream_nth{1024};
     size_t findex{};
     bool write_to_file{};
-    bool receiving_done{};
+    // bool receiving_done{};
+    bool running_{};
+    
 
     
 
@@ -64,6 +66,7 @@ public:
     void stop();
 
     bool done() const;
+    bool running() const;
     double progress() const;
 };
 

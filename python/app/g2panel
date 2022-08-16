@@ -5,13 +5,13 @@ import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
 from argparse import ArgumentParser
-import sys
+import sys, os
 import numpy as np
 from pathlib import Path
 import time
 
 import reuss as rs
-#from slsdet import Detector, runStatus
+from slsdet import Detector, runStatus, detectorSettings, timingMode
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         pg.setConfigOption('foreground', 'k')
         
 
-        print(args)
+        # print(args)
 
         #Load UI file as main Window
         super(MainWindow, self).__init__()
@@ -36,25 +36,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.p1 = self.gamBitPlotWidget.plot(pen=pen)
 
         self.addPlot()
-
-        if args[0].demo:
-            self.det = rs.DummyDetector()
-            self.rcv = rs.DummyReceiver(args[0].receiver_endpoint)
-            self.zmq_rcv = rs.DummyPreviewReceiver('tcp://129.129.202.97:4547')
-            self.zmq_rcv.start()
-            self.zmq_rcv.mask[100:200] = True
-
-        else:
-            from slsdet import Detector, runStatus
-            self.det = Detector()
-            self.rcv = rs.Receiver(args[0].receiver_endpoint)
-            self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
-            self.rcv.frames = self.det.frames
-            self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
-            self.zmq_rcv = rs.PreviewReceiver('tcp://127.0.0.1:4547', timeout_ms=100)
-            self.zmq_rcv.start()
-
-
+        self.det = Detector()
+        self.rcv = rs.Receiver(args[0].receiver_endpoint)
+        self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
+        self.rcv.frames = self.det.frames
+        self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
+        preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
+        self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
+        self.zmq_rcv.start()
         self.update_fields()
 
         #Function for start button
@@ -130,7 +119,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #Pedestal correction 
         self.pedestalCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'collect_pedestal', x))
-
+        
         #Timers
         #Timer to update the progress bar
         self.progress_timer = QtCore.QTimer()
@@ -140,6 +129,10 @@ class MainWindow(QtWidgets.QMainWindow):
         #Timer to update the plots
         self.plot_timer =  QtCore.QTimer()
         self.plot_timer.timeout.connect(self.update_plot)
+
+        #mask
+        self.actionLoadMask.triggered.connect(self.load_mask)
+        self.maskCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'mask_channels', x))
 
 
         #help
@@ -169,8 +162,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_about(self):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Gotthard2 GUI")
-        msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Froejdh")
+        msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Frojdh")
         x = msg.exec_()
+
+    def load_mask(self):
+        response = QtWidgets.QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Select a mask file',
+            directory=os.getcwd(),
+            # filter=file_filter,
+            # initialFilter='Excel File (*.xlsx *.xls)'
+        )
+        self.zmq_rcv.load_mask(response[0])
+
+
 
     #updating values from detector to GUI
     def update_fields(self):
@@ -180,8 +185,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pathLineEdit.setText(self.rcv.fpath)
         self.exposureSpinBox.setValue(self.det.exptime)
         self.periodSpinBox.setValue(self.det.period)
-        self.triggerSpinBox.setValue(self.det.trigger)
-        self.delayTriggerSpinBox.setValue(self.det.delayTrigger)
+        self.triggerSpinBox.setValue(self.det.triggers)
+        self.delayTriggerSpinBox.setValue(self.det.delay)
         self.indexSpinBox.setValue(self.rcv.findex)
 
         #TODO check logic? 
@@ -194,6 +199,20 @@ class MainWindow(QtWidgets.QMainWindow):
         #Updating the referech rater of the stream from the receiver
         self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
 
+        match self.det.settings:
+            case detectorSettings.DYNAMICGAIN:
+                self.dynamicRadioButton.setChecked(True)
+            case detectorSettings.FIXGAIN1:
+                self.g1RadioButton.setChecked(True)
+            case detectorSettings.FIXGAIN2:
+                self.g2RadioButton.setChecked(True)
+
+
+        match self.det.timing:
+            case timingMode.AUTO_TIMING:
+                self.autoRadioButton.setChecked(True)
+            case timingMode.TRIGGER_EXPOSURE:
+                self.triggerRadioButton.setChecked(True)
 
         #TODO! Add the additional fields
 
@@ -209,6 +228,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print(progress_d, self.last_progress)
             if self.det.status == runStatus.IDLE:
                 time.sleep(1)
+                print("Issuing stop!")
                 self.progress_timer.stop()
                 self.plot_timer.stop()
                 self.rcv.stop()
@@ -216,6 +236,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if p_int == 100:
             self.progress_timer.stop()
             self.plot_timer.stop()
+            while not self.rcv.done:
+                time.sleep(0.1)
+            self.rcv.stop()
+            
 
         self.last_progress = progress_d
 
@@ -226,17 +250,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #Function to update the plot
     def update_plot(self):
-        data = self.zmq_rcv.get_data()
+        data, gain = self.zmq_rcv.get_data()
         self.curve.setData(data)
-        self.p1.setData(data)
+        self.p1.setData(gain)
 
     #To start the acquire process
     def start(self):
-        self.progress_timer.start(100)
-        self.plot_timer.start(50)
-        self.rcv.start()
-        time.sleep(0.1)
-        self.det.start()
+        #check idle!
+        if self.rcv.running:
+            print('Cannot start while running')
+        else:
+            self.progress_timer.start(100)
+            self.plot_timer.start(50)
+            self.rcv.start()
+            time.sleep(0.1)
+            self.det.start()
 
     #Setting intial file path
     def setPath(self):
@@ -255,7 +283,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #Setting initial trigger
     def setTrigger(self):
         #number of frames needs to go to both receiver and detector
-        self.det.trigger = self.triggerSpinBox.value()
+        self.det.triggers = self.triggerSpinBox.value()
 
     #setting and updating high voltage
     def setHighVolatge(self):
@@ -297,29 +325,29 @@ class MainWindow(QtWidgets.QMainWindow):
                 unit = 1e-6
             case 2:
                 unit = 1e-9
-        self.det.delayTrigger = self.delayTriggerSpinBox.value()*unit
+        self.det.delay = self.delayTriggerSpinBox.value()*unit
 
     #Setting Gain modes
     def dynamicGain(self, selected):
         if selected:
-            print('Dynamic')
+            self.det.settings = detectorSettings.DYNAMICGAIN
     
     def fixedG1Gain(self, selected):
         if selected:
-            print('fixed G1')
+            self.det.settings = detectorSettings.FIXGAIN1
 
     def fixedG2Gain(self, selected):
         if selected:
-            print('fixed G2')  
+            self.det.settings = detectorSettings.FIXGAIN2
 
    #Setting timing  modes
     def autoMode(self, selected):
         if selected:
-            print('Auto timing mode')
+            self.det.timing = timingMode.AUTO_TIMING
     
     def triggerMode(self, selected):
         if selected:
-            print('Trigger timing mode')
+            self.det.timing = timingMode.TRIGGER_EXPOSURE
 
     #Safely powering off the detectors
     def powerOffDetector(self):
@@ -330,23 +358,24 @@ class MainWindow(QtWidgets.QMainWindow):
     def setStreamNth(self):
         self.rcv.stream_nth = int(self.refreshRateLineEdit.text())
 
+
+
 if __name__ == '__main__':
-
-
+    
     parser = ArgumentParser()
     parser.add_argument(
         "receiver_endpoint", 
         help="Zmq endpoint to connect to the receiver", 
+        default = 'tcp://127.0.0.1:5556',
+        nargs = '?',
         type=str,
     )
-    parser.add_argument(
-        "-d", "--demo", 
-        help="Demo mode, doesn't require detector", 
-        action='store_true'
-    )
+
 
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
+
+
     main = MainWindow(args)
     main.show()
 
