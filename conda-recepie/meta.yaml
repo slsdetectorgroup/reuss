@@ -1,0 +1,29 @@
+package:
+  name: reuss
+  version: {{ environ.get('GIT_DESCRIBE_TAG', '') }}
+
+source:
+  - path: ..
+
+build:
+  number: 0
+  binary_relocation: True
+  rpaths:
+    - lib/
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{compiler('cxx')}}
+    - cmake
+    - zeromq
+
+  host:
+    - libstdcxx-ng
+    - libgcc-ng
+    - zeromq
+
+  run:
+    - zeromq
+    - libstdcxx-ng
+    - libgcc-ng 
