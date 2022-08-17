@@ -14,6 +14,8 @@ g2recv -p 4545
 
 ```
 
+Use **ctrl+C** or **q** to close the receiver
+
 **classes (bottom up)**
 
 * UdpSocket (generic)
@@ -50,6 +52,41 @@ The syntax is rather permissive allowing for listing of single channels as well 
 200:300
 315, 400:423
 #500:300
+```
 
+It is also possible to load a .npy file with a np.bool_ array of 1280 items. True means mask out the channel. 
+
+
+## Startup procedure 
+
+**01 config file**
+
+Run the config file on the PC that you are going to use the GUI on. 
+
+```bash
+sls_detector_put config your/config/file.config
+```
+
+As a minium the hostname of the detector and source and destinatination for the udp data stream. 
+
+```bash
+hostname gh2-0114+
+
+udp_dstip 10.1.2.125
+udp_dstmac b8:59:9f:c7:56:5a
+udp_srcip 10.1.2.1
 
 ```
+
+**02 Launch the receiver**
+
+```bash
+g2recv
+```
+
+**03 Launch the GUI**
+
+```bash
+g2panel tcp://127.0.0.1:5556 #ip of the receiver PC
+```
+

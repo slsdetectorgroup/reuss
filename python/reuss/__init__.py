@@ -1,28 +1,29 @@
 
 
-from typing import IO
-
-# Guard again no config file found since running without
-# is most likely not what you want 
-found_config =  False
 
 try:
     from . import config
-    found_config = True
+
 except IOError:
-    print("reuss config file (~/.reussrc) not found\nUse reuss.default_config() to copy a template to your home folder")
+    print("reuss config file (~/.reussrc) not found\nCopying a default .reussrc to your home dir")
     from .tools import default_config
-if found_config:
-    from _reuss import *
+    default_config()
+
+
+from _reuss import *
+from . import config
+from .PreviewReceiver import PreviewReceiver
+from .formatting import color
+from .calibration import load_calibration
+from .validation import json_string
+from .receiver import Receiver, ReceiverServer
+from .tools import getch
+from . import io
+from . import shm
+try:
     from .DataCollector import DataCollector
-    from .PreviewReceiver import PreviewReceiver
-    from .formatting import color
-    from .calibration import load_calibration
-    from .validation import json_string
-    from .receiver import Receiver, ReceiverServer
-    from .tools import getch
-    from . import io
-    from . import shm
+except:
+    print("Warning: Compiled without detector missing DataCollector")
 
 
 

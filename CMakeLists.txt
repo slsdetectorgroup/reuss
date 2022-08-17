@@ -16,6 +16,8 @@ option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
+
+option(REUSS_EXTERNAL_SLSDET "Use an external copy of slsDetectorPackage" OFF)
 option(REUSS_BUILD_DETECTOR "Build the detector interface" OFF)
 
 if(REUSS_USE_SANITIZER)
@@ -80,16 +82,22 @@ add_subdirectory(math)
 
 
 if(REUSS_BUILD_DETECTOR)
-  #Build only detector static libs, nothing else is needed for control
-  set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
-  set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
-  set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
-  set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
-  add_subdirectory(libs/slsDetectorPackage)
+  add_definitions(-DRWITHDET)
+  if(REUSS_EXTERNAL_SLSDET)
+    find_package(slsDetectorPackage REQUIRED)
+  else()
+    #Build only detector static libs, nothing else is needed for control
+    set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+    set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
+    set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
+    set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
+    add_subdirectory(libs/slsDetectorPackage)
+  endif()
   add_subdirectory(detector)
-  add_subdirectory(components)
-  add_subdirectory(app)
-endif(REUSS_BUILD_DETECTOR)
+endif()
+
+add_subdirectory(components)
+add_subdirectory(app)
 
 
 if(REUSS_BUILD_PYTHON)

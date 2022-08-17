@@ -1,14 +1,21 @@
 set(PublicHeaders
-    reuss/StreamingReceiver.h
     reuss/Gotthard2Receiver.h
-    reuss/FrameAccumulator.h
-    reuss/pedestal.h
 )
 
 set(SourceFiles
-  src/StreamingReceiver.cpp
   src/Gotthard2Receiver.cpp
 )
+
+if(REUSS_BUILD_DETECTOR)
+    list(APPEND SourceFiles
+        src/StreamingReceiver.cpp
+    )
+    list(APPEND PublicHeaders
+        reuss/StreamingReceiver.h
+        reuss/FrameAccumulator.h
+        reuss/pedestal.h
+    )
+endif()
 
 add_library(
     reuss_components_object OBJECT ${SourceFiles} 
@@ -21,10 +28,17 @@ target_link_libraries(reuss_components_object
         Threads::Threads 
         zmq 
         reuss_core_object 
-        reuss::detector
         reuss_math
 
 )
+
+if(REUSS_BUILD_DETECTOR)
+target_link_libraries(reuss_components_object 
+    PRIVATE 
+        reuss::detector
+
+)
+endif()
 target_include_directories(reuss_components_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
 set_target_properties(reuss_components_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_components_object

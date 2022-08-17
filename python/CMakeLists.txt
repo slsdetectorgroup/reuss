@@ -1,19 +1,32 @@
-
-pybind11_add_module(_reuss
+# Only sources that don't depend on the 
+# detector iterface for portability
+set(PythonCppSources
     src/main.cpp 
     src/zmqwriter.cpp
-    src/pedestal.cpp
-    src/interface.cpp
     src/calibration.cpp
     src/utils.cpp
-    src/frameacc.cpp
-    src/streaming_receiver.cpp
     src/g2receiver.cpp
 )
 
-target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared reuss_detector reuss_math)
 
+if(REUSS_BUILD_DETECTOR)
+    list(APPEND PythonCppSources
+        src/pedestal.cpp
+        src/interface.cpp
+        src/frameacc.cpp
+        src/streaming_receiver.cpp
+    )
+endif()
 
+pybind11_add_module(_reuss
+    ${PythonCppSources}
+)
+
+target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared  reuss_math)
+
+if(REUSS_BUILD_DETECTOR)
+    target_link_libraries(_reuss PRIVATE reuss_detector)
+endif()
 
 set_target_properties(_reuss PROPERTIES
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}

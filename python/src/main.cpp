@@ -24,12 +24,17 @@ PYBIND11_MODULE(_reuss, m) {
     )pbdoc";
 
      init_zmqwriter(m);
+     init_calibration(m);
+     init_g2receiver(m);
+
+     //modules depending on detector interface
+     #ifdef RWITHDET
      init_pedestal(m);
      init_interface(m);
-     init_calibration(m);
      init_frameacc(m);
      init_streamrecv(m);
-     init_g2receiver(m);
+     #endif
+
     
 
 #ifdef VERSION_INFO

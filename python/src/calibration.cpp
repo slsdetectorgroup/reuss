@@ -2,9 +2,9 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
-#include "reuss/pedestal.h"
+// #include "reuss/pedestal.h"
 #include "reuss/DataSpan.h"
-#include "reuss/DetectorInterface.h"
+// #include "reuss/DetectorInterface.h"
 #include "span_helpers.h"
 
 #include "apply_calibration.h"
