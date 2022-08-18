@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from fileinput import close
 from socket import timeout
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import pyqtgraph as pg
@@ -27,6 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #Load UI file as main Window
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
+
         
         pen = pg.mkPen(color = (36, 119, 173), width=1) 
         #Plotting the data
@@ -44,13 +46,9 @@ class MainWindow(QtWidgets.QMainWindow):
         preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
         self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
         self.zmq_rcv.start()
+
+        #Getting data from detectors
         self.update_fields()
-
-        #Function for start button
-        self.startButton.clicked.connect(self.start)
-
-        #Connecting stop button to stop function
-        self.stopButton.clicked.connect(self.stopProcess)
     
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
@@ -93,6 +91,12 @@ class MainWindow(QtWidgets.QMainWindow):
         #Setting and getting index values
         self.indexSpinBox.editingFinished.connect(self.setIndex)
 
+        #Function for start button
+        self.startButton.clicked.connect(self.start)
+
+        #Connecting stop button to stop function
+        self.stopButton.clicked.connect(self.stopProcess)
+
         #Plot related settings
 
         #using a validator to make sure we have an integer, then set the streaming
@@ -108,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.xMaxLineEdit.setValidator(validator)
         self.xMaxLineEdit.editingFinished.connect(self.addPlot)
 
-        #Allowing for negetive values too in Ymin
+        #Allowing for negetive values in Ymin for pedestal correction
         validation = QtGui.QIntValidator()
         validation.setRange(-100000, 100000)
         self.yMinLineEdit.setValidator(validation)
@@ -136,7 +140,6 @@ class MainWindow(QtWidgets.QMainWindow):
         #mask
         self.actionLoadMask.triggered.connect(self.load_mask)
         self.maskCheckBox.stateChanged.connect(lambda x: setattr(self.zmq_rcv, 'mask_channels', x))
-
 
         #help
         self.actionAbout.triggered.connect(self.show_about)
@@ -168,6 +171,7 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setText("Credits:\n Sudip Shrestha\n Dhanya Thattil\n Erik Frojdh")
         x = msg.exec_()
 
+    #Load mask file from pc
     def load_mask(self):
         response = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
@@ -176,22 +180,76 @@ class MainWindow(QtWidgets.QMainWindow):
             # filter=file_filter,
             # initialFilter='Excel File (*.xlsx *.xls)'
         )
-        self.zmq_rcv.load_mask(response[0])
+        if (response[0]):
+            self.zmq_rcv.load_mask(response[0])
 
 
 
     #updating values from detector to GUI
     def update_fields(self):
         """Update all fields in the GUI with current values from the detector"""
+        self.triggerSpinBox.setValue(self.det.triggers)
+        self.indexSpinBox.setValue(self.rcv.findex)
+        self.highVoltageSpinBox.setValue(self.det.highvoltage)
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
-        self.exposureSpinBox.setValue(self.det.exptime)
-        self.periodSpinBox.setValue(self.det.period)
-        self.triggerSpinBox.setValue(self.det.triggers)
-        self.delayTriggerSpinBox.setValue(self.det.delay)
-        self.indexSpinBox.setValue(self.rcv.findex)
-        self.highVoltageSpinBox.setValue(self.det.highvoltage)
+        
+        #converting to righ unit of time
+        tExp = (self.det.exptime)
+        #TODO remove this line after fixing bug
+        #to check the value
+        print({tExp})
+        #Checking if the time is in nano seconds as python uses seconds
+        if tExp < 100e-9:
+            #Setting units in nano seconds
+            self.expTimeComboBox.setCurrentIndex(2)
+            #converting it to nano seconds
+            exposuretime = (tExp / 1e-9)
+            self.exposureSpinBox.setValue(exposuretime)
+        elif tExp < 100e-6:
+            #Setting units in micro seconds
+            self.expTimeComboBox.setCurrentIndex(1)
+            #Converting the seconds value to micro seconds
+            exposuretime1 = (tExp / 1e-6)
+            self.exposureSpinBox.setValue(exposuretime1)
+        else:
+            #Setting units in miliseconds
+            self.expTimeComboBox.setCurrentIndex(0)
+            #Converting the second values to miliseconds
+            exposuretime0 = (tExp / 1e-3)
+            self.exposureSpinBox.setValue(exposuretime0)
+
+
+        #Converting to right time unit for period
+        tPeriod = self.det.period
+        if tPeriod < 100e-9:
+            self.periodTimeComboBox.setCurrentIndex(2)
+            periodTime = (tPeriod/1e-9)
+            self.periodSpinBox.setValue(periodTime)
+        elif tPeriod < 100e-6:
+            self.periodTimeComboBox.setCurrentIndex(1)
+            periodTime1 = (tPeriod/1e-6)
+            self.periodSpinBox.setValue(periodTime1)
+        else:
+            self.periodTimeComboBox.setCurrentIndex(0)
+            periodTime0 = (tPeriod/1e-3)
+            self.periodSpinBox.setValue(periodTime0)
+
+        #Converting to right time unit for period
+        tDelay = self.det.delay
+        if tDelay < 100e-9:
+            self.triggerTimeComboBox.setCurrentIndex(2)
+            delayTime = (tDelay/1e-9)
+            self.delayTriggerSpinBox.setValue(delayTime)
+        elif tDelay < 100e-6:
+            self.triggerTimeComboBox.setCurrentIndex(1)
+            delayTime1 = (tDelay/1e-6)
+            self.delayTriggerSpinBox.setValue(delayTime1)
+        else:
+            self.triggerTimeComboBox.setCurrentIndex(0)
+            delayTime0 = (tDelay/1e-3)
+            self.delayTriggerSpinBox.setValue(delayTime0)
 
         #TODO check logic? 
         #Setting the save file radio buttons from the receiver.
@@ -202,7 +260,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.widget.hide()
         #Updating the referech rater of the stream from the receiver
         self.refreshRateLineEdit.setText(str(self.rcv.stream_nth))
-
+        
+        #Updating the gain setting from detector to the GUI
         match self.det.settings:
             case detectorSettings.DYNAMICGAIN:
                 self.dynamicRadioButton.setChecked(True)
@@ -211,16 +270,17 @@ class MainWindow(QtWidgets.QMainWindow):
             case detectorSettings.FIXGAIN2:
                 self.g2RadioButton.setChecked(True)
 
-
+        #Updating the timing mode from detector to the GUI
         match self.det.timing:
             case timingMode.AUTO_TIMING:
                 self.autoRadioButton.setChecked(True)
             case timingMode.TRIGGER_EXPOSURE:
                 self.triggerRadioButton.setChecked(True)
 
+
         #TODO! Add the additional fields
 
-
+    #Updating progress bar
     def update_progress(self):
 
         progress_d = self.rcv.progress*100
@@ -243,11 +303,13 @@ class MainWindow(QtWidgets.QMainWindow):
             while not self.rcv.done:
                 time.sleep(0.1)
             self.rcv.stop()
+            #Hiding the stop button after acquistion completion
             self.stopButton.hide()
+            #Showing start button to start new acquistion after completing one acquistion
             self.startButton.show()
-            
 
         self.last_progress = progress_d
+
 
     #Updating the status of the detector
     def update_status(self):
@@ -262,21 +324,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #To start the acquire process
     def start(self):
-        #check idle!
-        # if self.rcv.running:
-        #     self.stopProcess()
-        # else:
         self.progress_timer.start(100)
         self.plot_timer.start(50)
         self.rcv.start()
         time.sleep(0.1)
         self.det.start()
     
+    #Stop the process
     def stopProcess(self):
-            self.det.stop()
-
-
-
+        #Stops the detector from acquistion proces
+        self.det.stop()
 
     #Setting intial file path
     def setPath(self):
@@ -315,6 +372,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 unit = 1e-6
             case 2:
                 unit = 1e-9
+        #Converting the input values right unit of time
         self.det.exptime = self.exposureSpinBox.value()*unit
 
     #Function for setting period time and time unit
@@ -366,6 +424,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.det.highvoltage = 0
         self.highVoltageSpinBox.setValue(self.det.highvoltage)
         time.sleep(1)
+        #TODO yet to implement with the initialization of the chip
+        #self.det.powerchip = False
 
 
     #Setting the referesh rate from the receiver
@@ -402,6 +462,6 @@ if __name__ == '__main__':
     #Run the app
     app.exec_()
 
-    # #Stop the receiving process before exiting
+    #Stop the receiving process before exiting
     main.zmq_rcv.stop()
 
