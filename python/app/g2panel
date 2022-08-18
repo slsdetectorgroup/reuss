@@ -130,7 +130,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #Timer to update the progress bar
         self.progress_timer = QtCore.QTimer()
         self.progress_timer.timeout.connect(self.update_progress)
-        #self.update_progress()
+        self.update_progress()
 
         #Timer to update the plots
         self.plot_timer =  QtCore.QTimer()
