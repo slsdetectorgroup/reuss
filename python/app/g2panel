@@ -183,10 +183,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if (response[0]):
             self.zmq_rcv.load_mask(response[0])
 
-        # if  str(response):
-        #     self.zmq_rcv.load_mask(response[0])
-        # else:
-        #     print('none')
 
 
     #updating values from detector to GUI
