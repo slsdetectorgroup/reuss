@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from fileinput import close
 from socket import timeout
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 import pyqtgraph as pg
@@ -179,8 +180,13 @@ class MainWindow(QtWidgets.QMainWindow):
             # filter=file_filter,
             # initialFilter='Excel File (*.xlsx *.xls)'
         )
-        self.zmq_rcv.load_mask(response[0])
+        if (response[0]):
+            self.zmq_rcv.load_mask(response[0])
 
+        # if  str(response):
+        #     self.zmq_rcv.load_mask(response[0])
+        # else:
+        #     print('none')
 
 
     #updating values from detector to GUI
