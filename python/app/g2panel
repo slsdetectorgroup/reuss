@@ -418,6 +418,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def triggerMode(self, selected):
         if selected:
             self.det.timing = timingMode.TRIGGER_EXPOSURE
+        if self.det.timing==timingMode.TRIGGER_EXPOSURE:
+            self.rcv.frames = self.det.triggers
+        else:
+            self.rcv.frames = self.det.frames
 
     #Safely powering off the detectors
     def powerOffDetector(self):
