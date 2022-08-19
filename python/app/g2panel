@@ -344,14 +344,23 @@ class MainWindow(QtWidgets.QMainWindow):
     
     #Setting initial frames
     def setFrames(self):
+        #If trigger mode is selected then the frame number is replaced by the triggers other wise it takes the frame number
+        if self.det.timing==timingMode.TRIGGER_EXPOSURE:
+            pass
         #number of frames needs to go to both receiver and detector
-        self.rcv.frames = self.frameSpinBox.value()
-        self.det.frames = self.frameSpinBox.value()
+        else:
+            self.rcv.frames = self.frameSpinBox.value()
+            self.det.frames = self.frameSpinBox.value()
 
     #Setting initial trigger
     def setTrigger(self):
+        #If trigger mode is selected then the frame number is replaced by the triggers other wise it takes the frame number
+        if self.det.timing==timingMode.TRIGGER_EXPOSURE:
+            self.rcv.frames = self.triggerSpinBox.value()
         #number of frames needs to go to both receiver and detector
-        self.det.triggers = self.triggerSpinBox.value()
+        else:
+        #number of frames needs to go to both receiver and detector
+            self.det.triggers = self.triggerSpinBox.value()
 
     #setting and updating high voltage
     def setHighVolatge(self):
@@ -417,10 +426,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def triggerMode(self, selected):
         if selected:
             self.det.timing = timingMode.TRIGGER_EXPOSURE
-        if self.det.timing==timingMode.TRIGGER_EXPOSURE:
-            self.rcv.frames = self.det.triggers
-        else:
-            self.rcv.frames = self.det.frames
+        
 
     #Safely powering off the detectors
     def powerOffDetector(self):
