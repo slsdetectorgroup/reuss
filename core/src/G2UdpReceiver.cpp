@@ -46,16 +46,15 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
 
     UdpSocket sock(node, port, G2_PACKET_SIZE);
     sock.setBufferSize(G2_UDP_SOCKET_SIZE);
-// #define RMULTIRECV
-
 
 #ifdef RMULTIRECV
-
+    // Support for using recvmmsg instead of per packet receiving
+    // could be tried in case of performance issues
+    // downside is that stream_nth cannot be smaller than pack size
     while (!stopped_ && (frames_received < n_frames)) {
         ImageView img = fifo_.pop_free();
         size_t i = 0;
         int rc = sock.multirecv(img.data);
-        // fmt::print("Got: {} packets\n", rc);
         if (rc != -1) {
             frames_received += rc;
             ++i;
@@ -74,8 +73,8 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
     }
 
 #else
+    fmt::print("Starting Acquisition");
     fmt::print("Expecting: {} frames\n", n_frames);
-    fmt::print("Frames received: {}\n", frames_received);
     while (!stopped_ && (frames_received < n_frames)) {
         ImageView img = fifo_.pop_free();
         size_t i = 0;
@@ -109,7 +108,6 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
                 ++i;
                 progress_ = static_cast<double>(frames_received) /
                             static_cast<double>(n_frames);
-                fmt::print("progress: {}\n", progress_);
             }
         }
         img.frameNumber = frame_index++;
