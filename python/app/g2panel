@@ -17,14 +17,10 @@ from slsdet import Detector, runStatus, detectorSettings, timingMode
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
-
         self.last_progress = 0
         pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
-
-        # print(args)
-
         #Load UI file as main Window
         super(MainWindow, self).__init__()
         uic.loadUi('g2panel.ui', self)
@@ -41,7 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.det = Detector()
         self.rcv = rs.Receiver(args[0].receiver_endpoint)
         self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
-        self.rcv.frames = self.det.frames
+        
         self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
         preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
         self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
@@ -49,9 +45,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #Getting data from detectors
         self.update_fields()
-        #Powering on chip if its off
-        if self.det.powerchip == False:
-            self.det.powerchip = True
     
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
@@ -196,6 +189,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
         
+        if self.det.timing == timingMode.AUTO_TIMING:
+            self.rcv.frames = self.det.frames
+        elif self.det.timing == timingMode.TRIGGER_EXPOSURE:
+            self.rcv.frames = self.det.triggers
+        else:
+            raise ValueError("Unsupported timing setting")
+
         #converting to righ unit of time
         tExp = (self.det.exptime)
         #Checking if the time is in nano seconds as python uses seconds
@@ -473,7 +473,7 @@ if __name__ == '__main__':
     main = MainWindow(args)
     main.show()
 
-    #Timer for updating the plot
+    # #Timer for updating the plot
     timer = QtCore.QTimer()
     timer.timeout.connect(main.update_status)
     timer.start(100)

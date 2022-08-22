@@ -31,6 +31,7 @@ bool G2UdpReceiver::done() const { return done_; }
 double G2UdpReceiver::progress() const { return progress_; }
 
 void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
+    progress_ = 0;
     stopped_ = false;
     done_ = false;
     pin_this_thread(cpu);
@@ -73,6 +74,8 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
     }
 
 #else
+    fmt::print("Expecting: {} frames\n", n_frames);
+    fmt::print("Frames received: {}\n", frames_received);
     while (!stopped_ && (frames_received < n_frames)) {
         ImageView img = fifo_.pop_free();
         size_t i = 0;
@@ -106,6 +109,7 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
                 ++i;
                 progress_ = static_cast<double>(frames_received) /
                             static_cast<double>(n_frames);
+                fmt::print("progress: {}\n", progress_);
             }
         }
         img.frameNumber = frame_index++;
