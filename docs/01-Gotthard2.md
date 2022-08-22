@@ -90,3 +90,51 @@ g2recv
 g2panel tcp://127.0.0.1:5556 #ip of the receiver PC
 ```
 
+## Build instructions
+
+### Requirements
+
+* cmake 3.17+
+* C++17 compiler
+* Python 3.10+
+* pyzmq
+* pyqt
+* pyqtgraph
+* tifffile
+
+
+
+**Sample conda env**
+
+Contains gcc!
+
+```bash
+name: g2
+channels:
+  - slsdetectorgroup
+  - conda-forge
+  - defaults
+dependencies:
+  - pyzmq
+  - pyqt
+  - python
+  - pyqtgraph
+  - cmake
+  - fmt
+  - gxx_linux-64
+  - tifffile
+
+
+```
+
+
+```bash
+#activate a conda environment or acquire dependencies in another way
+
+git clone https://github.com/slsdetectorgroup/reuss.git --recursive --branch=g2
+cd reuss
+mkdir build && cd build
+cmake .. -DREUSS_BUILD_DETECTOR=OFF
+make -j8
+
+```
