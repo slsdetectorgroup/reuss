@@ -49,6 +49,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #Getting data from detectors
         self.update_fields()
+        #Powering on chip if its off
         if self.det.powerchip == False:
             self.det.powerchip = True
     
@@ -184,8 +185,6 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         if (response[0]):
             self.zmq_rcv.load_mask(response[0])
-
-
 
     #updating values from detector to GUI
     def update_fields(self):
@@ -358,7 +357,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #If trigger mode is selected then the frame number is replaced by the triggers other wise it takes the frame number
         if self.det.timing==timingMode.TRIGGER_EXPOSURE:
             self.rcv.frames = self.triggerSpinBox.value()
-            self.det.frames = self.triggerSpinBox.value()
+            #self.det.frames = self.triggerSpinBox.value()
             self.det.triggers = self.triggerSpinBox.value()
         #number of frames needs to go to both receiver and detector
         else:
@@ -425,18 +424,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def autoMode(self, selected):
         if selected:
             self.det.timing = timingMode.AUTO_TIMING
+            self.rcv.frames = self.det.frames
     
     def triggerMode(self, selected):
         if selected:
             self.det.timing = timingMode.TRIGGER_EXPOSURE
+            self.rcv.frames = self.det.triggers
         
 
     #Safely powering off the detectors
     def powerOffDetector(self):
         #Asking user if they really want to power off the detectors
         powerDlg = QtWidgets.QMessageBox()
-        powerDlg.setWindowTitle("Power Off the Detecor!!!")
-        powerDlg.setText("Do you really want to power off the Detectors?")
+        powerDlg.setWindowTitle("Power Off the Detector!!!")
+        powerDlg.setText("Do you really want to power off the Detector?")
         powerDlg.setStandardButtons(powerDlg.Yes | powerDlg.Cancel)
         powerDlg.setIcon(QtWidgets.QMessageBox.Warning)
         button = powerDlg.exec()
@@ -454,7 +455,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rcv.stream_nth = int(self.refreshRateLineEdit.text())
 
 
-
 if __name__ == '__main__':
     
     parser = ArgumentParser()
@@ -465,7 +465,6 @@ if __name__ == '__main__':
         nargs = '?',
         type=str,
     )
-
 
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
@@ -479,7 +478,6 @@ if __name__ == '__main__':
     timer.timeout.connect(main.update_status)
     timer.start(100)
     
-
     #Run the app
     app.exec_()
 
