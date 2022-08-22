@@ -1022,7 +1022,7 @@ border-color: rgb(0, 0, 0);
 color: rgb(255, 255, 0);</string>
     </property>
     <property name="text">
-     <string>Safely Power Off Detector</string>
+     <string>Safely Power Off Detector and Exit</string>
     </property>
    </widget>
    <widget class="QLabel" name="statusLabel">

@@ -21,10 +21,12 @@ class MainWindow(QtWidgets.QMainWindow):
         pg.setConfigOption('background', (247, 247, 247))
         pg.setConfigOption('foreground', 'k')
         
+        
         #Load UI file as main Window
         super(MainWindow, self).__init__()
+        self.det = Detector()
         uic.loadUi('g2panel.ui', self)
-
+        self.chipInitialize()
         
         pen = pg.mkPen(color = (36, 119, 173), width=1) 
         #Plotting the data
@@ -34,7 +36,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.p1 = self.gamBitPlotWidget.plot(pen=pen)
 
         self.addPlot()
-        self.det = Detector()
         self.rcv = rs.Receiver(args[0].receiver_endpoint)
         self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
         
@@ -45,7 +46,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #Getting data from detectors
         self.update_fields()
-    
+        #Initializing from the detector to disable frames or trigger according to timing modes
+        if self.det.timing == timingMode.AUTO_TIMING:
+            self.triggerSpinBox.setDisabled(True)
+        if self.det.timing == timingMode.TRIGGER_EXPOSURE:
+            self.frameSpinBox.setDisabled(True)
         #For simple attributes it is possible to connect directly using a lambda 
         # do avoid having to make an extra function
         self.highVoltageSpinBox.editingFinished.connect(self.setHighVolatge)
@@ -140,6 +145,17 @@ class MainWindow(QtWidgets.QMainWindow):
         #help
         self.actionAbout.triggered.connect(self.show_about)
 
+    def chipInitialize(self):
+        if self.det.powerchip == True:
+            pass
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Chip Powered Off!!!")
+            msg.setText("The chip is powered off. Please power on the Chip and run the program.\n Thank You")
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            x = msg.exec_()
+            exit()
+            
     #to add plot and update it according to the values from GUI
     def addPlot(self):
         #Getting the intial axis value set from ui
@@ -353,11 +369,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #Setting initial trigger
     def setTrigger(self):
-        
         #If trigger mode is selected then the frame number is replaced by the triggers other wise it takes the frame number
         if self.det.timing==timingMode.TRIGGER_EXPOSURE:
             self.rcv.frames = self.triggerSpinBox.value()
-            #self.det.frames = self.triggerSpinBox.value()
             self.det.triggers = self.triggerSpinBox.value()
         #number of frames needs to go to both receiver and detector
         else:
@@ -425,13 +439,16 @@ class MainWindow(QtWidgets.QMainWindow):
         if selected:
             self.det.timing = timingMode.AUTO_TIMING
             self.rcv.frames = self.det.frames
-    
+            self.frameSpinBox.setDisabled(False)
+            self.triggerSpinBox.setDisabled(True)
+
     def triggerMode(self, selected):
         if selected:
             self.det.timing = timingMode.TRIGGER_EXPOSURE
             self.rcv.frames = self.det.triggers
+            self.frameSpinBox.setDisabled(True)
+            self.triggerSpinBox.setDisabled(False)
         
-
     #Safely powering off the detectors
     def powerOffDetector(self):
         #Asking user if they really want to power off the detectors
@@ -449,6 +466,7 @@ class MainWindow(QtWidgets.QMainWindow):
             time.sleep(1)
             #Power off chip
             self.det.powerchip = False
+            self.close()
 
     #Setting the referesh rate from the receiver
     def setStreamNth(self):
@@ -468,7 +486,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     app = QtWidgets.QApplication(sys.argv)
-
 
     main = MainWindow(args)
     main.show()
