@@ -201,6 +201,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frameSpinBox.setValue(self.det.frames)
         self.nameLineEdit.setText(self.rcv.fname)
         self.pathLineEdit.setText(self.rcv.fpath)
+
+        self.update_status()
         
         if self.det.timing == timingMode.AUTO_TIMING:
             self.rcv.frames = self.det.frames
@@ -287,16 +289,15 @@ class MainWindow(QtWidgets.QMainWindow):
             case timingMode.TRIGGER_EXPOSURE:
                 self.triggerRadioButton.setChecked(True)
 
-    #Updating progress bar
+
     def update_progress(self):
 
+        #Get progress and set as int in %
         progress_d = self.rcv.progress*100
         p_int = int(progress_d)
-
         self.progressBar.setValue(p_int)
-        pc = 0
+
         if progress_d == self.last_progress and p_int!=0:
-            print(progress_d, self.last_progress)
             if self.det.status == runStatus.IDLE:
                 time.sleep(1)
                 print("Issuing stop!")
@@ -315,6 +316,7 @@ class MainWindow(QtWidgets.QMainWindow):
             #Showing start button to start new acquistion after completing one acquistion
             self.startButton.show()
         self.last_progress = progress_d
+        self.update_status()
 
     #Updating the status of the detector
     def update_status(self):
@@ -479,10 +481,10 @@ if __name__ == '__main__':
     main = MainWindow(args)
     main.show()
 
-    # #Timer for updating the plot
-    timer = QtCore.QTimer()
-    timer.timeout.connect(main.update_status)
-    timer.start(100)
+    # # #Timer for updating the plot
+    # timer = QtCore.QTimer()
+    # timer.timeout.connect(main.update_status)
+    # timer.start(100)
     
     #Run the app
     app.exec_()
