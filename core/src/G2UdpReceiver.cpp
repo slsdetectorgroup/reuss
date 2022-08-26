@@ -87,7 +87,7 @@ void G2UdpReceiver::receive_n(int cpu, size_t n_frames, size_t stream_nth) {
                 if ((currentFrameNumber - lastFrameNumber != 1) &&
                     (lastFrameNumber != 0)) {
                     fmt::print(fg(fmt::color::red), "Lost {} frames\n",
-                               currentFrameNumber - lastFrameNumber);
+                               currentFrameNumber - lastFrameNumber -1);
                 }
 
                 lastFrameNumber = currentFrameNumber;
