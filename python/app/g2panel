@@ -304,6 +304,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.progress_timer.stop()
                 self.plot_timer.stop()
                 self.rcv.stop()
+                #Incase of packet loss
+                self.stopButton.hide()
+                self.startButton.show()
 
         if p_int == 100:
             self.progress_timer.stop()
