@@ -267,6 +267,10 @@ class MainWindow(QtWidgets.QMainWindow):
         #Setting the save file radio buttons from the receiver.
         self.noRadioButton.setChecked(not self.rcv.fwrite)
 
+        # TODO Review required
+        # Increase the value by 1 step
+        #self.indexSpinBox.stepUp()
+
         #adding condition to hide the file saving options when the writing option is false
         if self.rcv.fwrite == False:
             self.widget.hide()
@@ -339,6 +343,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rcv.start()
         time.sleep(0.1)
         self.det.start()
+        if self.yesRadioButton.isChecked():
+            self.indexSpinBox.stepUp()
+
     
     #Stop the process
     def stopProcess(self):
