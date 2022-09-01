@@ -38,7 +38,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rcv = rs.Receiver(args[0].receiver_endpoint)
         self.rcv.udp_source = f"{self.det.udp_dstip}:{self.det.udp_dstport}"
         
-        self.rcv.fpath = Path("/home/l_msdetect/erik/tmp/g2")
+        #Getting current directory to save the output file
+        directory=os.getcwd()
+        self.rcv.fpath = Path(directory)
         preview_endpoint = args[0].receiver_endpoint.rsplit(':', 1)[0]+':4547'
         self.zmq_rcv = rs.PreviewReceiver(preview_endpoint, timeout_ms=100)
         self.zmq_rcv.start()
@@ -318,6 +320,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.stopButton.hide()
             #Showing start button to start new acquistion after completing one acquistion
             self.startButton.show()
+            if self.yesRadioButton.isChecked():
+                self.indexSpinBox.stepUp()
         self.last_progress = progress_d
         self.update_status()
 
@@ -339,6 +343,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rcv.start()
         time.sleep(0.1)
         self.det.start()
+
     
     #Stop the process
     def stopProcess(self):

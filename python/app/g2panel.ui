@@ -793,7 +793,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Refresh Rate :</string>
+              <string>Stream Nth:</string>
              </property>
             </widget>
             <widget class="QLineEdit" name="xMinLineEdit">
