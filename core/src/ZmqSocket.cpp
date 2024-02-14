@@ -13,6 +13,13 @@ ZmqSocket::ZmqSocket(const std::string &endpoint, int zmq_hwm) {
     int rc = zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_hwm, sizeof(zmq_hwm)); 
     if (rc)
         throw std::runtime_error(fmt::format("Could not set ZMQ_SNDHWM: {}", strerror(errno)));
+    int bufsize = 1024*1024*zmq_hwm;
+    fmt::print("Setting ZMQ_SNDBUF to: {} MB\n", bufsize/(1024*1024));
+    rc = zmq_setsockopt(socket, ZMQ_SNDBUF, &bufsize, sizeof(bufsize));
+    if (rc)
+        throw std::runtime_error(fmt::format("Could not set ZMQ_SNDBUF: {}", strerror(errno)));
+
+
     if (zmq_bind(socket, endpoint.c_str()))
         throw std::runtime_error("Could not bind endpoint");
 

@@ -20,6 +20,13 @@ void ZmqReceiver::connect() {
     int rc = zmq_setsockopt(socket, ZMQ_RCVHWM, &zmq_hwm, sizeof(zmq_hwm)); //should be set before connect
     if (rc)
         throw std::runtime_error(fmt::format("Could not set ZMQ_RCVHWM: {}", strerror(errno)));
+    
+    int bufsize = 1024*1024*zmq_hwm;
+    fmt::print("Setting ZMQ_RCVBUF to: {} MB\n", bufsize/(1024*1024));
+    rc = zmq_setsockopt(socket, ZMQ_RCVBUF, &bufsize, sizeof(bufsize));
+    if (rc)
+        throw std::runtime_error(fmt::format("Could not set ZMQ_RCVBUF: {}", strerror(errno)));
+
     zmq_connect(socket, endpoint.c_str());
     zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
     
