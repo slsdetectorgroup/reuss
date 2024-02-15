@@ -15,7 +15,7 @@ option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
-
+option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage" ON)
 
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -63,6 +63,7 @@ if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
 endif()
 
+find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 find_package(ClangFormat)
 find_package(fmt REQUIRED)
@@ -73,19 +74,25 @@ if(REUSS_BUILD_TESTS)
   find_package(Catch2 REQUIRED)
   add_subdirectory(tests)
 endif(REUSS_BUILD_TESTS)
-# find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 add_subdirectory(core)
 add_subdirectory(math)
 
 
-#Build only detector static libs, nothing else is needed for control
-set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
-set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
-set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
-set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
-add_subdirectory(libs/slsDetectorPackage)
+
+
+if(REUSS_EXTERNAL_SLSDET)
+    find_package(slsDetectorPackage REQUIRED)
+else()
+    #Build only detector static libs, nothing else is needed for control
+    set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
+    set(SLS_USE_RECEIVER_BINARIES false CACHE BOOL "Disable Receiver")
+    set(SLS_USE_TEXTCLIENT false CACHE BOOL "Disable Receiver")
+    set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
+    add_subdirectory(libs/slsDetectorPackage)
+endif()
 add_subdirectory(detector)
+
 
 add_subdirectory(components)
 add_subdirectory(app)

@@ -17,8 +17,7 @@ target_link_libraries(reuss_detector
     PRIVATE 
         reuss::settings 
         fmt::fmt
-        Threads::Threads 
-        zmq 
+        Threads::Threads  
         slsDetectorStatic
 
 )

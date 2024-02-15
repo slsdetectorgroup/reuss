@@ -3,4 +3,4 @@
 	url = https://github.com/pybind/pybind11.git
 [submodule "libs/slsDetectorPackage"]
 	path = libs/slsDetectorPackage
-	url = git@github.com:slsdetectorgroup/slsDetectorPackage.git
+	url = https://github.com/slsdetectorgroup/slsDetectorPackage.git

@@ -10,7 +10,7 @@ pybind11_add_module(_reuss
     src/streaming_receiver.cpp
 )
 
-target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared reuss_detector reuss_math)
+target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared reuss_detector reuss_math libzmq)
 
 
 
