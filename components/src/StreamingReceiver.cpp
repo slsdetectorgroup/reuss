@@ -30,7 +30,12 @@ void StreamingReceiver::start() {
         threads_.emplace_back(&FrameAssembler::assemble, assembler_.get(),
                               cpu++);
 
-        streamer_ = std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, assembler_->fifo());
+        //insert an accumulator between the assembler and the streamer
+        summer_ = std::make_unique<FrameSummer<float>>(assembler_->fifo());
+        threads_.emplace_back(&FrameSummer::sum, summer_.get(),
+                              cpu++);
+
+        streamer_ = std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, summer_->fifo());
         threads_.emplace_back(&Streamer::stream, streamer_.get(), cpu++);
 
     } catch (const std::runtime_error &e) {
