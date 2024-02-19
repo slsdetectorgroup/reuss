@@ -11,8 +11,8 @@ namespace reuss {
 
 template <typename T> class FrameAccumulator {
 
-    ImageData<T, 3> pedestal_{};
-    ImageData<T, 3> calibration_{};
+    ImageData<T, 3> pedestal_{{3, 512, COL_MAX - COL_MIN}, 0};
+    ImageData<T, 3> calibration_{{3, 512, COL_MAX - COL_MIN}, 1};
     ImageData<uint16_t> buffer_{{512, COL_MAX - COL_MIN}, 0};
     T threshold_{-5000}; // add everything
     ZmqReceiver r{DEFAULT_RECEIVE};

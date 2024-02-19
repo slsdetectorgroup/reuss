@@ -42,6 +42,7 @@ endforeach(FILE ${PYTHON_FILES})
 set(PythonApps
     writer
     viewer
+    srecv
     zmq_recv
     collect_pd
     acquire

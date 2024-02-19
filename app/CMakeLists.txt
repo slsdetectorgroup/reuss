@@ -26,6 +26,15 @@ set_target_properties(urecv PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
+# add_executable(srecv srecv.cpp)
+# target_link_libraries(srecv PUBLIC reuss_core_static reuss_math project_settings reuss_detector reuss_components_shared fmt::fmt)
+# set_target_properties(srecv PROPERTIES
+#     RUNTIME_OUTPUT_NAME srecv
+#     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+#     # PUBLIC_HEADER "${PUBLICHEADERS}"
+# )
+
+
 #Copy extra files to the binary dir
 set(Extras
     em_virtual.config

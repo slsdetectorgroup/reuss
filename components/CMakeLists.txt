@@ -6,6 +6,7 @@ set(PublicHeaders
 
 set(SourceFiles
   src/StreamingReceiver.cpp
+  src/SummingReceiver.cpp
 )
 
 add_library(
