@@ -28,7 +28,7 @@ template <typename T, ssize_t Ndim = 2> class ImageData {
 
     explicit ImageData(std::array<ssize_t, Ndim> shape)
         : shape_(shape), strides_(c_strides<Ndim>(shape_)),
-          size_(std::accumulate(shape_.begin(), shape_.end(), 1,
+          size_(std::accumulate(shape_.begin(), shape_.end(), ssize_t(1),
                                 std::multiplies<ssize_t>())),
           data_(new T[size_]){};
 

@@ -76,6 +76,7 @@ void Receiver::receivePackets(int cpu) {
     }
     // make sure we have time to sink images
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    fmt::print(fg(fmt::color::hot_pink), "Receiver::receivePackets done!\n");
 }
 
 } // namespace reuss

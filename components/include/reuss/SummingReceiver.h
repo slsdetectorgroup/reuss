@@ -11,7 +11,8 @@ class DetectorInterface;
 
 class SummingReceiver {
     std::vector<std::unique_ptr<Receiver>> receivers_;
-    std::vector<std::thread> threads_;
+    std::vector<std::thread> receiving_threads_;
+    std::vector<std::thread> processing_threads_;
     std::unique_ptr<Streamer> streamer_;
     std::unique_ptr<FrameAssembler> assembler_;
     std::unique_ptr<FrameSummer<float>> summer_;
@@ -35,6 +36,8 @@ class SummingReceiver {
 
     void set_pedestal(ImageData<float, 3> pedestal);
     ImageData<float, 3> get_pedestal() const;
+    void record_pedestal();
+
     void set_calibration(ImageData<float, 3> calibration);
     ImageData<float, 3> get_calibration() const;
 

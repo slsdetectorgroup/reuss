@@ -11,7 +11,10 @@ int main(int argc, char *argv[]) {
     try {
         // The receiver reads the config from the sls::Detector API
         rs::SummingReceiver receiver;
+        receiver.set_frames_to_sum(100);
         receiver.start();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        receiver.record_pedestal();
 
         // Listen for 'q'
         while (true) {

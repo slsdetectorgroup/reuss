@@ -68,7 +68,8 @@ int ZmqReceiver::receive_into(int n_frames, int64_t *frame_numbers,
         size_t more_size = sizeof(more);
         zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
         if (more) {
-            int nbytes = zmq_recv(socket, data, 1048576, 0);
+            // int nbytes = zmq_recv(socket, data, 1048576, 0);
+            int nbytes = zmq_recv(socket, data, 2097152, 0);
             if (nbytes == -1)
                 throw std::runtime_error("Got half of a multipart msg!!!");
             data += nbytes;

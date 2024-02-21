@@ -12,17 +12,22 @@ import zmq
 import json
 import matplotlib.pyplot as plt
 plt.ion()
+import time
 
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
 socket.connect("tcp://127.0.0.1:4545")
 socket.subscribe(b"")
 
+n_frames = 100
+t0 = time.perf_counter()
+for i in range(n_frames):
+    msgs = socket.recv_multipart()
+    frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
+    print(f"Frame: {frame_nr}")
 
-msgs = socket.recv_multipart()
-frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
-print(f"Frame: {frame_nr}")
-
+t1 = time.perf_counter()
+print(f"Time for {n_frames} frames: {t1-t0:.3f} Freq {n_frames/(t1-t0):.3f}Hz")
 image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
 fig, ax = plt.subplots()
 im = ax.imshow(image)

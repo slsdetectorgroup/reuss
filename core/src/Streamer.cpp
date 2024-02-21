@@ -9,18 +9,18 @@ Streamer::Streamer(const std::string &endpoint, ImageFifo *fifo)
 
 void Streamer::stream(int cpu) {
     pin_this_thread(cpu);
-    while (!stopped_) {
+    while (!stop_requested_) {
         ImageView img;
         if (fifo_->try_pop_image(img)) {
             socket_.send(img, fifo_->image_size());
-            // if (img.frameNumber % PRINT_MOD == 0)
-            //     fmt::print(fg(fmt::color::gold), "Streamed out frame {}\n",
-            //                img.frameNumber);
             fifo_->push_free(img);
             last_frame_ = img.frameNumber;
             total_frames_++;
+        }else{
+            std::this_thread::sleep_for(DEFAULT_WAIT);
         }
-        std::this_thread::sleep_for(DEFAULT_WAIT);
     }
+    stopped_ = true;
+    fmt::print(fg(fmt::color::hot_pink), "Streamer::stream done!\n");
 }
 } // namespace reuss

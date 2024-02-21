@@ -52,5 +52,6 @@ void init_streamrecv(py::module &m) {
             return return_image_data(cal);
         })
         .def("set_frames_to_sum", &reuss::SummingReceiver::set_frames_to_sum)
-        .def("get_frames_to_sum", &reuss::SummingReceiver::get_frames_to_sum);
+        .def("get_frames_to_sum", &reuss::SummingReceiver::get_frames_to_sum)
+        .def("record_pedestal", &reuss::SummingReceiver::record_pedestal);
 }

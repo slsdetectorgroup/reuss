@@ -16,6 +16,7 @@ namespace reuss {
 class FrameAssembler {
     std::vector<ImageFifo *> fifos_;
     std::atomic<bool> stopped_{false};
+    std::atomic<bool> stop_requested_{false};
     ImageFifo assembled_images_;
     std::vector<int64_t> frame_numbers_; // For equality check
     size_t part_size_ = 0;
@@ -30,55 +31,39 @@ class FrameAssembler {
         part_size_ = fifos_[0]->image_size();
     }
     ImageFifo *fifo() { return &assembled_images_; }
-    void stop() { stopped_ = true; }
+    void stop() {
+        fmt::print(fg(fmt::color::hot_pink),
+                   "FrameAssembler::stop requested\n");
+        stop_requested_ = true;
+        while (!stopped_) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
 
     void assemble(int cpu) {
         pin_this_thread(cpu);
         // auto part_size = fifos_[0]->image_size();
 
-        while (!stopped_) {
+        while (!stop_requested_) {
             auto full_image = assembled_images_.pop_free();
-
-
             for (size_t i = 0; i < fifos_.size(); ++i) {
                 pop_and_copy_from(i, full_image);
-                // ImageView img = fifos_[i]->pop_image(DEFAULT_WAIT, stopped_);
-                // if (stopped_)
-                //     break;
-                // frame_numbers_[i] = img.frameNumber;
-
-                // //copy full image 
-                // std::copy_n(img.data, part_size,
-                //             full_image.data + i * part_size);
-
-
-                // fifos_[i]->push_free(img);
             }
 
+            while (!allEqual(frame_numbers_)) {
+                fmt::print(fg(fmt::color::hot_pink), "{}, {}, {}\n",
+                           frame_numbers_[0], frame_numbers_[1],
+                           frame_numbers_[0] - frame_numbers_[1]);
+                fmt::print(fg(fmt::color::yellow_green), "{}, {}\n",
+                           fifos_[0]->numFilledSlots(),
+                           fifos_[1]->numFilledSlots());
 
-            while(!allEqual(frame_numbers_)){
-                fmt::print(fg(fmt::color::hot_pink),
-                           "{}, {}, {}\n",
-                           frame_numbers_[0], frame_numbers_[1], frame_numbers_[0]-frame_numbers_[1]);
-                fmt::print(fg(fmt::color::yellow_green),
-                           "{}, {}\n",
-                           fifos_[0]->numFilledSlots(), fifos_[1]->numFilledSlots());
-
-                //find min pull one
-                auto i = std::min_element(frame_numbers_.begin(), frame_numbers_.end()) - frame_numbers_.begin();
+                // find min pull one
+                auto i = std::min_element(frame_numbers_.begin(),
+                                          frame_numbers_.end()) -
+                         frame_numbers_.begin();
                 fmt::print("pop: {}\n", i);
                 pop_and_copy_from(i, full_image);
-                // ImageView img = fifos_[i]->pop_image(DEFAULT_WAIT, stopped_);
-                // if (stopped_)
-                //     break;
-                // frame_numbers_[i] = img.frameNumber;
-
-                // //copy full image 
-                // std::copy_n(img.data, part_size,
-                //             full_image.data + i * part_size);
-
-
-                // fifos_[i]->push_free(img);
             }
 
             // push to stream or writer
@@ -90,16 +75,21 @@ class FrameAssembler {
             //                "Assembled frame {}, frames in fifo: {}\n",
             //                frame_numbers_[0], fifos_[0]->numFilledSlots());
         }
+        stopped_ = true;
+        fmt::print(fg(fmt::color::hot_pink),
+                   "FrameAssembler::assemble done!\n");
     }
 
-private:
-    void pop_and_copy_from(size_t i, ImageView full_image){
-        //TODO! any performance implications from this?
-        ImageView img = fifos_[i]->pop_image(DEFAULT_WAIT, stopped_);
-                frame_numbers_[i] = img.frameNumber;
-                std::copy_n(img.data, part_size_,
-                            full_image.data + i * part_size_);
-                fifos_[i]->push_free(img);
+  private:
+    void pop_and_copy_from(size_t i, ImageView full_image) {
+        // TODO! any performance implications from this?
+        ImageView img = fifos_[i]->pop_image(DEFAULT_WAIT, stop_requested_);
+        if(!stop_requested_){
+            frame_numbers_[i] = img.frameNumber;
+            std::copy_n(img.data, part_size_, full_image.data + i * part_size_);
+            fifos_[i]->push_free(img);
+        }
+        
     }
 };
 } // namespace reuss
