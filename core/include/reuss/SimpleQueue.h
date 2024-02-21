@@ -13,7 +13,25 @@ template <typename T> class SimpleQueue {
     T *records_;
 
   public:
+    SimpleQueue():SimpleQueue(10){};
     SimpleQueue(uint32_t qsize) : size(qsize + 1), records_(new T[size]) {}
+    SimpleQueue(const SimpleQueue &other) = delete;
+    SimpleQueue &operator=(const SimpleQueue &other) = delete;
+    SimpleQueue(SimpleQueue &&other){
+        size = other.size;
+        records_ = other.records_;
+        other.records_ = nullptr;
+        readIndex_ = other.readIndex_.load(std::memory_order_acquire);
+        writeIndex_ = other.writeIndex_.load(std::memory_order_acquire);
+    }
+    SimpleQueue &operator=(SimpleQueue &&other){
+        size = other.size;
+        records_ = other.records_;
+        other.records_ = nullptr;
+        readIndex_ = other.readIndex_.load(std::memory_order_acquire);
+        writeIndex_ = other.writeIndex_.load(std::memory_order_acquire);
+        return *this;
+    }
     ~SimpleQueue() { delete[] records_; }
 
     std::size_t sizeGuess() const {

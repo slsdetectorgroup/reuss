@@ -27,7 +27,9 @@ template <typename T> class FrameSummer {
 
   public:
     FrameSummer(ImageFifo *fifo, DetectorInterface *d)
-        : raw_fifo_(fifo), det_(d) {}
+        : raw_fifo_(fifo), det_(d) {
+            fmt::print("FrameSummer created\n");
+        }
     ~FrameSummer() {}
     void set_threshold(T th) { threshold_ = th; }
     T get_threshold() const noexcept { return threshold_; }
@@ -63,6 +65,7 @@ template <typename T> class FrameSummer {
             }
 
             ImageView summed_image = summed_fifo_.pop_free();
+            // fmt::print("Summer popped free\n");
             DataSpan<T, 2> summed_span(reinterpret_cast<T *>(summed_image.data),
                                        shape);
             summed_span = 0;
@@ -70,6 +73,7 @@ template <typename T> class FrameSummer {
             while ((summed_frames < n_frames) && !stop_requested_) {
                 ImageView raw_image;
                 if (raw_fifo_->try_pop_image(raw_image)) {
+                    // fmt::print("Summer popped raw\n");
                     if ((last_frame != -1) &&
                         (raw_image.frameNumber - last_frame != 1))
                         fmt::print(fg(fmt::color::red),
@@ -84,6 +88,8 @@ template <typename T> class FrameSummer {
                     summed_image.frameNumber = raw_image.frameNumber;
                     summed_frames++;
                     last_frame = raw_image.frameNumber;
+                }else{
+                    std::this_thread::sleep_for(DEFAULT_WAIT);
                 }
             }
             summed_fifo_.push_image(summed_image);

@@ -53,6 +53,8 @@ add_library(reuss::core_shared ALIAS reuss_core_shared)
 if(REUSS_BUILD_TESTS)
     set(TestSources
         src/StaticString.test.cpp
+        src/SimpleQueue.test.cpp
+        src/ImageFifo.test.cpp
     )
     target_sources(tests PRIVATE src ${TestSources} )
     target_link_libraries(tests PRIVATE reuss::core_shared)

@@ -20,10 +20,18 @@ SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
             receivers_.push_back(std::make_unique<Receiver>(s.addr, s.port));
         }
 
-        assembler_ = std::make_unique<FrameAssembler>(receivers_);
-        summer_ = std::make_unique<FrameSummer<float>>(assembler_->fifo(), det_.get());
-        streamer_ =
-            std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, summer_->fifo());
+        assembler_ = std::make_unique<FrameAssembler>(receivers_, 4);
+        // summer_ = std::make_unique<FrameSummer<float>>(assembler_->fifo(), det_.get());
+        for(size_t i=0; i<assembler_->n_fifos(); i++){
+            summers_.push_back(std::make_unique<FrameSummer<float>>(assembler_->fifo(i), det_.get()));
+        }
+        // streamer_ =
+        //     std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, summers_[0]->fifo());
+
+        int port = 4545;
+        for(size_t i=0; i<assembler_->n_fifos(); i++){
+            streamers_.push_back(std::make_unique<Streamer>(fmt::format("tcp://*:{}",port++), summers_[i]->fifo()));
+        }
 
     } catch (const std::runtime_error &e) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
@@ -35,17 +43,28 @@ SummingReceiver::~SummingReceiver() = default;
 void SummingReceiver::start() {
     try {
         int cpu = 0;
+        int step = 2;
         for (auto &r : receivers_) {
             receiving_threads_.emplace_back(&Receiver::receivePackets, r.get(), cpu);
-            cpu+=2;
+            cpu+=step;
         }
         processing_threads_.emplace_back(&FrameAssembler::assemble, assembler_.get(),
                               cpu);
-        cpu+=2;
-        processing_threads_.emplace_back(&FrameSummer<float>::accumulate, summer_.get(),
+        cpu+=step;
+
+        for(auto &s: summers_){
+            processing_threads_.emplace_back(&FrameSummer<float>::accumulate, s.get(),
                               cpu);
-        cpu+=2;
-        processing_threads_.emplace_back(&Streamer::stream, streamer_.get(), cpu);
+            cpu+=step;
+        }
+        // processing_threads_.emplace_back(&FrameSummer<float>::accumulate, summers_[0].get(),
+        //                       cpu);
+        // cpu+=step;
+        for (auto &s : streamers_){
+            processing_threads_.emplace_back(&Streamer::stream, s.get(), cpu);
+            cpu+=step;
+        }
+        // processing_threads_.emplace_back(&Streamer::stream, streamer_.get(), cpu);
 
     } catch (const std::runtime_error &e) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
@@ -63,8 +82,14 @@ void SummingReceiver::stop() {
         t.join();
     
     assembler_->stop();
-    summer_->stop();
-    streamer_->stop();
+    for (auto &s: summers_){
+        s->stop();
+    }
+    // summer_->stop();
+    // streamer_->stop();
+    for (auto &s : streamers_){
+        s->stop();
+    }
     
     
     
@@ -82,7 +107,7 @@ void SummingReceiver::stop() {
 
 
     streamer_ = nullptr;
-    summer_ = nullptr;
+    summers_.clear();
     assembler_ = nullptr;
     
     //TODO! Look at why we need this sleep!
@@ -116,26 +141,31 @@ int64_t SummingReceiver::total_frames() {
 }
 
 void SummingReceiver::set_pedestal(ImageData<float, 3> pedestal) {
-    summer_->set_pedestal(pedestal);
+    for (auto &summer_ : summers_){
+        summer_->set_pedestal(pedestal);
+    }
 }
 
 ImageData<float, 3> SummingReceiver::get_pedestal() const {
-    return summer_->get_pedestal();
+
+    return summers_[0]->get_pedestal();
 }
 
 void SummingReceiver::set_calibration(ImageData<float, 3> calibration) {
-    summer_->set_calibration(calibration);
+    for (auto &summer_ : summers_){
+        summer_->set_calibration(calibration);
+    }
 }
 
 ImageData<float, 3> SummingReceiver::get_calibration() const {
-    return summer_->get_calibration();
+    return summers_[0]->get_calibration();
 }
 
 void SummingReceiver::record_pedestal() {
-    summer_->set_pedestal_mode(true);
-    while(summer_->get_pedestal_mode() == true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    // summer_->set_pedestal_mode(true);
+    // while(summer_->get_pedestal_mode() == true) {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // }
 }
 
 } // namespace reuss

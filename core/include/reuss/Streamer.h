@@ -19,15 +19,14 @@ class Streamer {
   public:
     Streamer(const std::string &endpoint, ImageFifo *fifo);
     void stream(int cpu);
-    void stop() { 
-      fmt::print(fg(fmt::color::hot_pink), "Streamer::stop requested\n");
-      stop_requested_ = true; 
-      while(!stopped_){
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
-      
+    void stop() {
+        fmt::print(fg(fmt::color::hot_pink), "Streamer::stop requested\n");
+        stop_requested_ = true;
+        while (!stopped_) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
-    int64_t last_frame(){ return last_frame_; }
-    int64_t total_frames(){ return total_frames_;}
+    int64_t last_frame() { return last_frame_; }
+    int64_t total_frames() { return total_frames_; }
 };
 } // namespace reuss

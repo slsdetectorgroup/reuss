@@ -14,8 +14,10 @@ class SummingReceiver {
     std::vector<std::thread> receiving_threads_;
     std::vector<std::thread> processing_threads_;
     std::unique_ptr<Streamer> streamer_;
+    std::vector<std::unique_ptr<Streamer>> streamers_;
     std::unique_ptr<FrameAssembler> assembler_;
-    std::unique_ptr<FrameSummer<float>> summer_;
+    // std::unique_ptr<FrameSummer<float>> summer_;
+    std::vector<std::unique_ptr<FrameSummer<float>>> summers_;
     std::unique_ptr<DetectorInterface> det_;
 
     int64_t lost_packets_{};
@@ -41,8 +43,12 @@ class SummingReceiver {
     void set_calibration(ImageData<float, 3> calibration);
     ImageData<float, 3> get_calibration() const;
 
-    void set_frames_to_sum(int n) { summer_->set_frames_to_sum(n); }
-    int get_frames_to_sum() const { return summer_->get_frames_to_sum(); }
+    void set_frames_to_sum(int n) { 
+      for(auto &summer_ : summers_){
+        summer_->set_frames_to_sum(n);
+      }
+    }
+    int get_frames_to_sum() const { return summers_[0]->get_frames_to_sum(); }
 
     
 };

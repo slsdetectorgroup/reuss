@@ -86,6 +86,7 @@ class NumpyArrDescr {
     }
 
     std::vector<int> shape() const { return shape_; }
+    void set_shape(std::vector<int> sh) { shape_ = sh; }
     std::string descr() const { return descr_; }
     bool fortran_order() const noexcept { return fortran_order_; }
     std::string str() const {
@@ -113,7 +114,9 @@ class NumpyFileHeader {
     bool fortran_order() const noexcept { return descr.fortran_order(); }
     NumpyFileHeader() = default;
     NumpyFileHeader(DataType dt, std::vector<int> sh)
-        : major_ver_(1), minor_ver_(0){}
+        : major_ver_(1), minor_ver_(0){
+        descr.set_shape(sh);
+        }
 
     static NumpyFileHeader fromFile(std::ifstream &f) {
         std::array<char, 6> tmp{};

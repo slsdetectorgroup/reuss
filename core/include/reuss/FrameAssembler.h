@@ -17,20 +17,32 @@ class FrameAssembler {
     std::vector<ImageFifo *> fifos_;
     std::atomic<bool> stopped_{false};
     std::atomic<bool> stop_requested_{false};
-    ImageFifo assembled_images_;
+    // ImageFifo assembled_images_;
+    std::vector<ImageFifo> assembled_images_;
     std::vector<int64_t> frame_numbers_; // For equality check
     size_t part_size_ = 0;
 
   public:
-    FrameAssembler(const std::vector<std::unique_ptr<Receiver>> &rec)
-        : assembled_images_(10, rec.size() * FRAME_SIZE),
-          frame_numbers_(rec.size()) {
+        FrameAssembler(const std::vector<std::unique_ptr<Receiver>> &rec, size_t n_fifos=1)
+        : frame_numbers_(rec.size()) {
+            assembled_images_.reserve(10); //TODO fix vectors of Fifos!!!
+        for (size_t i = 0; i<n_fifos; i++){
+            fmt::print("Creating assembled image fifo {}\n", i);
+            assembled_images_.emplace_back(10, rec.size() * FRAME_SIZE);
+        }
+
+        for (int i = 0; i<assembled_images_.size(); i++){
+            fmt::print("Assembled image fifo {} size: {}, filled {} free {}\n", i, assembled_images_[i].size(),
+            assembled_images_[i].numFilledSlots(),assembled_images_[i].numFreeSlots());
+        }
+        
         for (auto &r : rec) {
             fifos_.push_back(r->fifo());
         }
         part_size_ = fifos_[0]->image_size();
     }
-    ImageFifo *fifo() { return &assembled_images_; }
+    ImageFifo *fifo(size_t i = 0) { return &assembled_images_[i]; }
+    size_t n_fifos() { return assembled_images_.size(); };
     void stop() {
         fmt::print(fg(fmt::color::hot_pink),
                    "FrameAssembler::stop requested\n");
@@ -41,11 +53,23 @@ class FrameAssembler {
     }
 
     void assemble(int cpu) {
+        fmt::print("FrameAssembler::assemble started\n");
         pin_this_thread(cpu);
         // auto part_size = fifos_[0]->image_size();
+        for (int i = 0; i<assembled_images_.size(); i++){
+            fmt::print("Assembled image fifo {} size: {}, filled {} free {}\n", i, assembled_images_[i].size(),
+            assembled_images_[i].numFilledSlots(),assembled_images_[i].numFreeSlots());
+        }
 
+
+        size_t fifo_index = 0;
         while (!stop_requested_) {
-            auto full_image = assembled_images_.pop_free();
+            if (fifo_index == assembled_images_.size()) {
+                fifo_index = 0;
+            }
+            // fmt::print("Assemble trying pop free\n");
+            auto full_image = assembled_images_[fifo_index].pop_free();
+            // fmt::print("Assemble pop free\n");
             for (size_t i = 0; i < fifos_.size(); ++i) {
                 pop_and_copy_from(i, full_image);
             }
@@ -68,12 +92,10 @@ class FrameAssembler {
 
             // push to stream or writer
             full_image.frameNumber = frame_numbers_[0];
-            assembled_images_.push_image(full_image);
-
-            // if (full_image.frameNumber % PRINT_MOD == 0)
-            //     fmt::print(fg(fmt::color::hot_pink),
-            //                "Assembled frame {}, frames in fifo: {}\n",
-            //                frame_numbers_[0], fifos_[0]->numFilledSlots());
+            
+            assembled_images_[fifo_index].push_image(full_image);
+            fifo_index += 1;
+            // fmt::print("Assemple push image\n");
         }
         stopped_ = true;
         fmt::print(fg(fmt::color::hot_pink),

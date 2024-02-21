@@ -19,6 +19,17 @@ class ImageFifo {
 
   public:
     ImageFifo(size_t fifo_size, size_t image_size);
+    ImageFifo(const ImageFifo &) = delete;
+    ImageFifo &operator=(const ImageFifo &) = delete;
+    ImageFifo(ImageFifo &&other){
+        fmt::print("Move constructor\n");
+        fifo_size_ = other.fifo_size_;
+        image_size_ = other.image_size_;
+        data = other.data;
+        other.data = nullptr;
+        free_slots = std::move(other.free_slots);
+        filled_slots = std::move(other.filled_slots);
+    }
     ~ImageFifo() { free(data); }
 
     size_t size() const noexcept;
