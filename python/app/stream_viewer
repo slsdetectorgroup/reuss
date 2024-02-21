@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+
+import numpy as np
+import ctypes
+import multiprocessing as mp
+
+import zmq
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.dockarea import *
+
+from process import apply_calibration
+from receiver import QuadZmqReceiver
+
+import argparse
+
+
+pg.setConfigOptions(imageAxisOrder='row-major')
+pg.mkQApp()
+
+app = pg.mkQApp("DockArea Example")
+win = QtGui.QMainWindow()
+win.setWindowTitle('Jungfrau')
+area = DockArea()
+win.setCentralWidget(area)
+win.resize(1000,500)
+d1 = Dock("Image", size=(1000, 250))
+d2 = Dock("Gain", size=(1000,250))
+area.addDock(d1, 'top')     ## place d2 at right edge of dock area
+area.addDock(d2, 'bottom', d1)## place d3 at bottom edge of d1
+
+w1 = pg.GraphicsLayoutWidget()
+p1 = w1.addPlot(title="")
+d1.addWidget(w1)
+img = pg.ImageItem()
+p1.addItem(img)
+hist = pg.HistogramLUTItem()
+hist.setImageItem(img)
+hist.gradient.loadPreset('viridis')
+w1.addItem(hist)
+
+charge = np.random.normal(size = 300)
+w2 = pg.GraphicsLayoutWidget()
+d2.addWidget(w2)
+
+img2 = pg.ImageItem()
+p2 = w2.addPlot()
+p2.addItem(img2)
+hist2 = pg.HistogramLUTItem()
+hist2.setImageItem(img2)
+hist2.gradient.loadPreset('viridis')
+w2.addItem(hist2)
+
+
+# curve2 = p2.plot()
+
+
+
+nrow = 512
+ncol = 1024
+
+#Some initial data
+data = np.random.rand(nrow,ncol)
+img.setImage(data, autoRange = False, autoLevels = False, autoHistogramRange = False)
+
+win.resize(900, 800)
+win.show()
+
+p1.setAspectLocked(True)
+p2.setAspectLocked(True)
+hist.setLevels(0,255)
+hist2.setLevels(0,3)
+ip = "192.168.83.78"
+port = 30001
+
+
+def read_stream(buffer, exit_flag, convert, charge_buffer, gain_buffer):
+    """Read images from the receiver zmq stream"""
+    zmq_receiver = QuadZmqReceiver(ip, port, timeout_ms = 100)
+    if convert:
+        pd = np.load('data/pedestal.npy')
+        cal = np.load('data/calibration.npy')
+
+    while not exit_flag.value:
+        #Try to read an image, if timeout then try again
+        try:
+            tmp = zmq_receiver.read_frame()
+            with buffer.get_lock():
+                image = np.frombuffer(buffer.get_obj(), dtype=np.double).reshape(
+                    nrow,ncol
+                )
+                gain_image = np.frombuffer(gain_buffer.get_obj(), dtype=np.uint8).reshape(
+                    nrow,ncol
+                )
+                if convert:
+                    tmp, gain = apply_calibration(tmp, pd, cal)
+                    np.copyto(gain_image, gain)
+                else:
+                    #Also split out gain?
+                    tmp = tmp.astype(np.double)
+                np.copyto(image, tmp)
+            with charge_buffer.get_lock():
+                arr = np.frombuffer(charge_buffer.get_obj(), dtype = np.double)
+                arr[:-1] = arr[1:] 
+                arr[-1] = tmp[tmp>10].sum()
+        except zmq.error.Again:
+            pass
+
+def update():
+    levels = hist.getLevels()
+    # levels2 = hist2.getLevels()
+    with buffer.get_lock():
+        image = np.frombuffer(buffer.get_obj(), dtype=np.double).reshape(
+                nrow,ncol
+            )
+        #setImage(img, autoRange=True, autoLevels=True, 
+        # levels=None, axes=None, xvals=None, pos=None, 
+        # scale=None, transform=None, autoHistogramRange=True, 
+        # levelMode=None)
+        img.setImage(image, autoRange = False, autoLevels = False, autoHistogramRange = False)
+
+        gain_image = np.frombuffer(gain_buffer.get_obj(), dtype=np.uint8).reshape(
+                    nrow,ncol)
+        img2.setImage(gain_image, autoRange = False, autoLevels = False, autoHistogramRange = False)
+    
+    # hist.setLevels(*levels)
+    # hist2.setLevels(*levels2)
+
+    # with charge_buffer.get_lock():
+    #     arr = np.frombuffer(charge_buffer.get_obj(), dtype = np.double)
+    #     curve2.setData(arr)
+
+
+def imageHoverEvent(event):
+    if event.isExit():
+        p1.setTitle("")
+        return
+    pos = event.pos()
+    i, j = pos.y(), pos.x()
+    i = int(np.clip(i, 0, data.shape[0] - 1))
+    j = int(np.clip(j, 0, data.shape[1] - 1))
+    val = data[i, j]
+    ppos = img.mapToParent(pos)
+    x, y = ppos.x(), ppos.y()
+    p1.setTitle("pos: (%0.1f, %0.1f)  pixel: (%d, %d)  value: %.3g" % (x, y, i, j, val))
+
+img.hoverEvent = imageHoverEvent
+
+#Timer to update the image, this is separate from the receiving
+#We could check and only update if we have a new image...
+timer = QtCore.QTimer()
+timer.timeout.connect(update)
+timer.start(100)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--convert', action='store_true')
+    args = parser.parse_args()
+
+    #This flag is used to inform the reader when to exit
+    exit_flag = mp.Value(ctypes.c_bool)
+    exit_flag.value = False 
+
+    buffer = mp.Array(ctypes.c_double, nrow*ncol)
+    gain_buffer = mp.Array(ctypes.c_uint8, nrow*ncol)
+    n_charge = 300
+    charge_buffer = mp.Array(ctypes.c_double, n_charge)
+    reader = mp.Process(target=read_stream, args=[buffer, exit_flag, args.convert, charge_buffer, gain_buffer])
+    reader.start()
+
+    #Run the event loop for the GUI 
+    pg.exec()
+
+    #When the window is closed tell the reader loop to exit
+    exit_flag.value = True
+    reader.join()

@@ -26,7 +26,7 @@ void StreamingReceiver::start() {
             threads_.emplace_back(&Receiver::receivePackets, r.get(), cpu++);
         }
 
-        assembler_ = std::make_unique<FrameAssembler>(receivers_);
+        assembler_ = std::make_unique<FrameAssembler>(receivers_, det_.get());
         threads_.emplace_back(&FrameAssembler::assemble, assembler_.get(),
                               cpu++);
 

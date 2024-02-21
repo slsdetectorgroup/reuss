@@ -44,6 +44,13 @@ ImageData<T, Ndim> load_numpy(const std::string &fname) {
     return data;
 }
 
+template<typename T, size_t Ndim>
+void save_numpy(const std::string& fname, DataSpan<T,Ndim> data){
+
+    
+
+}
+
 template <typename T> ImageData<T, 3> load_raw_bin(const std::string &fname) {
     std::ifstream f(fname, std::ios::binary);
     if (!f)

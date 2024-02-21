@@ -3,6 +3,7 @@
 #include "reuss/FrameSummer.h"
 #include "reuss/Receiver.h"
 #include "reuss/Streamer.h"
+#include "reuss/CollectingStreamer.h"
 #include <string>
 #include <vector>
 
@@ -13,8 +14,8 @@ class SummingReceiver {
     std::vector<std::unique_ptr<Receiver>> receivers_;
     std::vector<std::thread> receiving_threads_;
     std::vector<std::thread> processing_threads_;
-    std::unique_ptr<Streamer> streamer_;
-    std::vector<std::unique_ptr<Streamer>> streamers_;
+    std::unique_ptr<CollectingStreamer> streamer_;
+    // std::vector<std::unique_ptr<Streamer>> streamers_;
     std::unique_ptr<FrameAssembler> assembler_;
     // std::unique_ptr<FrameSummer<float>> summer_;
     std::vector<std::unique_ptr<FrameSummer<float>>> summers_;

@@ -3,6 +3,7 @@ set(PublicHeaders
 )
 
 set(SourceFiles
+  src/CollectingStreamer.cpp
   src/Streamer.cpp
   src/Receiver.cpp 
   src/ImageFifo.cpp
@@ -19,7 +20,16 @@ add_library(
     reuss_core_object OBJECT ${SourceFiles} 
 )
 
-target_link_libraries(reuss_core_object PRIVATE reuss::settings reuss_math fmt::fmt Threads::Threads libzmq)
+target_link_libraries(
+    reuss_core_object 
+    PRIVATE 
+        reuss::settings  
+        fmt::fmt 
+        Threads::Threads 
+        libzmq
+    PUBLIC
+        reuss_math
+    )
 target_include_directories(reuss_core_object PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(reuss_core_object PROPERTIES
     LIBRARY_OUTPUT_NAME reuss_core_object

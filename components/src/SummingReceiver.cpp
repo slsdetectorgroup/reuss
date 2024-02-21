@@ -20,7 +20,7 @@ SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
             receivers_.push_back(std::make_unique<Receiver>(s.addr, s.port));
         }
 
-        assembler_ = std::make_unique<FrameAssembler>(receivers_, 4);
+        assembler_ = std::make_unique<FrameAssembler>(receivers_, det_.get(), 8);
         // summer_ = std::make_unique<FrameSummer<float>>(assembler_->fifo(), det_.get());
         for(size_t i=0; i<assembler_->n_fifos(); i++){
             summers_.push_back(std::make_unique<FrameSummer<float>>(assembler_->fifo(i), det_.get()));
@@ -28,10 +28,15 @@ SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
         // streamer_ =
         //     std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, summers_[0]->fifo());
 
-        int port = 4545;
+        // int port = 4545;
+        // for(size_t i=0; i<assembler_->n_fifos(); i++){
+        //     streamers_.push_back(std::make_unique<Streamer>(fmt::format("tcp://*:{}",port++), summers_[i]->fifo()));
+        // }
+        std::vector<ImageFifo *> fifos;
         for(size_t i=0; i<assembler_->n_fifos(); i++){
-            streamers_.push_back(std::make_unique<Streamer>(fmt::format("tcp://*:{}",port++), summers_[i]->fifo()));
+            fifos.push_back(summers_[i]->fifo());
         }
+        streamer_ = std::make_unique<CollectingStreamer>(RAW_FRAMES_ENDPOINT, fifos);
 
     } catch (const std::runtime_error &e) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
@@ -60,11 +65,11 @@ void SummingReceiver::start() {
         // processing_threads_.emplace_back(&FrameSummer<float>::accumulate, summers_[0].get(),
         //                       cpu);
         // cpu+=step;
-        for (auto &s : streamers_){
-            processing_threads_.emplace_back(&Streamer::stream, s.get(), cpu);
-            cpu+=step;
-        }
-        // processing_threads_.emplace_back(&Streamer::stream, streamer_.get(), cpu);
+        // for (auto &s : streamers_){
+        //     processing_threads_.emplace_back(&Streamer::stream, s.get(), cpu);
+        //     cpu+=step;
+        // }
+        processing_threads_.emplace_back(&CollectingStreamer::stream, streamer_.get(), cpu);
 
     } catch (const std::runtime_error &e) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
@@ -86,10 +91,10 @@ void SummingReceiver::stop() {
         s->stop();
     }
     // summer_->stop();
-    // streamer_->stop();
-    for (auto &s : streamers_){
-        s->stop();
-    }
+    streamer_->stop();
+    // for (auto &s : streamers_){
+    //     s->stop();
+    // }
     
     
     
@@ -162,10 +167,15 @@ ImageData<float, 3> SummingReceiver::get_calibration() const {
 }
 
 void SummingReceiver::record_pedestal() {
-    // summer_->set_pedestal_mode(true);
-    // while(summer_->get_pedestal_mode() == true) {
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    // }
+    assembler_->set_pedestal_mode(true);
+    while(assembler_->get_pedestal_mode() == true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    fmt::print("Pedestal recorded\n");
+    for(auto &summer_ : summers_){
+        summer_->update_pedestal();
+    }
+
 }
 
 } // namespace reuss

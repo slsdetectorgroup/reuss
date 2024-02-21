@@ -11,26 +11,66 @@ import numpy as np
 import zmq
 import json
 import matplotlib.pyplot as plt
+import boost_histogram as bh
 plt.ion()
 import time
 
+
+port = 4545
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
-socket.connect("tcp://127.0.0.1:4545")
+socket.connect(f"tcp://127.0.0.1:{port}")
 socket.subscribe(b"")
-
-n_frames = 100
+n_frames = 10
 t0 = time.perf_counter()
+last_frame = 0
+images = np.zeros((n_frames, 512, 1024), dtype = np.float32)
 for i in range(n_frames):
     msgs = socket.recv_multipart()
     frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
-    print(f"Frame: {frame_nr}")
+    images[i] = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+    print(f"{i}:Frame: {frame_nr} diff: {frame_nr-last_frame}")
+    last_frame = frame_nr
 
 t1 = time.perf_counter()
 print(f"Time for {n_frames} frames: {t1-t0:.3f} Freq {n_frames/(t1-t0):.3f}Hz")
 image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
 fig, ax = plt.subplots()
 im = ax.imshow(image)
+im.set_clim(-30,30)
+
+
+hist1 = bh.Histogram(bh.axis.Regular(100, -30, 30))
+hist1.fill(images.flatten())
+fig, ax = plt.subplots()
+ax.step(hist1.axes[0].centers, hist1.view(), where='mid')
+# ports = [4545, 4546, 4547, 4548]
+
+# contexts = [zmq.Context() for p in ports]
+# sockets = [context.socket(zmq.SUB) for context in contexts]
+# for socket, port in zip(sockets, ports):
+#     socket.connect(f"tcp://127.0.0.1:{port}")
+#     socket.subscribe(b"")
+
+# n_frames = 10
+# t0 = time.perf_counter()
+# for i in range(n_frames):
+#     for j, socket in enumerate(sockets):
+#         msgs = socket.recv_multipart()
+#         frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
+#         print(f"{j}:Frame: {frame_nr}")
+
+# t1 = time.perf_counter()
+# print(f"Time for {n_frames} frames: {t1-t0:.3f} Freq {n_frames/(t1-t0):.3f}Hz")
+# image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+# fig, ax = plt.subplots()
+# im = ax.imshow(image)
+
+# pd = np.fromfile("/dev/shm/reuss/pedestal.bin", dtype=np.float32).reshape(3, 512, 1024)
+# fig, ax = plt.subplots()
+# im = ax.imshow(pd[0])
+
+
 # im.set_clim(2000,4000)
 
 
