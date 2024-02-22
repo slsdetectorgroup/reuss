@@ -111,48 +111,24 @@ exit_flag.value = False
 record_pedestal = mp.Value(ctypes.c_bool)
 record_pedestal.value = False
 
-def read_frames(buffer, dt = None):
+def read_frames(buffer, dtype, endpoint):
     """
     This function reads frames from the zmq stream. It's 
     intended to run in it's own process launched by 
     mp.Process
     """
     global accframes
-
-    #To be able to display somethign we need a pedestal!
-    pd = reuss.shm.pedestal()
-    if pd is None:
-        print("No pedestal found in shm, recording one now")
-        pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
-        reuss.shm.store_pedestal(pd)
-    else:
-        print("Pedestal loaded from shared memory")
-
-    cal = reuss.load_calibration()[:, reuss.config.roi[0][0], reuss.config.roi[0][0]]
-
-    c = reuss.FrameAccumulator()
-    c.set_pedestal(pd)
-    c.set_calibration(cal)
-    time.sleep(1)
-
-    image = np.frombuffer(buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
-    acc_image = np.frombuffer(acc_buffer, dtype=dt).reshape(reuss.config.nrows(), reuss.config.ncols())
+    r = reuss.PyZmqReceiver(endpoint, timeout_ms = -1, dtype = dtype)
+    image = np.frombuffer(buffer, dtype=dtype).reshape(reuss.config.nrows(), reuss.config.ncols())
+    acc_image = np.frombuffer(acc_buffer, dtype=dtype).reshape(reuss.config.nrows(), reuss.config.ncols())
 
     print("Viewer ready!")
 
     while not exit_flag.value:
-        if record_pedestal.value:
-            print("recording pedestal")
-            pd = reuss.take_pedestal_float(reuss.JungfrauDetector())
-            reuss.shm.store_pedestal(pd)
-            c.set_pedestal(pd)
-            record_pedestal.value = False
-            print('Pedestal done')
-
         if wait_flag.value:
             time.sleep(0.1)
         else:
-            tmp = c.accumulate(100)
+            frame_nr, tmp = r.read_frame()
             np.copyto(image, tmp)
             if accframes.value > 0:
                 print(accframes.value)
@@ -196,37 +172,12 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # Main plot
         self.canvas = FigureCanvas(Figure(figsize=(10, 10)))
         layout.addWidget(self.canvas, 0, 0, 1, 1)
-        
-        
-        # x and y beam profiles
-        self.canvas_yprofile = FigureCanvas(Figure(figsize=(2, 10)))
-        layout.addWidget(self.canvas_yprofile, 0, 1, 1, 1)
-        self.canvas_yprofile.setVisible(False)
-        self.y_ax = self.canvas_yprofile.figure.subplots()
-        self.canvas_yprofile.figure.patch.set_facecolor(colors.fc)
-
-
-        self.canvas_xprofile = FigureCanvas(Figure(figsize=(10, 2)))
-        layout.addWidget(self.canvas_xprofile, 1, 0, 1, 1)
-        self.x_ax = self.canvas_xprofile.figure.subplots()
-        # self.canvas_xprofile.figure.patch.set_facecolor(colors.fc)
-
-        
-
         row = 1
 
         #Settings 
         settings_col = 2  
         settings_layout = QtWidgets.QGridLayout()
         layout.addLayout(settings_layout, 0, settings_col, 1, 1, QtCore.Qt.AlignBottom)
-
-
-        #Pedestal
-        self.pedestal_button = QtWidgets.QPushButton("Pedestal", self)
-        settings_layout.addWidget( self.pedestal_button, row,0,1,2)
-        self.pedestal_button.clicked.connect(self.do_pedestal)
-        row+=1
-
 
         #Quick buttons for clim
         quick_layout = QtWidgets.QGridLayout()
@@ -246,87 +197,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         row += 1 
 
-        settings_layout.addWidget(QtWidgets.QLabel("x profile:", self), row,0)
-        self.xProfileCheck = QtWidgets.QCheckBox()
-        settings_layout.addWidget(self.xProfileCheck , row, 1)
-        self.xProfileCheck.stateChanged.connect(self.toggle_xprofile)
-        row+=1
-
-        #xmin xmax 
-        self.xprofile_control = [
-            QtWidgets.QLabel("xmin:", self),
-            QtWidgets.QLineEdit(str(x.xmin), self),
-            QtWidgets.QLabel("xmax:", self),
-            QtWidgets.QLineEdit(str(x.xmax), self),
-            QtWidgets.QLabel("ymin:", self),
-            QtWidgets.QLineEdit(str(x.ymin), self),
-            QtWidgets.QLabel("ymax:", self),
-            QtWidgets.QLineEdit(str(x.ymax), self),
-            self.canvas_xprofile
-            ]
-       
-        self.xprofile_control[1].returnPressed.connect(self.set_xlim)
-        self.xprofile_control[3].returnPressed.connect(self.set_xlim)
-        self.xprofile_control[5].returnPressed.connect(self.set_xlim)
-        self.xprofile_control[7].returnPressed.connect(self.set_xlim)
-        settings_layout.addWidget(self.xprofile_control[0], row, 0)
-        settings_layout.addWidget(self.xprofile_control[1], row, 1)
-        row += 1
-        settings_layout.addWidget(self.xprofile_control[2], row, 0)
-        settings_layout.addWidget(self.xprofile_control[3], row, 1)
-        row += 1
-        settings_layout.addWidget(self.xprofile_control[4], row, 0)
-        settings_layout.addWidget(self.xprofile_control[5], row, 1)
-        row += 1
-        settings_layout.addWidget(self.xprofile_control[6], row, 0)
-        settings_layout.addWidget(self.xprofile_control[7], row, 1)
-        row += 1
-
-        for widget in self.xprofile_control:
-            widget.setVisible(False)
-
-        settings_layout.addWidget(QtWidgets.QLabel("y profile:", self), row,0)
-        self.yProfileCheck = QtWidgets.QCheckBox()
-        settings_layout.addWidget(self.yProfileCheck , row, 1)
-        self.yProfileCheck.stateChanged.connect(self.toggle_yprofile)
-        row+=1
-
-
-        #xmin xmax 
-        self.yprofile_control = [
-            QtWidgets.QLabel("xmin:", self),
-            QtWidgets.QLineEdit(str(y.xmin), self),
-            QtWidgets.QLabel("xmax:", self),
-            QtWidgets.QLineEdit(str(y.xmax), self),
-            QtWidgets.QLabel("ymin:", self),
-            QtWidgets.QLineEdit(str(y.ymin), self),
-            QtWidgets.QLabel("ymax:", self),
-            QtWidgets.QLineEdit(str(y.ymax), self),
-            self.canvas_yprofile
-            ]
-       
-        self.yprofile_control[1].returnPressed.connect(self.set_ylim)
-        self.yprofile_control[3].returnPressed.connect(self.set_ylim)
-        self.yprofile_control[5].returnPressed.connect(self.set_ylim)
-        self.yprofile_control[7].returnPressed.connect(self.set_ylim)
-        settings_layout.addWidget(self.yprofile_control[0], row, 0)
-        settings_layout.addWidget(self.yprofile_control[1], row, 1)
-        row += 1
-        settings_layout.addWidget(self.yprofile_control[2], row, 0)
-        settings_layout.addWidget(self.yprofile_control[3], row, 1)
-        row += 1
-        settings_layout.addWidget(self.yprofile_control[4], row, 0)
-        settings_layout.addWidget(self.yprofile_control[5], row, 1)
-        row += 1
-        settings_layout.addWidget(self.yprofile_control[6], row, 0)
-        settings_layout.addWidget(self.yprofile_control[7], row, 1)
-        row += 1
-
-        for widget in self.yprofile_control:
-            widget.setVisible(False)
-
-
-
+    
         settings_layout.addWidget( QtWidgets.QLabel("Interval (ms):", self), row,0)
         self.update_interval = QtWidgets.QSpinBox(self)
         self.update_interval.setMaximum(5000)
@@ -408,37 +279,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             reuss.config.nrows(), reuss.config.ncols()
         )
         self.im = self.ax.imshow(data, origin = cfg.plot.origin, cmap = args.cmap)
-        self.x_line = self.x_ax.plot(data.sum(axis = 0), 'o-')
-        # self.y_line = self.y_ax.plot(data.sum(axis = 1), np.arange(data.shape[1]), 'o-')
-        self.y_line = self.y_ax.plot(data.sum(axis = 1), 'o-')
-        self.x_ax.grid(True)
-        self.y_ax.grid(True)
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._update_canvas)
         self.start_button.clicked.connect(self.toggle_timer)
-
-    def toggle_xprofile(self, state):
-        print(f"xtoggle: {state}")
-        if(state):
-            for widget in self.xprofile_control:
-                widget.setVisible(True)
-            self.set_xlim()
-        else:
-            print("disable profile")
-            self.canvas_xprofile.setVisible(False)
-            for widget in self.xprofile_control:
-                widget.setVisible(False)
-
-    def toggle_yprofile(self, state):
-        print(f"ytoggle: {state}")
-        if(state):
-            for widget in self.yprofile_control:
-                widget.setVisible(True)
-            self.set_ylim()
-        else:
-            for widget in self.yprofile_control:
-                widget.setVisible(False)
 
     def start_accumulate(self):
         findex = self.findex_in.value()
@@ -453,9 +297,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         print('Exiting')
         exit_flag.value = True
         QtWidgets.QApplication.quit()
-
-    def do_pedestal(self):
-        record_pedestal.value = True
 
     def set_clim(self):
         print(f'set_clim: {self.cmin_in.text()}, {self.cmax_in.text()}')
@@ -477,22 +318,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.cmax_in.setText(quick_cmax[3])
         self.set_clim()
 
-    def set_xlim(self):
-        xmin = float(self.xprofile_control[1].text())
-        xmax = float(self.xprofile_control[3].text())
-        self.x_ax.set_xlim(xmin, xmax)
-        ymin = float(self.xprofile_control[5].text())
-        ymax = float(self.xprofile_control[7].text())
-        self.x_ax.set_ylim(ymin, ymax)
-
-    def set_ylim(self):
-        xmin = float(self.yprofile_control[1].text())
-        xmax = float(self.yprofile_control[3].text())
-        self.y_ax.set_ylim(xmin, xmax)
-        ymin = float(self.yprofile_control[5].text())
-        ymax = float(self.yprofile_control[7].text())
-        self.y_ax.set_xlim(ymin, ymax)
-
     def _update_canvas(self):
         global t0
         image = np.frombuffer(buffer, dtype=dt).reshape(
@@ -505,18 +330,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.im.set_array(image)
         self.ax.figure.canvas.draw()
 
-        if self.xProfileCheck.isChecked():
-            y = image.sum(axis = 0)
-            self.x_line[0].set_ydata(y)
-            # self.x_ax.set_ylim(0, y.max())
-            self.x_ax.figure.canvas.draw()
-            
-
-        if self.yProfileCheck.isChecked():
-            x = image.sum(axis = 1)
-            # self.y_ax.set_xlim(0, x.max())
-            self.y_line[0].set_xdata(x)
-            self.y_ax.figure.canvas.draw()
 
     def toggle_timer(self):
         """
@@ -545,11 +358,10 @@ if __name__ == "__main__":
     t0 = time.time()
      #Parsing command line args
     parser = argparse.ArgumentParser()
-    parser.add_argument("-pd", "--pedestal", help="Path to the pedestal", type = Path, default=None)
-    parser.add_argument("-m", "--mock", help="Mock the detector", type = bool, default=False)
-    parser.add_argument("-ip", "--zmqip", help="Zmq ip to connect to", type = str, default=None)
-    parser.add_argument("-dt", "--dtype", help="data type to use", type = np.dtype, default=np.float32)
-    parser.add_argument("-c", "--cmap", help="colormap for plot", type = str, default='gist_gray')
+    parser.add_argument("-s", "--stream", help="Zmq stream to connect to", type = str, default="tcp://localhost:4545")
+    parser.add_argument("-d", "--dtype", help="Data type", type = np.dtype, default=np.float32)
+    parser.add_argument("-c", "--cmap", help="Colormap", type = str, default="gist_gray")
+
 
     args = parser.parse_args()
     dt = args.dtype
@@ -569,7 +381,7 @@ if __name__ == "__main__":
     image = np.zeros((reuss.config.nrows(), reuss.config.ncols()), dtype = args.dtype)
 
     #Run the data collection process
-    reader = mp.Process(target=read_frames, args=[buffer, args.dtype])
+    reader = mp.Process(target=read_frames, args=[buffer, args.dtype, args.stream])
     reader.start()
 
 

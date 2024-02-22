@@ -103,6 +103,7 @@ def update():
 
 
 def imageHoverEvent(event):
+    global data
     if event.isExit():
         p1.setTitle("")
         return
@@ -110,6 +111,7 @@ def imageHoverEvent(event):
     i, j = pos.y(), pos.x()
     i = int(np.clip(i, 0, data.shape[0] - 1))
     j = int(np.clip(j, 0, data.shape[1] - 1))
+    
     val = data[i, j]
     ppos = img.mapToParent(pos)
     x, y = ppos.x(), ppos.y()
