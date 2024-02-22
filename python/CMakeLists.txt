@@ -48,6 +48,7 @@ set(PythonApps
     acquire
     collect_raw_pd
     play.py
+    stream_viewer
 )
 
 foreach(FILE ${PythonApps})
