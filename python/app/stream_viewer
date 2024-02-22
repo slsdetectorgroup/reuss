@@ -96,6 +96,7 @@ def update():
         image = np.frombuffer(buffer.get_obj(), dtype=dt).reshape(
                 nrow,ncol
             )
+        data = image
         img.setImage(image, autoRange = False, autoLevels = False, autoHistogramRange = False)
 
 
