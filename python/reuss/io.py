@@ -4,6 +4,8 @@ from . import config
 
 import tifffile
 from pathlib import Path
+import os
+import time
 
 def _expand(image):
     if image.shape != (512,512):
@@ -27,7 +29,13 @@ def _expand(image):
     return data
 
 
-
+def makedirs(base_path, label = ''):
+    i = len(os.listdir(base_path))
+    t = time.strftime("%d-%b-%Y_%H%M%S", time.localtime())
+    path = os.path.join(base_path, f'{i:03d}_{t}{label}') + '/'
+    print(path)
+    os.makedirs(path)
+    return Path(path)
 
 def load_raw_bin(fname):
     with open(fname, 'rb') as f:

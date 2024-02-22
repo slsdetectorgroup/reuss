@@ -48,6 +48,7 @@ set(PythonApps
     acquire
     collect_raw_pd
     play.py
+    cbf_writer
     stream_viewer
 )
 

@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+
+import time
+import os
+import argparse
+from pathlib import Path
+import multiprocessing as mp
+import ctypes
+import reuss as rs
+import cbf
+import numpy as np
+import zmq
+
+
+def convert_to_integer(data_float, dt=np.int32, scale_factor=10):
+    lim = np.iinfo(dt)
+    if data_float.max() > lim.max / scale_factor:
+        raise ValueError("Conversion not possible maximum value too large")
+    return (data_float * scale_factor).round().astype(dt)
+
+
+def write_stream(exit_flag, stream, path):
+
+    header = (
+        "###CBF: \n"
+        "# Detector: JUNGFRAU, S/N VIE-01\n"
+        "# Pixel_size 75e-6 m x 75e-6 m\n"
+        "# Wavelength 0.02508 A\n"
+    )
+
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+    socket.connect(stream)
+    socket.subscribe(b"")
+    i = 0
+    t0 = time.time()
+    while not exit_flag.value:
+        msgs = socket.recv_multipart()
+        frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
+        image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+
+        #convert to integers before saving
+        image_int = convert_to_integer(image, scale_factor=1)
+        cbf.write(path/f"frame_{i:06}.cbf", image_int, header = header)
+        print(f"Frame: {frame_nr}", end = '\r')
+       
+        i += 1
+
+    t1 = time.time()
+    t = t1-t0
+    print()
+    print(rs.color.clear(f"Wrote {i} frames in {t:.3}s {i/t:.0f} FPS"))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-p", "--path", 
+        help="Output base path", 
+        type = Path, default=rs.config.path.data
+    )
+    parser.add_argument(
+        "-s", "--stream", 
+        help="zmq stream", 
+        type=str, default="tcp://localhost:4545"
+    )
+    args = parser.parse_args()
+        
+    path = rs.io.makedirs(args.path)
+    exit_flag = mp.Value(ctypes.c_bool)
+    exit_flag.value = False 
+    write_process = mp.Process(target=write_stream, args=[exit_flag, args.stream, path])
+
+
+    input('Press enter key to start measure...')
+    
+    write_process.start()
+    input()
+    exit_flag.value = True
+    write_process.join()
+    print('Done')
