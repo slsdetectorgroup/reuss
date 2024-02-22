@@ -87,7 +87,8 @@ def read_stream(buffer, exit_flag, endpoint):
                 )
                 tmp = tmp.astype(dt)
                 np.copyto(image, tmp)
-
+            global data
+            np.copyto(data, tmp)
         except zmq.error.Again:
             pass
 
@@ -96,7 +97,7 @@ def update():
         image = np.frombuffer(buffer.get_obj(), dtype=dt).reshape(
                 nrow,ncol
             )
-        data = image
+        
         img.setImage(image, autoRange = False, autoLevels = False, autoHistogramRange = False)
 
 
