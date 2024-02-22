@@ -6,7 +6,7 @@ namespace reuss {
 
 CollectingStreamer::CollectingStreamer(const std::string &endpoint,
                                        std::vector<ImageFifo *> fifos)
-    : fifos_(fifos), socket_(endpoint) {}
+    : fifos_(fifos), socket_(endpoint, 10) {}
 
 void CollectingStreamer::stream(int cpu) {
     pin_this_thread(cpu);
@@ -22,14 +22,6 @@ void CollectingStreamer::stream(int cpu) {
                 std::this_thread::sleep_for(DEFAULT_WAIT);
             }
         }
-        // if (fifo_->try_pop_image(img)) {
-        //     socket_.send(img, fifo_->image_size());
-        //     fifo_->push_free(img);
-        //     last_frame_ = img.frameNumber;
-        //     total_frames_++;
-        // }else{
-        //     std::this_thread::sleep_for(DEFAULT_WAIT);
-        // }
     }
     stopped_ = true;
     fmt::print(fg(fmt::color::hot_pink), "CollectingStreamer::stream done!\n");

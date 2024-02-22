@@ -26,21 +26,21 @@ set_target_properties(urecv PROPERTIES
     # PUBLIC_HEADER "${PUBLICHEADERS}"
 )
 
-add_executable(srecv srecv.cpp)
-target_link_libraries(srecv PUBLIC reuss_core_static reuss_math project_settings reuss_detector reuss_components_shared fmt::fmt)
-set_target_properties(srecv PROPERTIES
-    RUNTIME_OUTPUT_NAME cppsrecv
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    # PUBLIC_HEADER "${PUBLICHEADERS}"
-)
+# add_executable(srecv srecv.cpp)
+# target_link_libraries(srecv PUBLIC reuss_core_static reuss_math project_settings reuss_detector reuss_components_shared fmt::fmt)
+# set_target_properties(srecv PROPERTIES
+#     RUNTIME_OUTPUT_NAME cppsrecv
+#     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+#     # PUBLIC_HEADER "${PUBLICHEADERS}"
+# )
 
-add_executable(benchmark_sum benchmark_sum.cpp)
-target_link_libraries(benchmark_sum PUBLIC reuss_core_static reuss_math project_settings reuss_detector reuss_components_shared fmt::fmt)
-set_target_properties(benchmark_sum PROPERTIES
-    RUNTIME_OUTPUT_NAME benchmark_sum
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    # PUBLIC_HEADER "${PUBLICHEADERS}"
-)
+# add_executable(benchmark_sum benchmark_sum.cpp)
+# target_link_libraries(benchmark_sum PUBLIC reuss_core_static reuss_math project_settings reuss_detector reuss_components_shared fmt::fmt)
+# set_target_properties(benchmark_sum PROPERTIES
+#     RUNTIME_OUTPUT_NAME benchmark_sum
+#     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+#     # PUBLIC_HEADER "${PUBLICHEADERS}"
+# )
 
 
 

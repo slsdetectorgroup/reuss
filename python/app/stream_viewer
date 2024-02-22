@@ -110,8 +110,6 @@ def read_stream(buffer, exit_flag, endpoint):
             pass
 
 def update():
-    levels = hist.getLevels()
-    # levels2 = hist2.getLevels()
     with buffer.get_lock():
         image = np.frombuffer(buffer.get_obj(), dtype=dt).reshape(
                 nrow,ncol
@@ -139,7 +137,7 @@ img.hoverEvent = imageHoverEvent
 #We could check and only update if we have a new image...
 timer = QtCore.QTimer()
 timer.timeout.connect(update)
-timer.start(100)
+timer.start(10)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

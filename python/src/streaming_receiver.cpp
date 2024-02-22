@@ -53,5 +53,6 @@ void init_streamrecv(py::module &m) {
         })
         .def("set_frames_to_sum", &reuss::SummingReceiver::set_frames_to_sum)
         .def("get_frames_to_sum", &reuss::SummingReceiver::get_frames_to_sum)
-        .def("record_pedestal", &reuss::SummingReceiver::record_pedestal);
+        .def("record_pedestal", &reuss::SummingReceiver::record_pedestal)
+        .def("set_threshold", &reuss::SummingReceiver::set_threshold);
 }

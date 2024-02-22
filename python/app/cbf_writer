@@ -21,11 +21,12 @@ def convert_to_integer(data_float, dt=np.int32, scale_factor=10):
 
 def write_stream(exit_flag, stream, path):
 
-    header = (
+    header_template = (
         "###CBF: \n"
         "# Detector: JUNGFRAU, S/N VIE-01\n"
-        "# Pixel_size 75e-6 m x 75e-6 m\n"
-        "# Wavelength 0.02508 A\n"
+        "# Pixel_size: 75e-6 m x 75e-6 m\n"
+        "# Wavelength: 0.02508 A\n"
+        "# Frame_number: {}\n"
     )
 
     context = zmq.Context()
@@ -34,14 +35,27 @@ def write_stream(exit_flag, stream, path):
     socket.subscribe(b"")
     i = 0
     t0 = time.time()
+    last_frame_nr = 0
+    difference = 0
     while not exit_flag.value:
         msgs = socket.recv_multipart()
         frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
+        if i == 0:
+            last_frame_nr = frame_nr
+        elif i == 1:
+            difference = frame_nr - last_frame_nr
+            last_frame_nr = frame_nr
+            print("Difference: ", difference)
+        else:
+            if frame_nr - last_frame_nr != difference:
+                print(f"Frame: {frame_nr} diff: {frame_nr-last_frame_nr}")
+            last_frame_nr = frame_nr
+            
         image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
 
         #convert to integers before saving
         image_int = convert_to_integer(image, scale_factor=1)
-        cbf.write(path/f"frame_{i:06}.cbf", image_int, header = header)
+        cbf.write(path/f"frame_{i:06}.cbf", image_int, header = header_template.format(frame_nr))
         print(f"Frame: {frame_nr}", end = '\r')
        
         i += 1

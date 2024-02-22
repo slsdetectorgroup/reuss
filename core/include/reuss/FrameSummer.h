@@ -15,11 +15,10 @@ template <typename T> class FrameSummer {
     ImageData<T, 3> pedestal_{{3, 512, COL_MAX - COL_MIN}, 0.0};
     ImageData<T, 3> calibration_{{3, 512, COL_MAX - COL_MIN}, 1.0};
     ImageData<uint16_t> buffer_{{512, COL_MAX - COL_MIN}, 0};
-    T threshold_{-5000}; // add everything
+    std::atomic<T> threshold_{-5000.0}; // add everything
     std::atomic<bool> stopped_{false};
     std::atomic<bool> stop_requested_{false};
     std::atomic<int> frames_to_sum_{5};
-    // std::atomic<bool> pedestal_mode_{false};
     std::atomic<bool> pedestal_update_{false};
 
     ImageFifo *raw_fifo_; // Read frames from the receiver
@@ -108,6 +107,7 @@ template <typename T> class FrameSummer {
 
   private:
     void convert_and_add(const DataSpan<uint16_t, 2> src, DataSpan<T, 2> dst) {
+        T th = threshold_;
         for (int row = 0; row != src.shape(0); ++row) {
             for (int col = 0; col != src.shape(1); ++col) {
                 uint16_t value = src(row, col);
@@ -117,13 +117,7 @@ template <typename T> class FrameSummer {
                 T diff = value - pedestal_(gain, row, col);
                 T e_val = diff / calibration_(gain, row, col);
 
-                // if (row == 500 && col == 500)
-                //     fmt::print("value: {}, gain: {} cal: {} pd: {} e_val:
-                //     {}\n", value,gain,
-                //                calibration_(gain, row, col),
-                //                pedestal_(gain, row, col), e_val);
-
-                if (e_val > threshold_)
+                if (e_val > th)
                     dst(row, col) += e_val;
 
                 //update pedestal if e_val is less than 2 keV

@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
         
         rs::SummingReceiver receiver;
         receiver.set_frames_to_sum(50);
+        // receiver.set_threshold(5);
         auto cal = reuss::load_numpy<float,3>("/home/l_msdetect/erik/epoc/calibration.npy");
         auto pd  = reuss::load<float,3>("/dev/shm/reuss/pedestal.bin", std::array<ssize_t,3>{3,512,1024});
         receiver.set_calibration(cal);

@@ -4,23 +4,24 @@ import numpy as np
 from reuss import SummingReceiver, FrameAccumulator
 import reuss
 import time
+import os
+#force interactive mode
+os.environ['PYTHONINSPECT'] = 'TRUE'
 
-pd = np.zeros((3,512,1024), dtype=np.float32)
-cal = np.ones((3,512,1024), dtype=np.float32)
 
 cal = reuss.load_calibration()
+try:
+    pd = np.fromfile("/dev/shm/reuss/pedestal.bin", dtype=np.float32).reshape(3, 512, 1024)
+except:
+    print("No pedestal found, using zeros")
+    pd = np.zeros((3, 512, 1024), dtype=np.float32)
+
 r = SummingReceiver()
-r.set_frames_to_sum(100)
+r.set_frames_to_sum(50)
+r.set_threshold(-50)
+
 r.set_pedestal(pd)
 r.set_calibration(cal)
 r.start()
-time.sleep(5)
 
-r.record_pedestal()
-pd = r.get_pedestal()
-# time.sleep(3.3)
-# r.stop()
 
-# f = FrameAccumulator()
-# # f.set_pedestal(pd)
-# a = f.get_pedestal()

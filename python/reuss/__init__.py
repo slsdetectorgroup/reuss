@@ -15,6 +15,7 @@ except IOError:
 if found_config:
     from _reuss import *
     from .DataCollector import DataCollector
+    from .PyZmqReceiver import PyZmqReceiver
     from .formatting import color
     from .calibration import load_calibration
     from . import io

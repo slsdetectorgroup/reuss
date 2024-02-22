@@ -6,8 +6,6 @@
 #include <thread>
 
 namespace reuss {
-// SummingReceiver::SummingReceiver()
-//     : det_(std::make_unique<JungfrauDetector>()) {}
 
 SummingReceiver::SummingReceiver()
     : SummingReceiver(std::make_unique<JungfrauDetector>()) {}
@@ -21,17 +19,9 @@ SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
         }
 
         assembler_ = std::make_unique<FrameAssembler>(receivers_, det_.get(), 8);
-        // summer_ = std::make_unique<FrameSummer<float>>(assembler_->fifo(), det_.get());
         for(size_t i=0; i<assembler_->n_fifos(); i++){
             summers_.push_back(std::make_unique<FrameSummer<float>>(assembler_->fifo(i), det_.get()));
         }
-        // streamer_ =
-        //     std::make_unique<Streamer>(RAW_FRAMES_ENDPOINT, summers_[0]->fifo());
-
-        // int port = 4545;
-        // for(size_t i=0; i<assembler_->n_fifos(); i++){
-        //     streamers_.push_back(std::make_unique<Streamer>(fmt::format("tcp://*:{}",port++), summers_[i]->fifo()));
-        // }
         std::vector<ImageFifo *> fifos;
         for(size_t i=0; i<assembler_->n_fifos(); i++){
             fifos.push_back(summers_[i]->fifo());
@@ -62,13 +52,6 @@ void SummingReceiver::start() {
                               cpu);
             cpu+=step;
         }
-        // processing_threads_.emplace_back(&FrameSummer<float>::accumulate, summers_[0].get(),
-        //                       cpu);
-        // cpu+=step;
-        // for (auto &s : streamers_){
-        //     processing_threads_.emplace_back(&Streamer::stream, s.get(), cpu);
-        //     cpu+=step;
-        // }
         processing_threads_.emplace_back(&CollectingStreamer::stream, streamer_.get(), cpu);
 
     } catch (const std::runtime_error &e) {
@@ -90,33 +73,22 @@ void SummingReceiver::stop() {
     for (auto &s: summers_){
         s->stop();
     }
-    // summer_->stop();
     streamer_->stop();
-    // for (auto &s : streamers_){
-    //     s->stop();
-    // }
-    
-    
-    
-    
-
     for (auto &&t : processing_threads_)
         t.join();
 
     receiving_threads_.clear();
     processing_threads_.clear();
 
-    // last_frame_ = last_frame();
-    // total_frames_ = total_frames();
-    // lost_packets_ = lost_packets();
-
+    // Save stats before clearing
+    last_frame_ = last_frame();
+    total_frames_ = total_frames();
+    lost_packets_ = lost_packets();
 
     streamer_ = nullptr;
     summers_.clear();
     assembler_ = nullptr;
-    
-    //TODO! Look at why we need this sleep!
-    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
     receivers_.clear();
     fmt::print(fg(fmt::color::hot_pink), "SummingReceiver stopped!\n");
 }
@@ -175,7 +147,6 @@ void SummingReceiver::record_pedestal() {
     for(auto &summer_ : summers_){
         summer_->update_pedestal();
     }
-
 }
 
 } // namespace reuss

@@ -28,6 +28,7 @@ set(PythonFiles
     overlay.py
     tools.py
     DataCollector.py
+    PyZmqReceiver.py
     reussrc.in
     shm.py
     print_config.py
