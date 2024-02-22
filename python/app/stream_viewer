@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
     #This has to match dt )
     buffer = mp.Array(ctypes.c_float, nrow*ncol)
-    reader = mp.Process(target=read_stream, args=[buffer, exit_flag,args.endpoint])
+    reader = mp.Process(target=read_stream, args=[buffer, exit_flag,args.stream])
     reader.start()
 
     #Run the event loop for the GUI 
