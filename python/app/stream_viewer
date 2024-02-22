@@ -68,17 +68,19 @@ p1.setAspectLocked(True)
 p2.setAspectLocked(True)
 hist.setLevels(0,255)
 hist2.setLevels(0,3)
-ip = "127.0.0.1"
-port = 4545
+
 
 
 dt = np.float32
 
 class PyZmqReceiver:
     def __init__(self, endpoint, timeout_ms = 100):
+        n_frames = 2
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.RCVTIMEO, timeout_ms)
+        self.socket.setsockopt(zmq.RCVHWM, n_frames)
+        self.socket.setsockopt(zmq.RCVBUF, n_frames*1024*1024*4)
         self.socket.connect(endpoint)
         self.socket.setsockopt(zmq.SUBSCRIBE, b"")
     
@@ -88,9 +90,9 @@ class PyZmqReceiver:
         image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
         return frame_nr, image
 
-def read_stream(buffer, exit_flag):
+def read_stream(buffer, exit_flag, endpoint):
     """Read images from the receiver zmq stream"""
-    zmq_receiver = PyZmqReceiver(f'tcp://{ip}:{port}', timeout_ms = 100)
+    zmq_receiver = PyZmqReceiver(endpoint, timeout_ms = 100)
 
 
     while not exit_flag.value:
@@ -141,7 +143,7 @@ timer.start(100)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--convert', action='store_true')
+    parser.add_argument('-s', '--stream', type=str, default="tcp://localhost:4545", help="zmq stream")
     args = parser.parse_args()
 
     #This flag is used to inform the reader when to exit
@@ -150,7 +152,7 @@ if __name__ == '__main__':
 
     #This has to match dt )
     buffer = mp.Array(ctypes.c_float, nrow*ncol)
-    reader = mp.Process(target=read_stream, args=[buffer, exit_flag,])
+    reader = mp.Process(target=read_stream, args=[buffer, exit_flag,args.endpoint])
     reader.start()
 
     #Run the event loop for the GUI 
