@@ -7,6 +7,7 @@ Project wide definitions and configuration
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <array>
 // copy of slsDetectorDefs::sls_detector_header; be careful with versions!
 struct PacketHeader {
     uint64_t frameNumber;
@@ -37,6 +38,7 @@ constexpr ImageSize DEFAULT_IMAGE_SIZE{512, 1024};
 constexpr size_t QUEUE_SIZE = 100;
 constexpr size_t NROW = 256;
 constexpr size_t NCOL = 1024;
+constexpr size_t NGAIN = 3;
 constexpr size_t PACKETS_PER_FRAME = 64;
 constexpr int PAYLOAD_SIZE = 8192;
 constexpr int PACKET_SIZE = sizeof(PacketHeader) + PAYLOAD_SIZE;
@@ -52,7 +54,10 @@ constexpr size_t COL_MIN = 0;
 constexpr size_t COL_MAX = 1024;
 constexpr size_t FRAME_SIZE = NROW * (COL_MAX-COL_MIN) * sizeof(uint16_t);
 
+//for the full image
 constexpr ImageSize IMAGE_SIZE{512u, COL_MAX-COL_MIN};
+constexpr std::array<ssize_t, 3> PEDESTAL_SHAPE{NGAIN, IMAGE_SIZE.rows, IMAGE_SIZE.cols};
+
 constexpr size_t IMAGE_SIZE_BYTES = IMAGE_SIZE.rows*IMAGE_SIZE.cols*sizeof(uint16_t);
 constexpr size_t DEFAULT_UDP_BUFFER_SIZE = 1024 * 1024 * 1000;
 constexpr auto RAW_FRAMES_ENDPOINT = "tcp://*:4545";

@@ -48,11 +48,11 @@ template <size_t Capacity> class StaticString {
     }
 
     auto begin(){
-        buffer_.begin();
+        return buffer_.begin();
     }
 
     auto end(){
-        buffer_.end();
+        return buffer_.end();
     }
 };
 

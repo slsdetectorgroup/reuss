@@ -10,8 +10,6 @@
 namespace reuss {
 
 template <typename T> class FrameSummer {
-
-    // {{512, COL_MAX - COL_MIN}, 0.0}
     ImageData<T, 3> pedestal_{{3, 512, COL_MAX - COL_MIN}, 0.0};
     ImageData<T, 3> calibration_{{3, 512, COL_MAX - COL_MIN}, 1.0};
     ImageData<uint16_t> buffer_{{512, COL_MAX - COL_MIN}, 0};
@@ -62,12 +60,11 @@ template <typename T> class FrameSummer {
         while (!stop_requested_) {
             if(pedestal_update_){
                 fmt::print("Updating pedestal\n");
-                pedestal_ = load<T,3>("/dev/shm/reuss/pedestal.bin", std::array<ssize_t,3>{3,512,1024});
+                pedestal_ = load<T,3>("/dev/shm/reuss/pedestal.bin", PEDESTAL_SHAPE);
                 pedestal_update_ = false;
             }
 
             ImageView summed_image = summed_fifo_.pop_free();
-            // fmt::print("Summer popped free\n");
             DataSpan<T, 2> summed_span(reinterpret_cast<T *>(summed_image.data),
                                        shape);
             summed_span = 0;
@@ -75,7 +72,6 @@ template <typename T> class FrameSummer {
             while ((summed_frames < n_frames) && !stop_requested_) {
                 ImageView raw_image;
                 if (raw_fifo_->try_pop_image(raw_image)) {
-                    // fmt::print("Summer popped raw\n");
                     if ((last_frame != -1) &&
                         (raw_image.frameNumber - last_frame != 1) &&
                         (raw_image.frameNumber - last_frame != 351)
@@ -98,8 +94,6 @@ template <typename T> class FrameSummer {
             }
             summed_fifo_.push_image(summed_image);
             summed_frames = 0;
-            // last_frame_ = raw_image.frameNumber;
-            // total_frames_++;
         }
         stopped_ = true;
         fmt::print(fg(fmt::color::hot_pink), "FrameSummer::accumulate done!\n");
