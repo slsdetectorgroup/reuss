@@ -38,7 +38,7 @@ class FrameAssembler {
             assembled_images_.emplace_back(100, rec.size() * FRAME_SIZE);
         }
 
-        for (int i = 0; i < assembled_images_.size(); i++) {
+        for (size_t i = 0; i < assembled_images_.size(); i++) {
             fmt::print("Assembled image fifo {} size: {}, filled {} free {}\n",
                        i, assembled_images_[i].size(),
                        assembled_images_[i].numFilledSlots(),
@@ -67,17 +67,8 @@ class FrameAssembler {
     void assemble(int cpu) {
         fmt::print("FrameAssembler::assemble started\n");
         pin_this_thread(cpu);
-        // auto part_size = fifos_[0]->image_size();
-        for (int i = 0; i < assembled_images_.size(); i++) {
-            fmt::print("Assembled image fifo {} size: {}, filled {} free {}\n",
-                       i, assembled_images_[i].size(),
-                       assembled_images_[i].numFilledSlots(),
-                       assembled_images_[i].numFreeSlots());
-        }
 
         size_t fifo_index = 0;
-        // //TODO! not hardcode 2
-        // size_t frames_to_sum = 50;
         size_t frames_sent = 0;
         while (!stop_requested_) {
             if (fifo_index == assembled_images_.size()) {
@@ -92,6 +83,9 @@ class FrameAssembler {
             for (size_t i = 0; i < fifos_.size(); ++i) {
                 pop_and_copy_from(i, full_image);
             }
+
+            //if frame numbers are not equal we pop from the fifo with the lowest 
+            //frame number until we can make a full image
             while (!allEqual(frame_numbers_)) {
                 fmt::print(fg(fmt::color::hot_pink), "{}, {}, {}\n",
                            frame_numbers_[0], frame_numbers_[1],
@@ -100,7 +94,7 @@ class FrameAssembler {
                            fifos_[0]->numFilledSlots(),
                            fifos_[1]->numFilledSlots());
 
-                // find min pull one
+                // find min pop one
                 auto i = std::min_element(frame_numbers_.begin(),
                                           frame_numbers_.end()) -
                          frame_numbers_.begin();
@@ -108,17 +102,15 @@ class FrameAssembler {
                 pop_and_copy_from(i, full_image);
             }
 
-            // push to stream or writer
+            // push to next step (streamer or summer)
             full_image.frameNumber = frame_numbers_[0];
-
             assembled_images_[fifo_index].push_image(full_image);
-            // if()
+
             frames_sent++;
             if(frames_sent == frames_per_queue_){
                 frames_sent = 0;
                 fifo_index++;
             }
-            // fifo_index += 1;
         }
         stopped_ = true;
         fmt::print(fg(fmt::color::hot_pink),
@@ -158,10 +150,7 @@ class FrameAssembler {
             //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
             int frames_caught{0};
-            int64_t frame_number;
             int n_frames = 1000;
-            //     // std::array<ssize_t, 2> shape{IMAGE_SIZE.rows,
-            //     IMAGE_SIZE.cols};
             while ((frames_caught < n_frames) && !stopped_) {
                 //---------------------------------------------------------DUPLICATED
                 for (size_t i = 0; i < fifos_.size(); ++i) {
@@ -200,10 +189,6 @@ class FrameAssembler {
             for (auto it = accumulate.begin(); it != accumulate.end(); ++it) {
                 *dst++ = static_cast<float>(*it) / static_cast<float>(n_frames);
             }
-            // det_->stop();
-            // det_->set_gain(pervious_gain);
-            // det_->set_period(pervious_period);
-            // det_->start();
         }
 
         det_->stop();

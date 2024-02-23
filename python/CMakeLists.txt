@@ -1,37 +1,44 @@
 
 pybind11_add_module(_reuss
-    src/main.cpp 
-    src/zmqwriter.cpp
-    src/pedestal.cpp
-    src/interface.cpp
     src/calibration.cpp
-    src/utils.cpp
     src/frameacc.cpp
+    src/interface.cpp
+    src/main.cpp 
+    src/pedestal.cpp
+    src/zmqwriter.cpp
     src/streaming_receiver.cpp
+    src/utils.cpp
 )
 
-target_link_libraries(_reuss PRIVATE project_settings reuss_core_shared reuss_components_shared reuss_detector reuss_math libzmq-static)
-
+target_link_libraries(_reuss 
+    PRIVATE 
+        project_settings 
+        reuss_core_shared 
+        reuss_components_shared 
+        reuss_detector 
+        reuss_math 
+        libzmq-static
+)
 
 
 set_target_properties(_reuss PROPERTIES
-                        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-                    )
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
 #Copy python souce files
 set(PythonFiles
     __init__.py
-    config.py
-    io.py
-    formatting.py
     calibration.py
-    overlay.py
-    tools.py
+    config.py
     DataCollector.py
-    PyZmqReceiver.py
-    reussrc.in
-    shm.py
+    formatting.py
+    io.py
+    overlay.py
     print_config.py
+    PyZmqReceiver.py
+    shm.py
+    tools.py
+    reussrc.in
 )
 
 foreach(FILE ${PythonFiles})
@@ -41,16 +48,16 @@ endforeach(FILE ${PYTHON_FILES})
 
 #Copy python "executables"
 set(PythonApps
-    writer
-    viewer
-    srecv
-    zmq_recv
-    collect_pd
     acquire
+    cbf_writer
+    collect_pd
     collect_raw_pd
     play.py
-    cbf_writer
+    srecv
     stream_viewer
+    viewer
+    writer
+    zmq_recv 
 )
 
 foreach(FILE ${PythonApps})

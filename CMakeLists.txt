@@ -20,7 +20,7 @@ option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
-option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage" OFF)
+option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage instead of building it" OFF)
 
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -68,8 +68,6 @@ if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
 endif()
 
-# find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
-
 find_package(ClangFormat)
 find_package(fmt REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -87,6 +85,9 @@ add_subdirectory(math)
 
 if(REUSS_EXTERNAL_SLSDET)
     find_package(slsDetectorPackage REQUIRED)
+    #if we are not building slsDetectorPackage, we need to 
+    #find zmq as well
+    find_package(ZeroMQ 4 REQUIRED) 
 else()
     #Build only detector static libs, nothing else is needed for control
     set(SLS_USE_RECEIVER false CACHE BOOL "Disable Receiver")
@@ -95,12 +96,10 @@ else()
     set(SLS_BUILD_SHARED_LIBRARIES false CACHE BOOL "Disable Receiver")
     add_subdirectory(libs/slsDetectorPackage)
 endif()
+
 add_subdirectory(detector)
-
-
 add_subdirectory(components)
 add_subdirectory(app)
-
 
 
 if(REUSS_BUILD_PYTHON)
@@ -113,8 +112,7 @@ if(REUSS_BUILD_PYTHON)
 
   #Take python from conda, TODO! deal with non virtualenv
   set(Python_FIND_VIRTUALENV "ONLY" CACHE STRING "Prefer conda")
-  find_package (Python 3.6 COMPONENTS Interpreter Development)
-  # add_subdirectory(libs/pybind11)
+  find_package (Python 3.9 COMPONENTS Interpreter Development)
   add_subdirectory(python)
 endif()
 

@@ -108,6 +108,8 @@ template <typename T> class FrameSummer {
   private:
     void convert_and_add(const DataSpan<uint16_t, 2> src, DataSpan<T, 2> dst) {
         T th = threshold_;
+        T tracking_factor = static_cast<T>(0.001); // avoid warnings when using float
+        T tracking_threshold = static_cast<T>(2.0);
         for (int row = 0; row != src.shape(0); ++row) {
             for (int col = 0; col != src.shape(1); ++col) {
                 uint16_t value = src(row, col);
@@ -121,8 +123,8 @@ template <typename T> class FrameSummer {
                     dst(row, col) += e_val;
 
                 //update pedestal if e_val is less than 2 keV
-                if((gain == 0) && (e_val < 2)){
-                    pedestal_(gain, row, col) += diff*0.001;
+                if((gain == 0) && (e_val < tracking_threshold)){
+                    pedestal_(gain, row, col) += diff*tracking_factor;
                 }
             }
         }
