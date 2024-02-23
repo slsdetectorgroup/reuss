@@ -68,7 +68,7 @@ if(REUSS_TUNE_LOCAL)
     target_compile_options(project_settings INTERFACE -mtune=native -march=native)
 endif()
 
-find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
+# find_package(ZeroMQ 4 REQUIRED) #use the cppzmq workaround?
 
 find_package(ClangFormat)
 find_package(fmt REQUIRED)

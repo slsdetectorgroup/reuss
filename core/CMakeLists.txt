@@ -26,7 +26,7 @@ target_link_libraries(
         reuss::settings  
         fmt::fmt 
         Threads::Threads 
-        libzmq
+        libzmq-static
     PUBLIC
         reuss_math
     )

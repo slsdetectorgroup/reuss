@@ -18,7 +18,7 @@ target_link_libraries(reuss_components_object
         project_settings 
         fmt::fmt
         Threads::Threads 
-        libzmq 
+        libzmq-static 
         reuss_core_object 
         reuss::detector
         reuss_math
