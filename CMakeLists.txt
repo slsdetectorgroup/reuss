@@ -20,7 +20,7 @@ option(REUSS_USE_SANITIZER "Sanitizers for debugging" OFF)
 option(REUSS_TUNE_LOCAL "Tune to the specific CPU" OFF)
 option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
-option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage" ON)
+option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage" OFF)
 
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
