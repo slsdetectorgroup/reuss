@@ -4,6 +4,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
+if (${CMAKE_VERSION} VERSION_GREATER "3.24")
+    cmake_policy(SET CMP0135 NEW) #Fetch content download timestamp
+endif()
+include(FetchContent)
+
 #Force Release if build is not specified
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "No build type selected, default to Release")
@@ -80,7 +85,6 @@ add_subdirectory(math)
 
 
 
-
 if(REUSS_EXTERNAL_SLSDET)
     find_package(slsDetectorPackage REQUIRED)
 else()
@@ -100,10 +104,17 @@ add_subdirectory(app)
 
 
 if(REUSS_BUILD_PYTHON)
+  FetchContent_Declare(
+    pybind11
+    URL ${CMAKE_SOURCE_DIR}/libs/pybind11/v2.11.0.tar.gz
+    URL_HASH MD5=90c4946e87c64d8d8fc0ae4edf35d780
+  )
+  FetchContent_MakeAvailable(pybind11)
+
   #Take python from conda, TODO! deal with non virtualenv
   set(Python_FIND_VIRTUALENV "ONLY" CACHE STRING "Prefer conda")
   find_package (Python 3.6 COMPONENTS Interpreter Development)
-  add_subdirectory(libs/pybind11)
+  # add_subdirectory(libs/pybind11)
   add_subdirectory(python)
 endif()
 
