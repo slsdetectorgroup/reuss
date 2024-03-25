@@ -62,7 +62,7 @@ class StreamWriter:
             try:
                 msgs = socket.recv_multipart()
                 frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
-                image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+                image = np.frombuffer(msgs[1], dtype = self.dt).reshape(self.image_size)
                 f.write(image)
                 self.last_frame_written.value = frame_nr
             except zmq.error.Again:

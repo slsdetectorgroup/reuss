@@ -13,7 +13,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    data = np.load(args.path) #TODO! avoid loading full file? 
+    if args.path.suffix == ".npy":
+        data = np.load(args.path) #TODO! avoid loading full file? 
+    else:
+        raise ValueError(f"Unknown file format: {args.path.suffix}")
     
 
     context = zmq.Context()

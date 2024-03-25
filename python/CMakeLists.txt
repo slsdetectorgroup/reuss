@@ -61,6 +61,7 @@ set(PythonApps
     viewer
     writer
     zmq_recv 
+    replay.py
 )
 
 foreach(FILE ${PythonApps})
