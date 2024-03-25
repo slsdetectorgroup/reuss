@@ -16,20 +16,6 @@ def create_string_attr(obj, key, value):
         value += "\x00"
     obj.attrs.create(key, value, dtype=string_dt(value))
 
-# def check_read(mode):
-#     """
-#     Wrapper to return either list or element
-#     """
-#     def mode_check_decorator(func):
-#         @functools.wraps(func)
-#         def wrapper(self, *args, **kwargs):
-#             if isinstance(mode, str):
-#                 mode = [mode]
-#             print(f'calling: {func.__name__} with: {mode}, {self.mode}')
-#             return func(self, *args, **kwargs)
-
-#         return wrapper
-#     return mode_check_decorator
 
 def check_read(func):
         @functools.wraps(func)
@@ -44,7 +30,6 @@ def check_read(func):
 def check_write(func):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            print(f'calling: {func.__name__} with: {self.mode}')
             if 'w' not in self.mode:
                 raise ValueError(f"File not open for writing")
             return func(self, *args, **kwargs)
