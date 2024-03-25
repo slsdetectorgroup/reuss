@@ -6,6 +6,7 @@
 #include "reuss/CollectingStreamer.h"
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace reuss {
 class DetectorInterface;
@@ -23,10 +24,14 @@ class SummingReceiver {
     int64_t total_frames_{};
     int64_t last_frame_{};
 
+    bool ready = false;
+    int n_assemble_threads_{};
+    int n_frames_to_sum_{50};
 
+    void arm();
   public:
-    SummingReceiver();
-    SummingReceiver(std::unique_ptr<DetectorInterface>&& d);
+    SummingReceiver(size_t n_assemble_threads = 8);
+    SummingReceiver(std::unique_ptr<DetectorInterface>&& d, size_t n_assemble_threads = 8);
     ~SummingReceiver();
     void start();
     void stop();

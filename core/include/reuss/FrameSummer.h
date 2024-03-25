@@ -17,15 +17,17 @@ template <typename T> class FrameSummer {
     std::atomic<bool> stopped_{false};
     std::atomic<bool> stop_requested_{false};
     std::atomic<int> frames_to_sum_{5};
+    
     std::atomic<bool> pedestal_update_{false};
 
     ImageFifo *raw_fifo_; // Read frames from the receiver
     ImageFifo summed_fifo_{100, IMAGE_SIZE.rows *IMAGE_SIZE.cols * sizeof(T)};
     DetectorInterface *det_;
+    std::atomic<int> total_summing_threads_{};
 
   public:
-    FrameSummer(ImageFifo *fifo, DetectorInterface *d)
-        : raw_fifo_(fifo), det_(d) {
+    FrameSummer(ImageFifo *fifo, DetectorInterface *d, int total_summing_threads)
+        : raw_fifo_(fifo), det_(d), total_summing_threads_(total_summing_threads) {
             fmt::print("FrameSummer created\n");
         }
     ~FrameSummer() {}
@@ -52,6 +54,8 @@ template <typename T> class FrameSummer {
     }
     void accumulate(int cpu) {
         fmt::print("Summed fifo size: {}\n", summed_fifo_.size());
+        
+        // fmt::print("Step: {}\n", step);
         pin_this_thread(cpu);
 
         int summed_frames = 0;
@@ -69,12 +73,13 @@ template <typename T> class FrameSummer {
                                        shape);
             summed_span = 0;
             int n_frames = frames_to_sum_;
+            int step = (total_summing_threads_-1)*n_frames+1;
             while ((summed_frames < n_frames) && !stop_requested_) {
                 ImageView raw_image;
                 if (raw_fifo_->try_pop_image(raw_image)) {
                     if ((last_frame != -1) &&
                         (raw_image.frameNumber - last_frame != 1) &&
-                        (raw_image.frameNumber - last_frame != 351)
+                        (raw_image.frameNumber - last_frame != step)
                         )
                         fmt::print(fg(fmt::color::red),
                                    "current: {} last: {} Lost {} frames\n",

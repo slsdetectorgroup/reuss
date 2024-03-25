@@ -54,6 +54,7 @@ set(PythonApps
     collect_raw_pd
     play.py
     srecv
+    stream_reader
     stream_viewer
     viewer
     writer

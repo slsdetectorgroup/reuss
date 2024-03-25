@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import numpy as np
 from reuss import SummingReceiver, FrameAccumulator
 import reuss
@@ -16,7 +17,12 @@ except:
     print("No pedestal found, using zeros")
     pd = np.zeros((3, 512, 1024), dtype=np.float32)
 
-r = SummingReceiver()
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--threads", "-t", default=8, type = int)
+args = parser.parse_args()
+
+r = SummingReceiver(args.threads)
 r.set_frames_to_sum(50)
 r.set_threshold(-50)
 

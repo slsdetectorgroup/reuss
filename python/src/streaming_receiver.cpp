@@ -27,7 +27,7 @@ void init_streamrecv(py::module &m) {
         .def("total_frames", &reuss::StreamingReceiver::total_frames);
 
     py::class_<reuss::SummingReceiver> SummingReceiver(m, "SummingReceiver");
-    SummingReceiver.def(py::init())
+    SummingReceiver.def(py::init<size_t>())
         .def("start", &reuss::SummingReceiver::start)
         .def("stop", &reuss::SummingReceiver::stop)
         .def("lost_packets", &reuss::SummingReceiver::lost_packets)

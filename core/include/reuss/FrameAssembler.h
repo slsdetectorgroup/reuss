@@ -35,7 +35,7 @@ class FrameAssembler {
         assembled_images_.reserve(50); // TODO fix vectors of Fifos!!!
         for (size_t i = 0; i < n_fifos; i++) {
             fmt::print("Creating assembled image fifo {}\n", i);
-            assembled_images_.emplace_back(100, rec.size() * FRAME_SIZE);
+            assembled_images_.emplace_back(100, rec.size() * FRAME_SIZE); //Make this depend on actual number of frames to sum
         }
 
         for (size_t i = 0; i < assembled_images_.size(); i++) {

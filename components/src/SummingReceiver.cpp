@@ -7,20 +7,24 @@
 
 namespace reuss {
 
-SummingReceiver::SummingReceiver()
-    : SummingReceiver(std::make_unique<JungfrauDetector>()) {}
+SummingReceiver::SummingReceiver(size_t n_assemble_threads)
+    : SummingReceiver(std::make_unique<JungfrauDetector>(), n_assemble_threads) {}
 
-SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
-    : det_(std::move(d)) {
-    try {
+SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d, size_t n_assemble_threads)
+    : det_(std::move(d)), n_assemble_threads_(n_assemble_threads) {
+    arm();
+}
+
+void SummingReceiver::arm() {
+        try {
         auto sources = det_->get_udp_sources();
         for (auto &s : sources) {
             receivers_.push_back(std::make_unique<Receiver>(s.addr, s.port));
         }
 
-        assembler_ = std::make_unique<FrameAssembler>(receivers_, det_.get(), 8);
+        assembler_ = std::make_unique<FrameAssembler>(receivers_, det_.get(), n_assemble_threads_);
         for(size_t i=0; i<assembler_->n_fifos(); i++){
-            summers_.push_back(std::make_unique<FrameSummer<float>>(assembler_->fifo(i), det_.get()));
+            summers_.push_back(std::make_unique<FrameSummer<float>>(assembler_->fifo(i), det_.get(), n_assemble_threads_));
         }
         std::vector<ImageFifo *> fifos;
         for(size_t i=0; i<assembler_->n_fifos(); i++){
@@ -31,11 +35,18 @@ SummingReceiver::SummingReceiver(std::unique_ptr<DetectorInterface> &&d)
     } catch (const std::runtime_error &e) {
         fmt::print(fg(fmt::color::red), "ERROR: {}\n", e.what());
     }
+    ready = true;
 }
 
 SummingReceiver::~SummingReceiver() = default;
 
 void SummingReceiver::start() {
+    
+    //In case the receiver was stopped and objects destroyed we need
+    //to set it up again
+    if (!ready)
+        arm();
+
     try {
         int cpu = 0;
         int step = 2;
@@ -91,6 +102,7 @@ void SummingReceiver::stop() {
 
     receivers_.clear();
     fmt::print(fg(fmt::color::hot_pink), "SummingReceiver stopped!\n");
+    ready = false;
 }
 
 int64_t SummingReceiver::lost_packets() {
