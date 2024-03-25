@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+"""
+Stand alone stream reader for debugging purposes.
+Should not depend on anything else in reuss.
+
+
+"""
+import argparse
+import numpy as np
+import zmq
+
+
+#Configuration
+nrow = 512
+ncol = 1024
+dt = np.float32
+timeout_ms = 100
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--stream', type=str, default="tcp://localhost:4545", help="zmq stream")
+args = parser.parse_args()
+
+endpoint = args.stream
+n_frames = 10
+context = zmq.Context()
+socket = context.socket(zmq.SUB)
+socket.setsockopt(zmq.RCVTIMEO, timeout_ms)
+socket.setsockopt(zmq.RCVHWM, n_frames)
+socket.setsockopt(zmq.RCVBUF, n_frames*1024**2*np.dtype(dt).itemsize)
+
+socket.connect(endpoint)
+socket.setsockopt(zmq.SUBSCRIBE, b"")
+
+while True:
+    #Try to read an image, if timeout then try again
+    try:
+        msgs = socket.recv_multipart()
+        frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
+        image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+        print(f'Received frame {frame_nr}')
+    except zmq.error.Again:
+        pass
