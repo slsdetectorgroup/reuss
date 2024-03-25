@@ -16,7 +16,9 @@ if found_config:
     from _reuss import *
     from .DataCollector import DataCollector
     from .PyZmqReceiver import PyZmqReceiver
+    from .Hdf5File import Hdf5File
     from .formatting import color
+    from .StreamWriter import StreamWriter
     from .calibration import load_calibration
     from . import io
     from . import shm

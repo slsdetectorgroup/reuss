@@ -10,7 +10,8 @@ import os
 os.environ['PYTHONINSPECT'] = 'TRUE'
 
 
-cal = reuss.load_calibration()
+# cal = reuss.load_calibration()
+cal = np.ones((3, 512, 1024), dtype=np.float32)
 try:
     pd = np.fromfile("/dev/shm/reuss/pedestal.bin", dtype=np.float32).reshape(3, 512, 1024)
 except:
@@ -23,7 +24,7 @@ parser.add_argument("--threads", "-t", default=8, type = int)
 args = parser.parse_args()
 
 r = SummingReceiver(args.threads)
-r.set_frames_to_sum(50)
+r.set_frames_to_sum(1)
 r.set_threshold(-50)
 
 r.set_pedestal(pd)

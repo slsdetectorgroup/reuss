@@ -36,6 +36,8 @@ set(PythonFiles
     overlay.py
     print_config.py
     PyZmqReceiver.py
+    StreamWriter.py
+    Hdf5File.py
     shm.py
     tools.py
     reussrc.in
