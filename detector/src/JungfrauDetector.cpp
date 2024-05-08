@@ -79,4 +79,17 @@ std::vector<UdpSource> JungfrauDetector::get_udp_sources() const {
     return sources;
 }
 
+
+void JungfrauDetector::set_pedestal_mode(uint8_t frames, uint16_t loops){
+    // void Detector::setPedestalMode(const defs::pedestalParameters par,
+    //                            Positions pos)
+    sls::defs::pedestalParameters par{frames, loops};
+    det->setPedestalMode(par);
+}
+void JungfrauDetector::disable_pedestal_mode(){
+    sls::defs::pedestalParameters par{};//default disable, 0, 0
+    det->setPedestalMode(par);
+}
+
+
 } // namespace reuss

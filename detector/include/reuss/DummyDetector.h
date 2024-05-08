@@ -15,6 +15,9 @@ class DummyDetector : public DetectorInterface {
         double get_period() const override;
         std::vector<UdpSource> get_udp_sources() const override;
 
+        void set_pedestal_mode(uint8_t frames, uint16_t loops) override;
+        void disable_pedestal_mode() override;
+
 
 };
 } // namespace reuss

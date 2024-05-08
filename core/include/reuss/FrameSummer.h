@@ -28,7 +28,7 @@ template <typename T> class FrameSummer {
   public:
     FrameSummer(ImageFifo *fifo, DetectorInterface *d, int total_summing_threads)
         : raw_fifo_(fifo), det_(d), total_summing_threads_(total_summing_threads) {
-            fmt::print("FrameSummer created\n");
+            fmt::print("FrameSummer created. Sum: {} Threads: {}\n", get_frames_to_sum(), total_summing_threads_.load());
         }
     ~FrameSummer() {}
     void set_threshold(T th) { threshold_ = th; }
@@ -53,7 +53,7 @@ template <typename T> class FrameSummer {
         pedestal_update_ = true;
     }
     void accumulate(int cpu) {
-        fmt::print("Summed fifo size: {}\n", summed_fifo_.size());
+        fmt::print("Summed fifo size: {} Sum: {} Step: {}\n", summed_fifo_.size(), get_frames_to_sum(), ((total_summing_threads_.load()-1)*frames_to_sum_.load()+1));
         
         // fmt::print("Step: {}\n", step);
         pin_this_thread(cpu);

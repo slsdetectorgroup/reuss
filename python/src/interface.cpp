@@ -61,6 +61,21 @@ class PyDetectorInterface : public reuss::DetectorInterface {
             get_udp_sources, /* Name of function in C++ (must match Python name) */
         );
     }
+    void set_pedestal_mode(uint8_t frames, uint16_t loops) override {
+        PYBIND11_OVERRIDE_PURE(
+            void,              /* Return type */
+            DetectorInterface, /* Parent class */
+            set_pedestal_mode, /* Name of function in C++ (must match Python name) */
+            frames,
+            loops);
+    }
+    void disable_pedestal_mode() override {
+        PYBIND11_OVERRIDE_PURE(
+            void,              /* Return type */
+            DetectorInterface, /* Parent class */
+            disable_pedestal_mode, /* Name of function in C++ (must match Python name) */
+            );
+    }
 };
 
 // helper type for the visitor #4

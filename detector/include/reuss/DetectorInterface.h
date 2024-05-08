@@ -29,6 +29,9 @@ class DetectorInterface {
     virtual double get_period() const = 0;
 
     virtual std::vector<UdpSource> get_udp_sources() const = 0;
+
+    virtual void set_pedestal_mode(uint8_t frames, uint16_t loops) = 0;
+    virtual void disable_pedestal_mode() = 0;
 };
 
 } // namespace reuss

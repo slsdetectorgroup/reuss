@@ -30,6 +30,9 @@ namespace reuss{
         return sources;
     }
 
+    void DummyDetector::set_pedestal_mode(uint8_t frames, uint16_t loops){};
+    void DummyDetector::disable_pedestal_mode(){};
+
 
 
 }

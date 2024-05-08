@@ -42,7 +42,7 @@ class SummingReceiver {
 
     void set_pedestal(ImageData<float, 3> pedestal);
     ImageData<float, 3> get_pedestal() const;
-    void record_pedestal();
+    void record_pedestal(int mode);
 
     void set_calibration(ImageData<float, 3> calibration);
     ImageData<float, 3> get_calibration() const;

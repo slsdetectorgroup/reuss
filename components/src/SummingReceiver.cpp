@@ -150,9 +150,9 @@ ImageData<float, 3> SummingReceiver::get_calibration() const {
     return summers_[0]->get_calibration();
 }
 
-void SummingReceiver::record_pedestal() {
-    assembler_->set_pedestal_mode(true);
-    while(assembler_->get_pedestal_mode() == true) {
+void SummingReceiver::record_pedestal(int mode) {
+    assembler_->set_pedestal_mode(mode);
+    while(assembler_->get_pedestal_mode()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     fmt::print("Pedestal recorded\n");
