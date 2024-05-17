@@ -19,8 +19,8 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from pyqtgraph.dockarea import DockArea, Dock
 
 #Configuration
-nrow = 512
-ncol = 1024
+nrow = 514
+ncol = 1030
 dt = np.float32
 timeout_ms = 100
 
@@ -80,7 +80,7 @@ def read_stream(buffer, exit_flag, endpoint):
         try:
             msgs = socket.recv_multipart()
             frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
-            tmp = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+            tmp = np.frombuffer(msgs[1], dtype = np.float32).reshape(nrow, ncol)
             with buffer.get_lock():
                 image = np.frombuffer(buffer.get_obj(), dtype=dt).reshape(
                     nrow,ncol

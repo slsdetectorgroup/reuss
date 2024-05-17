@@ -8,11 +8,12 @@ Should not depend on anything else in reuss.
 import argparse
 import numpy as np
 import zmq
+import matplotlib.pyplot as plt
 
 
 #Configuration
-nrow = 512
-ncol = 1024
+nrow = 514
+ncol = 1030
 dt = np.float32
 timeout_ms = 100
 
@@ -36,7 +37,7 @@ while True:
     try:
         msgs = socket.recv_multipart()
         frame_nr = np.frombuffer(msgs[0], dtype = np.int64)[0]
-        image = np.frombuffer(msgs[1], dtype = np.float32).reshape(512, 1024)
+        image = np.frombuffer(msgs[1], dtype = np.float32).reshape(nrow, ncol)
         print(f'Received frame {frame_nr}')
     except zmq.error.Again:
         pass
