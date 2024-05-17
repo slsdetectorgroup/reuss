@@ -24,12 +24,12 @@ void CollectingStreamer::stream(int cpu) {
                 //copy to the other image with gap pixels
                 DataSpan<float, 2> image(reinterpret_cast<float*>(img.data), std::array<ssize_t,2>{512,1024});
                 auto ptr = image.data();
-                size_t inc=0;
+                // size_t inc=0;
                 for(size_t row=0; row<514; row++){
                     for(size_t col=0; col<1030; col++){
-                        if(col == 256 || col == 257 || col == 512 || col == 513 || col == 768 || col == 769 || row == 256 || row == 257) continue;
+                        if(col == 256 || col == 257 || col == 514 || col == 515 || col == 772 || col == 773 || row == 256 || row == 257) continue;
                         image_with_gap(row, col) = *ptr++;
-                        inc++;
+                        // inc++;
                     }
                 }
                 //Copy the gap pixels 
@@ -43,6 +43,23 @@ void CollectingStreamer::stream(int cpu) {
                     image_with_gap(row, col) /= 2; //pixels are twice as big
                     image_with_gap(row-1, col) = image_with_gap(row, col);
                 }
+
+                // size_t col = 255;
+                for (size_t col = 255; col<1000; col+=258){
+                    for (size_t row = 0; row<514; row++){
+                        //255
+                        image_with_gap(row, col) /= 2; //pixels are twice as big
+                        image_with_gap(row, col+1) = image_with_gap(row, col);
+
+                        //258
+                        image_with_gap(row, col+3) /= 2; //pixels are twice as big
+                        image_with_gap(row, col+2) = image_with_gap(row, col);
+
+                    }
+                }
+                
+
+
 
 
                 // socket_.send(img, fifo->image_size());
