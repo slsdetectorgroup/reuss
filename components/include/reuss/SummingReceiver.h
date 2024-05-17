@@ -51,6 +51,7 @@ class SummingReceiver {
       for(auto &summer_ : summers_){
         summer_->set_frames_to_sum(n);
       }
+      assembler_->set_frames_per_queue(n);
     }
     int get_frames_to_sum() const { return summers_[0]->get_frames_to_sum(); }
 
