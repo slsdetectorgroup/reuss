@@ -26,16 +26,17 @@ class FrameAssembler {
     std::vector<int64_t> frame_numbers_; // For equality check
     size_t part_size_ = 0;
     std::atomic<int> pedestal_mode_{0};
-    std::atomic<size_t> frames_per_queue_{200}; // TODO! Make configurable!!!
+    std::atomic<size_t> frames_per_queue_{200};
     DetectorInterface *det_;
 
   public:
     FrameAssembler(const std::vector<std::unique_ptr<Receiver>> &rec,
                    DetectorInterface *d, size_t n_fifos = 1)
         : frame_numbers_(rec.size()), det_(d) {
-        assembled_images_.reserve(200); // TODO fix vectors of Fifos!!!
+        
+        assembled_images_.reserve(20); //number of fifos
         for (size_t i = 0; i < n_fifos; i++) {
-            fmt::print("Creating assembled image fifo {}\n", i);
+            fmt::print("HEY Creating assembled image fifo {}\n", i);
             assembled_images_.emplace_back(
                 200, rec.size() * FRAME_SIZE); // Make this depend on actual
                                                // number of frames to sum
@@ -55,6 +56,8 @@ class FrameAssembler {
     }
     ImageFifo *fifo(size_t i = 0) { return &assembled_images_[i]; }
     size_t n_fifos() { return assembled_images_.size(); };
+    size_t frames_per_queue() { return frames_per_queue_; }
+    void set_frames_per_queue(size_t n) { frames_per_queue_ = n; }
     void stop() {
         fmt::print(fg(fmt::color::hot_pink),
                    "FrameAssembler::stop requested\n");
@@ -73,6 +76,11 @@ class FrameAssembler {
 
         size_t fifo_index = 0;
         size_t frames_sent = 0;
+
+        //make a local variabel to avoid having to load from
+        //the atomic variable all the time
+        size_t frames_per_queue = frames_per_queue_.load();
+
         while (!stop_requested_) {
             if (fifo_index == assembled_images_.size()) {
                 fifo_index = 0;
@@ -110,7 +118,7 @@ class FrameAssembler {
             assembled_images_[fifo_index].push_image(full_image);
 
             frames_sent++;
-            if (frames_sent == frames_per_queue_) {
+            if (frames_sent == frames_per_queue) {
                 frames_sent = 0;
                 fifo_index++;
             }

@@ -8,6 +8,7 @@ Should not depend on anything else in reuss.
 import argparse
 import numpy as np
 import zmq
+import matplotlib.pyplot as plt
 
 
 #Configuration

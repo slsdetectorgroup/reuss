@@ -82,9 +82,10 @@ template <typename T> class FrameSummer {
                         (raw_image.frameNumber - last_frame != step)
                         )
                         fmt::print(fg(fmt::color::red),
-                                   "current: {} last: {} Lost {} frames\n",
+                                   "FrameSummer: current: {} last: {} difference {} frames (step: {})\n",
                                    raw_image.frameNumber, last_frame,
-                                   raw_image.frameNumber - last_frame);
+                                   raw_image.frameNumber - last_frame,
+                                   step);
                     DataSpan<uint16_t, 2> raw_span(
                         reinterpret_cast<uint16_t *>(raw_image.data), shape);
                     convert_and_add(raw_span, summed_span);

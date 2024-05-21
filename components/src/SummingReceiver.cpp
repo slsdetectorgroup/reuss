@@ -49,7 +49,7 @@ void SummingReceiver::start() {
 
     try {
         int cpu = 0;
-        int step = 2;
+        int step = 1;
         for (auto &r : receivers_) {
             receiving_threads_.emplace_back(&Receiver::receivePackets, r.get(), cpu);
             cpu+=step;
