@@ -119,6 +119,7 @@ class FrameAssembler {
 
             frames_sent++;
             if (frames_sent == frames_per_queue) {
+                // fmt::print("Sent: {} frames to queue: {}\n", frames_per_queue, fifo_index);
                 frames_sent = 0;
                 fifo_index++;
             }

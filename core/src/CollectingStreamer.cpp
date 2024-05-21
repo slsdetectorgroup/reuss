@@ -14,11 +14,13 @@ void CollectingStreamer::stream(int cpu) {
 
     //TODO! find a good place for this
     ImageData<float> image_with_gap{{514, 1030}, 0.0};
+
     while (!stop_requested_) {
         ImageView img;
         for (auto &fifo : fifos_) {
-            if (fifo->try_pop_image(img)) {
+            // if (fifo->try_pop_image(img)) {
                 
+                img = fifo->pop_image(DEFAULT_WAIT, stop_requested_);
 
                 //TODO! remove this hardcoded bit. Maybe move to a separate zmq process?
                 //copy to the other image with gap pixels
@@ -66,12 +68,20 @@ void CollectingStreamer::stream(int cpu) {
                 ImageView image_with_gap_view{img.frameNumber, reinterpret_cast<char*>(image_with_gap.data())};
                 socket_.send(image_with_gap_view, 514*1030*4);
 
+                // Check frame number to see if we skiped something:
+                if (last_frame_ != -1){
+                    if(img.frameNumber-last_frame_ != 100)
+                        fmt::print("Streamer: {} {} {}\n", img.frameNumber, last_frame_.load(), img.frameNumber-last_frame_.load());
+                }
+
+
                 fifo->push_free(img);
                 last_frame_ = img.frameNumber;
                 total_frames_++;
-            } else {
-                std::this_thread::sleep_for(DEFAULT_WAIT);
-            }
+            // } else {
+            //     // fmt::print("CollectingStreamer: Skipped one fifo!\n");
+            //     std::this_thread::sleep_for(DEFAULT_WAIT);
+            // }
         }
     }
     stopped_ = true;
