@@ -3,7 +3,8 @@ import numpy as np
 from pathlib import Path
 import zmq
 import time
-
+import hdf5plugin
+import h5py
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Replay a saved stream")
@@ -15,6 +16,9 @@ if __name__ == "__main__":
 
     if args.path.suffix == ".npy":
         data = np.load(args.path) #TODO! avoid loading full file? 
+    elif args.path.suffix == '.h5':
+        with h5py.File(args.path) as f:
+            data = f['entry/data/data_000001'][()]
     else:
         raise ValueError(f"Unknown file format: {args.path.suffix}")
     
