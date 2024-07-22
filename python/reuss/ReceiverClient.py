@@ -91,3 +91,11 @@ class ReceiverClient:
             return True
         else:   
             raise ValueError(f"Could not set threshold: {status}:{message}")
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("host", help="Host to connect to")
+    args = parser.parse_args()
+    c = ReceiverClient(args.host, verbose=True)
