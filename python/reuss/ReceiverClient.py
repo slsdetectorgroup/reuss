@@ -1,19 +1,37 @@
+#This file should be useable as a standalone module and not depend on the rest of the reuss package
+
 import zmq
 from rich import print
+
 class ReceiverClient:
     """
     Client for the ReceiverServer
     Commands are sent in the form cmd_name:arg1,arg2,...
     
     """
+    _default_timeout = 1000 #1s
     def __init__(self, host, port=5555, verbose = False):
         self.verbose = verbose
+        self.host = host
+        self.port = port
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
-        self.socket.connect(f"tcp://{host}:{port}")
+
+        self._set_default_timeout()
+
+        #TODO! Right type of exception?
+        try:
+            self.ping()
+        except zmq.error.Again:
+            raise ValueError(f"Could not connect to {host}:{port}")
         
+    def _set_default_timeout(self):
+        self.socket.setsockopt(zmq.SNDTIMEO, ReceiverClient._default_timeout)
+        self.socket.setsockopt(zmq.RCVTIMEO, ReceiverClient._default_timeout)
 
     def _send_message(self, message):
+        
+        self.socket.connect(f"tcp://{self.host}:{self.port}")
         if self.verbose:
             print(f'[spring_green4]Sending: {message}[/spring_green4]')
         self.socket.send_string(message)
@@ -21,6 +39,7 @@ class ReceiverClient:
         status, message = self._decode_reply(reply)
         if self.verbose:
             print(f'[dark_orange3]Received: {status}:{message}[/dark_orange3]')
+        self.socket.disconnect(f"tcp://{self.host}:{self.port}")
         return status, message
     
     def _decode_reply(self, reply):
@@ -97,5 +116,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("host", help="Host to connect to")
+    parser.add_argument("-p", "--port", help="Port to connect to", type=int, default=5555)
+    parser.add_argument("-v", "--verbose", help="Verbose output", action="store_true")
     args = parser.parse_args()
-    c = ReceiverClient(args.host, verbose=True)
+    c = ReceiverClient(args.host, port = args.port, verbose=args.verbose)
