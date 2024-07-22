@@ -1,12 +1,13 @@
 import zmq
 import time
 from datetime import datetime
-from rich import print
+from rich.console import Console
 
 from reuss import SummingReceiver
 
 class ReceiverServer:
     _commands = ['collect_pedestal',
+                 'get_commands',
                  'tune_pedestal',
                  'ping', 
                  'start', 
@@ -17,6 +18,7 @@ class ReceiverServer:
                  'set_threshold']
 
     def __init__(self, port=5555, threads = 8):
+        self.console = Console()
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         self.thread_count = threads
@@ -77,6 +79,9 @@ class ReceiverServer:
     def get_frames_to_sum(self):
         return f"OK:{self.receiver.get_frames_to_sum()}"
     
+    def get_commands(self):
+        return f"OK:{self._commands}"
+    
     def set_threshold(self, th):
         th = float(th)
         self.receiver.set_threshold(th)
@@ -89,17 +94,21 @@ class ReceiverServer:
         while True:
             #  Wait for next request from client
             message = self.socket.recv_string()
-            print(f"{self._now()}- Received request: {message}")
+            self.console.print(f"[gold3]{self._now()}[/gold3] [black]- Received request: [bold]{message}[/bold][/black]", highlight=False)
 
+            # Decode the message into a command and arguments
             cmd, args = self._decode(message)
-            print(f'{self._now()}- Decoded to: {cmd}, {args}')
+            self.console.print(f'[gold3]{self._now()}[/gold3] - [black]Decoded to: {cmd}, {args}[/black]', highlight=False)
 
-            #Command was not found
+            #If the command was not found return an error
             if not self._has_function(cmd):
-                self.socket.send_string("ERROR:Invalid command")
+                self.socket.send_string("ERROR:Unknown command")
                 continue
  
+            #Call the right function with the arguments
             res = getattr(self, cmd)(*args)
-            print(f"{self._now()}- Sending reply: {res}")
+            
+            #Reply to the client
+            self.console.print(f"[gold3]{self._now()}[/gold3] - [black]Sending reply: [bold]{res}[/bold][/black]", highlight=False)
             self.socket.send_string(res)
 

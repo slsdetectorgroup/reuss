@@ -29,6 +29,10 @@ class ReceiverClient:
         self.socket.setsockopt(zmq.SNDTIMEO, ReceiverClient._default_timeout)
         self.socket.setsockopt(zmq.RCVTIMEO, ReceiverClient._default_timeout)
 
+    def _set_unlimited_timeout(self):
+        self.socket.setsockopt(zmq.SNDTIMEO, -1)
+        self.socket.setsockopt(zmq.RCVTIMEO, -1)
+
     def _send_message(self, message):
         
         self.socket.connect(f"tcp://{self.host}:{self.port}")
@@ -51,10 +55,17 @@ class ReceiverClient:
         return status, message
     
     def collect_pedestal(self):
-        return self._send_message("collect_pedestal")
+
+        self._set_unlimited_timeout()
+        res =  self._send_message("collect_pedestal")
+        self._set_default_timeout()
+        return res
     
     def tune_pedestal(self):   
-        return self._send_message("tune_pedestal")
+        self._set_unlimited_timeout()
+        res = self._send_message("tune_pedestal")
+        self._set_default_timeout()
+        return res
     
     def ping(self):
         status, message  = self._send_message("ping")
@@ -110,6 +121,14 @@ class ReceiverClient:
             return True
         else:   
             raise ValueError(f"Could not set threshold: {status}:{message}")
+        
+    @property
+    def commands(self):
+        status, message  = self._send_message("get_commands")
+        if status == "OK":
+            return [cmd.strip("'") for cmd in message.strip('[]').split(', ')]
+        else:   
+            raise ValueError(f"Could not get commands: {status}:{message}")
 
 
 if __name__ == '__main__':
