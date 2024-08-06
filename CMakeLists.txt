@@ -22,6 +22,10 @@ option(REUSS_BUILD_TESTS "Build tests" OFF)
 option(REUSS_BUILD_PYTHON "Build Python Interface" ON)
 option(REUSS_EXTERNAL_SLSDET "use findpackage for slsDetectorPackage instead of building it" OFF)
 
+#Control external libraries
+option(REUSS_FETCH_FMT "Use FetchContent to get libfmt" ON)
+
+
 if(REUSS_USE_SANITIZER)
   # set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
   # set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=thread")
@@ -69,7 +73,35 @@ if(REUSS_TUNE_LOCAL)
 endif()
 
 find_package(ClangFormat)
-find_package(fmt REQUIRED)
+
+if (REUSS_FETCH_FMT)
+    set(FMT_TEST OFF CACHE INTERNAL "disabling fmt tests")
+    FetchContent_Declare(
+            fmt
+            GIT_REPOSITORY  https://github.com/fmtlib/fmt.git
+            GIT_TAG         10.2.1
+            GIT_PROGRESS    TRUE
+            USES_TERMINAL_DOWNLOAD TRUE
+    )
+    # FetchContent_MakeAvailable(fmt)
+    FetchContent_GetProperties(fmt)
+    if(NOT fmt_POPULATED)
+      FetchContent_Populate(fmt)
+      add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+    set_property(TARGET fmt PROPERTY POSITION_INDEPENDENT_CODE ON)
+else()
+      find_package(fmt 6 REQUIRED)
+endif()
+
+# Using GetProperties and Populate to be able to exclude zmq
+# from install (not possible with FetchContent_MakeAvailable(libzmq))
+# FetchContent_GetProperties(libzmq)
+# if(NOT libzmq_POPULATED)
+#   FetchContent_Populate(libzmq)
+#   add_subdirectory(${libzmq_SOURCE_DIR} ${libzmq_BINARY_DIR} EXCLUDE_FROM_ALL)
+# endif()
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
