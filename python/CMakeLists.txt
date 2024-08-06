@@ -37,6 +37,8 @@ set(PythonFiles
     print_config.py
     PyZmqReceiver.py
     StreamWriter.py
+    ReceiverClient.py
+    ReceiverServer.py
     Hdf5File.py
     shm.py
     tools.py
@@ -62,6 +64,7 @@ set(PythonApps
     writer
     zmq_recv 
     replay.py
+    jungfrau_receiver
 )
 
 foreach(FILE ${PythonApps})

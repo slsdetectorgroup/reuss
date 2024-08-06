@@ -61,6 +61,8 @@ class SummingReceiver {
       }
     }
 
+    float get_threshold() const { return summers_[0]->get_threshold(); }
+
     
 };
 } // namespace reuss
