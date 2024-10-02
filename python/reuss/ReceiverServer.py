@@ -4,6 +4,9 @@ from datetime import datetime
 from rich.console import Console
 
 from reuss import SummingReceiver
+import reuss 
+import threading
+import numpy as np
 
 class ReceiverServer:
     _commands = ['collect_pedestal',
@@ -111,4 +114,35 @@ class ReceiverServer:
             #Reply to the client
             self.console.print(f"[gold3]{self._now()}[/gold3] - [black]Sending reply: [bold]{res}[/bold][/black]", highlight=False)
             self.socket.send_string(res)
+
+if __name__ == '__main__':
+    import os
+    os.environ['PYTHONINSPECT'] = 'TRUE'
+
+    # Copied from srecv
+    cal = reuss.load_calibration()
+    #cal = np.ones((3, 512, 1024), dtype=np.float32)
+    try:
+        pd = np.fromfile("/dev/shm/reuss/pedestal.bin", dtype=np.float32).reshape(3, 512, 1024)
+    except:
+        print("No pedestal found, using zeros")
+        pd = np.zeros((3, 512, 1024), dtype=np.float32)
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--threads", "-t", default=8, type = int)
+    args = parser.parse_args()
+    r = ReceiverServer(threads=args.threads)
+
+    r.set_frames_to_sum(100)
+    # at 1kHz, sum 50 frames
+    # r.set_frames_to_sum(50)
+    # threshold slightly above 0 should reduce noise
+    r.set_threshold(5)
+
+    r.receiver.set_pedestal(pd)
+    r.receiver.set_calibration(cal)
+
+    server_thread = threading.Thread(target=r.run, daemon=True)
+    server_thread.start()
 
